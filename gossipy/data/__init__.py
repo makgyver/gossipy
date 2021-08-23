@@ -28,7 +28,7 @@ class DataHandler():
 class DataDispatcher():
     def __init__(self,
                  data_handler: DataHandler,
-                 n: int=0,
+                 n: int=0, #number of clients
                  eval_on_user: bool=True):
         assert(data_handler.size() >= n)
         if n <= 1: n = data_handler.size()
@@ -51,12 +51,12 @@ class DataDispatcher():
     def size(self) -> int:
         return self.n
 
-    def get_eval_set(self):
+    def get_eval_set(self) -> Tuple[Any, Any]:
         return self.data_handler.get_eval_set()
 
 
 def load_classification_dataset(name: str,
-                                path: str,
+                                path: str=None,
                                 normalize: bool=True,
                                 as_tensor: bool=True) -> Tuple:
     if name == "iris":
@@ -71,7 +71,8 @@ def load_classification_dataset(name: str,
     else:
         raise ValueError("Unknown dataset %s." %name)
 
-    y = np.array([0 if yy <= 0 else 1 for yy in y])
+    if set(y) == 2:
+        y = np.array([0 if yy <= 0 else 1 for yy in y])
 
     if normalize:
         X = StandardScaler().fit_transform(X)

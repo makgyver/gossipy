@@ -1,3 +1,4 @@
+from __future__ import annotations
 import numpy as np
 from numpy.random import shuffle, random
 from typing import Any, Optional, Dict, List, Callable, Tuple
@@ -12,7 +13,7 @@ from .model.handler import ModelHandler
 
 __all__ = ["GossipSimulator", "repeat_simulation"]
 
-
+#FIXME: fix all the evaluation part
 class GossipSimulator():
     def __init__(self,
                  data_dispatcher: DataDispatcher,
@@ -46,7 +47,7 @@ class GossipSimulator():
         for _, node in self.nodes.items():
             node.init_model(True)
 
-    def _collect_results(self, results: List[Dict[str, float]]):
+    def _collect_results(self, results: List[Dict[str, float]]) -> Dict[str, float]:
         res = {k: [] for k in results[0]}
         for k in res:
             for r in results:
@@ -60,8 +61,6 @@ class GossipSimulator():
         pbar = tqdm(range(n_iter))
         evals = []
         evals_user = []
-        evals_f = [] # TEMPORARY
-        evals_m = [] # TEMPORARY
         n_mgs = 0
         tot_size = 0
         for t in pbar:
@@ -91,41 +90,22 @@ class GossipSimulator():
 
             evaluation = 0
             if (t+1) % self.delta == 0:
-                #evaluation_user = np.mean([n.evaluate()[1] for _, n in self.nodes.items() if n.has_test()])
-                #evaluation = np.mean([n.evaluate(self.data_dispatcher.get_eval_set())[1] for _, n in self.nodes.items()])
                 evaluation_user = self._collect_results([n.evaluate() for _, n in self.nodes.items() if n.has_test()])
                 evaluation = self._collect_results([n.evaluate(self.data_dispatcher.get_eval_set()) for _, n in self.nodes.items()])
 
-                ### TEMPORARY ###
-                feat = self.data_dispatcher.data_handler.feat
-
-                Xte, yte = self.data_dispatcher.get_eval_set()
-                Xte_ok = Xte[self.data_dispatcher.data_handler.te_fmap[0], :]
-                yte_ok = yte[self.data_dispatcher.data_handler.te_fmap[0], :]
-                evaluation_f = self._collect_results([n.evaluate((Xte_ok, yte_ok)) for _, n in self.nodes.items() if set(self.data_dispatcher.data_handler.tr_fmap[0]) & set(self.data_dispatcher.tr_assignments[n.idx]) != {}])
-
-                Xte_ok = Xte[self.data_dispatcher.data_handler.te_fmap[1], :]
-                yte_ok = yte[self.data_dispatcher.data_handler.te_fmap[1], :]
-                evaluation_m = self._collect_results([n.evaluate((Xte_ok, yte_ok)) for _, n in self.nodes.items() if set(self.data_dispatcher.data_handler.tr_fmap[1]) & set(self.data_dispatcher.tr_assignments[n.idx]) != {}])
-
-                evals_f.append(evaluation_f)
-                evals_m.append(evaluation_m)
-                #################
-
-                #pbar.set_postfix(evaluation)
                 evals.append(evaluation)
                 evals_user.append(evaluation_user)
 
         print("# Mgs:    ", n_mgs)
         print("Tot. size:", tot_size)
-        return evals, evals_user, evals_f, evals_m#, n_mgs, tot_size
+        return evals, evals_user #, n_mgs, tot_size
     
-    def save(self, filename):
+    def save(self, filename) -> None:
         with open(filename, 'wb') as f:
             pickle.dump(self, f)
 
     @classmethod
-    def load(cls, filename):
+    def load(cls, filename) -> GossipSimulator:
         with open(filename, 'rb') as f:
             return pickle.load(f)
 
@@ -157,8 +137,6 @@ def repeat_simulation(data_dispatcher: DataDispatcher,
     
     eval_list: List[List[float]] = []
     eval_user_list: List[List[float]] = []
-    eval_f_list: List[List[float]] = []
-    eval_m_list: List[List[float]] = []
     sims: List[GossipSimulator] = [None for i in range(repetitions)]
     try:
         for i in range(repetitions):
@@ -174,11 +152,9 @@ def repeat_simulation(data_dispatcher: DataDispatcher,
                                       message_failure_rate=0,
                                       online_prob=1,
                                       round_synced=round_synced)
-            evaluation, evaluation_user, f, m = sims[i].start(n_iter=n_iter)
+            evaluation, evaluation_user = sims[i].start(n_iter=n_iter)
             eval_list.append(evaluation)
             eval_user_list.append(evaluation_user)
-            eval_f_list.append(f)
-            eval_m_list.append(m)
     except KeyboardInterrupt:
         print_flush("Execution interrupted during the %d/%d simulation." %(i+1, repetitions))
 
@@ -186,9 +162,7 @@ def repeat_simulation(data_dispatcher: DataDispatcher,
     #print(np.min([n.n_updates for _,n in sims[0].nodes.items()]))
     #print(np.max([n.n_updates for _,n in sims[0].nodes.items()]))
     if verbose and eval_list:
-        plot_evaluation(eval_list, "Separate test")
+        plot_evaluation(eval_list, "Overall test")
         plot_evaluation(eval_user_list, "User-wise test")
-        plot_evaluation(eval_f_list, "Female")
-        plot_evaluation(eval_m_list, "Male")
     
     return sims, eval_list, eval_user_list

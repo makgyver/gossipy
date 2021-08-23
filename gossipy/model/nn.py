@@ -12,13 +12,10 @@ class TorchPerceptron(TorchModel):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return torch.sigmoid(self.w(x))
 
-    def init_weights(self, zero: bool=True) -> None:
-        if zero:
-            torch.nn.init.constant_(self.w.weight, 0)
-        else:
-            torch.nn.init.xavier_uniform_(self.w.weight)
+    def init_weights(self) -> None:
+        torch.nn.init.xavier_uniform_(self.w.weight)
     
-    def __str__(self):
+    def __str__(self) -> str:
         return "TorchPerceptron(size=%d)" %self.get_size()
 
 #FIXME: generalize to n hidden layers
@@ -33,13 +30,9 @@ class TorchMLP(TorchModel):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return torch.sigmoid(self.fc2(torch.relu(self.fc1(x))))
 
-    def init_weights(self, zero: bool=False) -> None:
-        if zero:
-            torch.nn.init.constant_(self.fc1.weight, 0)
-            torch.nn.init.constant_(self.fc2.weight, 0)
-        else:
-            torch.nn.init.xavier_uniform_(self.fc1.weight)
-            torch.nn.init.xavier_uniform_(self.fc2.weight)
+    def init_weights(self) -> None:
+        torch.nn.init.xavier_uniform_(self.fc1.weight)
+        torch.nn.init.xavier_uniform_(self.fc2.weight)
     
-    def __str__(self):
+    def __str__(self) -> str:
         return "TorchMLP(size=%d)" %self.get_size()

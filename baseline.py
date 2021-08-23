@@ -68,7 +68,8 @@ def torch_mlp(data_handler: DataHandler,
     te0 = data_handler.te_fmap[0]
     te1 = data_handler.te_fmap[1]
     return roc_auc_score(y_true.flatten(), y_pred).astype(float), \
-           roc_auc_score(y_true[te0].flatten(), y_pred[te0]).astype(float), roc_auc_score(y_true[te1].flatten(), y_pred[te1]).astype(float)
+           roc_auc_score(y_true[te0].flatten(), y_pred[te0]).astype(float), \
+           roc_auc_score(y_true[te1].flatten(), y_pred[te1]).astype(float)
 
 
 def sklearn_mlp(data_handler: DataHandler,
@@ -89,3 +90,9 @@ def sklearn_mlp(data_handler: DataHandler,
     return accuracy_score(data_handler.yte, clf.predict(data_handler.Xte)).astype(float), \
         roc_auc_score(data_handler.yte[te0], clf.predict_proba(data_handler.Xte[te0])[:, 1]).astype(float), \
         roc_auc_score(data_handler.yte[te1], clf.predict_proba(data_handler.Xte[te1])[:, 1]).astype(float)
+
+if __name__ == "__main__":
+    mlp = TorchMLP(10)
+    for name, param in mlp.named_parameters():
+        print(name.split('.')[0])
+        print(getattr(mlp, name.split('.')[0]))

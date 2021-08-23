@@ -5,7 +5,7 @@ import torch
 
 __all__ = ["data", "model", "set_seed", "CreateModelMode", "AntiEntropyProtocol", "MessageType"]
 
-def set_seed(seed=0):
+def set_seed(seed=0) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
 
@@ -30,7 +30,7 @@ class MessageType(Enum):
 
 
 class Sizeable():
-    def get_size(self):
+    def get_size(self) -> int:
         raise NotImplementedError()
 
 
@@ -62,7 +62,7 @@ class Message(Sizeable):
         else:
             raise TypeError("Cannot compute the size of the payload!")
         
-    def __str__(self):
+    def __str__(self) -> str:
         s: str = "[%d -> %d]{%s}: " %(self.sender, self.receiver, self.type.name)
         s += "ACK" if self.value is None else str(self.value)
         return s

@@ -24,24 +24,23 @@ class ClassificationDataHandler(DataHandler):
                 split = random_split(torch.LongTensor(range(n)),
                                     [n - te, te],
                                     generator=torch.Generator().manual_seed(seed))
-                self.Xtr = X[split[0], :]
-                self.ytr = y[split[0], :]
-                self.Xte = X[split[1], :]
-                self.yte = y[split[1], :]
+                self.Xtr, self.ytr = X[split[0], :], y[split[0], :]
+                self.Xte, self.yte = X[split[1], :], y[split[1], :]
             else:
                 self.Xtr, self.Xte, self.ytr, self.yte = train_test_split(X, y,
-                                                                        test_size=test_size,
-                                                                        random_state=seed,
-                                                                        shuffle=True)
+                                                                          test_size=test_size,
+                                                                          random_state=seed,
+                                                                          shuffle=True)
         else:
-            self.Xtr = X
-            self.Ytr = y
+            self.Xtr, self.ytr = X, y
             self.Xte = self.yte = None
 
     def __getitem__(self, idx: Union[int, List[int]]) -> Tuple[np.ndarray, int]:
         return self.Xtr[idx, :], self.ytr[idx]
     
-    def at(self, idx: Union[int, List[int]], eval_set=False):
+    def at(self, 
+           idx: Union[int, List[int]],
+           eval_set=False) -> Tuple[np.ndarray, int]:
         if eval_set:
             if (not isinstance(idx, list) or idx): # CHECK: why not isinstance(...)?
                 return self.Xte[idx, :], self.yte[idx]

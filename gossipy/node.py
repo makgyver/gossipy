@@ -28,6 +28,7 @@ class GossipNode():
         self.n_updates = 0
         self.known_nodes = np.where(known_nodes > 0)[0] if known_nodes is not None else None
 
+    #CHECK: arguments of init()
     def init_model(self, *args, **kwargs) -> None:
         self.model_handler.init()
 
@@ -77,7 +78,7 @@ class GossipNode():
         else:
             return self.model_handler.evaluate(ext_data)
     
-    def has_test(self):
+    def has_test(self) -> bool:
         return self.data[1] is not None
 
 

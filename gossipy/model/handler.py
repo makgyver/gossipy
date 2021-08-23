@@ -67,8 +67,8 @@ class TorchModelHandler(ModelHandler):
                                    weight_decay=l2_reg)
         self.criterion = criterion
 
-    def init(self, zero: bool=False) -> None:
-        self.model.init_weights(zero)
+    def init(self) -> None:
+        self.model.init_weights()
 
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
         x, y = data
@@ -78,7 +78,7 @@ class TorchModelHandler(ModelHandler):
         loss.backward()
         self.optimizer.step()
 
-    def _merge(self, other_model_handler: TorchModelHandler):
+    def _merge(self, other_model_handler: TorchModelHandler) -> None:
         dict_params1 = self.model.state_dict()
         dict_params2 = other_model_handler.model.state_dict()
 
@@ -96,10 +96,11 @@ class TorchModelHandler(ModelHandler):
         pred = torch.ones_like(scores)
         pred[scores <= .5] = 0
         y_pred = pred.cpu().numpy().flatten()
+        auc_scores = scores.detach().cpu().numpy().flatten()
 
         res = {
             "accuracy": accuracy_score(y_true, y_pred),
-            "auc": roc_auc_score(y_true, scores.detach().cpu().numpy().flatten()).astype(float) if len(set(y_true)) > 1 else .5,
+            "auc": roc_auc_score(y_true, auc_scores).astype(float) if len(set(y_true)) > 1 else .5,
             "precision": precision_score(y_true, y_pred, zero_division=0),
             "recall": recall_score(y_true, y_pred, zero_division=0),
             "f1_score": f1_score(y_true, y_pred, zero_division=0)
