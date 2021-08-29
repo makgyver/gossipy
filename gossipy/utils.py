@@ -17,8 +17,8 @@ def choice_not_n(mn: int,
         c = randint(mn, mx)
     return c
 
-def sigmoid(x: float) -> float:
-    return 1 / (1 + np.exp(-x))
+#def sigmoid(x: float) -> float:
+#    return 1 / (1 + np.exp(-x))
 
 def torch_models_eq(m1: torch.nn.Module,
                     m2: torch.nn.Module) -> bool:
