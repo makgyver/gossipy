@@ -1,5 +1,6 @@
-# gossipy
+# :warning: UNDER DEVELOPMENT :warning:
 
+# gossipy 
 Python module for simulating gossip learning.
 
 ## TODOs
