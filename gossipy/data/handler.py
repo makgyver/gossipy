@@ -7,6 +7,7 @@ from . import DataHandler
 
 __all__ = ["ClassificationDataHandler"]
 
+#TODO: regression data handler
 
 class ClassificationDataHandler(DataHandler):
     def __init__(self,
@@ -45,7 +46,7 @@ class ClassificationDataHandler(DataHandler):
            idx: Union[int, List[int]],
            eval_set=False) -> Tuple[np.ndarray, int]:
         if eval_set:
-            if (not isinstance(idx, list) or idx): # CHECK: why not isinstance(...)?
+            if (not isinstance(idx, list) or idx):
                 return self.Xte[idx, :], self.yte[idx]
             else: return None
         else: return self[idx]

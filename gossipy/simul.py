@@ -121,7 +121,7 @@ class GossipSimulator():
 
 
 def plot_evaluation(evals: List[List[Dict]],
-                    title: str):
+                    title: str) -> None:
     for k in evals[0][0]:
         evs = [[d[k] for d in l] for l in evals]
         mu: float = np.mean(evs, axis=0)

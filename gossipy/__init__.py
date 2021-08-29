@@ -31,10 +31,10 @@ class MessageType(Enum):
 
 
 class EqualityMixin(object):
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (isinstance(other, self.__class__) and self.__dict__ == other.__dict__)
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
 
 

@@ -11,6 +11,7 @@ from sklearn.preprocessing import StandardScaler
 __all__ = ["DataHandler", "DataDispatcher", "load_classification_dataset", "load_recsys_dataset"]
 
 
+#TODO: get training set?
 class DataHandler():
     def __getitem__(self, idx: int) -> Any:
         raise NotImplementedError()
@@ -57,7 +58,7 @@ class DataDispatcher():
     def has_test(self) -> bool:
         return self.data_handler.eval_size() > 0
 
-#TODO: download
+#TODO: download and add new datasets
 def load_classification_dataset(name: str,
                                 path: str=None,
                                 normalize: bool=True,
