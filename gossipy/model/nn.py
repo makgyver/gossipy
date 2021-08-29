@@ -1,4 +1,10 @@
+from collections import OrderedDict
 import torch
+from torch.nn import Module, Linear, Sequential
+from torch.nn.init import xavier_uniform_
+from torch.nn.modules.activation import ReLU, Softmax, Sigmoid
+from typing import Tuple
+
 from . import TorchModel
 
 __all__ = ["TorchPerceptron", "TorchMLP"]
@@ -6,33 +12,46 @@ __all__ = ["TorchPerceptron", "TorchMLP"]
 class TorchPerceptron(TorchModel):
     def __init__(self, dim: int):
         super(TorchPerceptron, self).__init__()
-        self.dim = dim
-        self.w = torch.nn.Linear(dim, 1)
+        self.input_dim = dim
+        self.model = Sequential(OrderedDict({
+            "linear" : Linear(self.input_dim, 1), 
+            "sigmoid" : Sigmoid()
+        }))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.sigmoid(self.w(x))
+        return self.model(x)
 
     def init_weights(self) -> None:
-        torch.nn.init.xavier_uniform_(self.w.weight)
+        xavier_uniform_(self.model._modules['linear'].weight)
     
     def __str__(self) -> str:
-        return "TorchPerceptron(size=%d)" %self.get_size()
+        return "TorchPerceptron(size=%d)\n%s" %(self.get_size(), str(self.model))
 
-#FIXME: generalize to n hidden layers
+
 class TorchMLP(TorchModel):
     def __init__(self,
                  input_dim: int,
-                 hidden_dim: int=100):
+                 output_dim: int,
+                 hidden_dims: Tuple[int]=(100,),
+                 activation: Module=ReLU):
         super(TorchMLP, self).__init__()
-        self.fc1 = torch.nn.Linear(input_dim, hidden_dim)
-        self.fc2 = torch.nn.Linear(hidden_dim, 1)
+        dims = [input_dim] + list(hidden_dims)
+        layers = OrderedDict()
+        for i in range(len(dims)-1):
+            layers["linear_%d" %(i+1)] = Linear(dims[i], dims[i+1])
+            layers["activ_%d" %(i+1)] = activation()
+        layers["linear_%d" %len(dims)] = Linear(dims[len(dims)-1], output_dim)
+        #layers["softmax"] = Softmax(1)
+        self.model = Sequential(layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.sigmoid(self.fc2(torch.relu(self.fc1(x))))
+        return self.model(x)
 
     def init_weights(self) -> None:
-        torch.nn.init.xavier_uniform_(self.fc1.weight)
-        torch.nn.init.xavier_uniform_(self.fc2.weight)
+        def _init_weights(m: Module):
+            if type(m) == Linear:
+                xavier_uniform_(m.weight)
+        self.model.apply(_init_weights)
     
     def __str__(self) -> str:
-        return "TorchMLP(size=%d)" %self.get_size()
+        return "TorchMLP(size=%d)\n%s" %(self.get_size(), str(self.model))

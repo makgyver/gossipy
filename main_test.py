@@ -4,9 +4,10 @@ import numpy as np
 from numpy.random import choice
 from typing import OrderedDict, Union
 from torch.nn import functional as F
-from baseline import sklearn_mlp, torch_mlp
+from torch.nn.modules.loss import CrossEntropyLoss, NLLLoss
+#from baseline import sklearn_mlp, torch_mlp
 from gossipy import set_seed, AntiEntropyProtocol, CreateModelMode
-from gossipy.node import GossipNode, UAGossipNode, MABGossipNode
+from gossipy.node import GossipNode#, UAGossipNode, MABGossipNode
 from gossipy.model.handler import TorchModelHandler
 from gossipy.model.nn import TorchMLP
 from gossipy.data import load_classification_dataset, DataDispatcher
@@ -24,16 +25,16 @@ dispatcher = DataDispatcher(data_handler, n=100, eval_on_user=True)
 res = repeat_simulation(data_dispatcher=dispatcher,
                         round_delta=100,
                         protocol=AntiEntropyProtocol.PUSH, 
-                        gossip_node=GossipNode,
-                        model_handler=TorchModelHandler,
-                        model_handler_params={"net" : TorchMLP(data_handler.Xtr.shape[1]), #TorchMLP
+                        gossip_node_class=GossipNode,
+                        model_handler_class=TorchModelHandler,
+                        model_handler_params={"net" : TorchMLP(data_handler.Xtr.shape[1], 2), #TorchMLP
                                               "optimizer" : torch.optim.SGD,
                                               "l2_reg": 0.001,
-                                              "criterion" : F.mse_loss,
+                                              "criterion" : CrossEntropyLoss(),
                                               "learning_rate" : .1,
                                               "create_model_mode" : CreateModelMode.UPDATE_MERGE},
                         topology_fun=None,
-                        n_iter=1000,
+                        n_rounds=100,
                         repetitions=5,
                         round_synced=True,
                         verbose=True)

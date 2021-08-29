@@ -1,7 +1,10 @@
 import torch
-from .. import Sizeable
+from typing import Any
+from .. import EqualityMixin, Sizeable
+from ..utils import torch_models_eq
 
 __all__ = ["TorchModel"]
+
 
 class TorchModel(torch.nn.Module, Sizeable):
     def __init__(self, *args, **kwargs):

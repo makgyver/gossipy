@@ -21,11 +21,14 @@ class ClassificationDataHandler(DataHandler):
             if isinstance(X, torch.Tensor):
                 n: int = X.shape[0]
                 te: int = round(n * test_size)
-                split = random_split(torch.LongTensor(range(n)),
-                                    [n - te, te],
-                                    generator=torch.Generator().manual_seed(seed))
-                self.Xtr, self.ytr = X[split[0], :], y[split[0], :]
-                self.Xte, self.yte = X[split[1], :], y[split[1], :]
+                #split = random_split(torch.LongTensor(range(n)),
+                #                    [n - te, te],
+                #                    generator=torch.Generator().manual_seed(seed))
+                torch.manual_seed(seed)
+                perm = torch.randperm(n)
+                split = perm[:n-te], perm[n-te:]
+                self.Xtr, self.ytr = X[split[0], :], y[split[0]]
+                self.Xte, self.yte = X[split[1], :], y[split[1]]
             else:
                 self.Xtr, self.Xte, self.ytr, self.yte = train_test_split(X, y,
                                                                           test_size=test_size,

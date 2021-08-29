@@ -1,5 +1,5 @@
 import os
-from typing import Any, Tuple, Dict, List
+from typing import Any, Tuple, Dict, List, Union
 import numpy as np
 import pandas as pd
 import torch
@@ -53,12 +53,15 @@ class DataDispatcher():
 
     def get_eval_set(self) -> Tuple[Any, Any]:
         return self.data_handler.get_eval_set()
+    
+    def has_test(self) -> bool:
+        return self.data_handler.eval_size() > 0
 
-
+#TODO: download
 def load_classification_dataset(name: str,
                                 path: str=None,
                                 normalize: bool=True,
-                                as_tensor: bool=True) -> Tuple:
+                                as_tensor: bool=True) -> Union[Tuple[torch.Tensor, torch.Tensor], Tuple[np.ndarray, np.ndarray]]:
     if name == "iris":
         dataset = datasets.load_iris()
         X, y = dataset.data, dataset.target
@@ -71,19 +74,19 @@ def load_classification_dataset(name: str,
     else:
         raise ValueError("Unknown dataset %s." %name)
 
-    if set(y) == 2:
-        y = np.array([0 if yy <= 0 else 1 for yy in y])
+    #if set(y) == 2:
+    #    y = np.array([0 if yy <= 0 else 1 for yy in y])
 
     if normalize:
         X = StandardScaler().fit_transform(X)
 
     if as_tensor:
         X = torch.tensor(X).float()
-        y = torch.tensor(y).float().reshape(y.shape[0], 1)
+        y = torch.tensor(y).long()#.reshape(y.shape[0], 1)
 
     return X, y
 
-
+#TODO: download
 def load_recsys_dataset(name: str,
                         path: str) -> Dict[int, List[Tuple[int, float]]]:
     ratings = {}

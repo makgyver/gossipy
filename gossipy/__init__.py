@@ -3,7 +3,8 @@ from enum import Enum
 import numpy as np
 import torch
 
-__all__ = ["data", "model", "set_seed", "CreateModelMode", "AntiEntropyProtocol", "MessageType"]
+__all__ = ["node", "simul", "utils", "data", "model", "set_seed", "CreateModelMode", "AntiEntropyProtocol", "MessageType"]
+
 
 def set_seed(seed=0) -> None:
     np.random.seed(seed)
@@ -27,6 +28,14 @@ class MessageType(Enum):
     PULL = 2,
     REPLY = 3,
     PUSH_PULL = 4
+
+
+class EqualityMixin(object):
+    def __eq__(self, other):
+        return (isinstance(other, self.__class__) and self.__dict__ == other.__dict__)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class Sizeable():
