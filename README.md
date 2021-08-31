@@ -7,8 +7,7 @@ Python module for simulating gossip learning.
 
 ### Features
 
-- [ ] Logger
-- [ ] Datasets download
+- [ ] Logger (ongoing)
 - [ ] Gossip-based peer sampling
 - [ ] Models cache
 - [ ] Learning rate decay
@@ -20,3 +19,4 @@ Python module for simulating gossip learning.
 ### Extras
 
 - [ ] Documentation
+- [ ] Authorship

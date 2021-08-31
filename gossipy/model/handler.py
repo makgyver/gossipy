@@ -1,10 +1,12 @@
 from __future__ import annotations
 import copy
+from gossipy.model.nn import AdaLine, Pegasos
 import torch
+from torch import functional as F
 import numpy as np
 from typing import Any, Callable, Tuple, Dict
 from sklearn.metrics import accuracy_score, roc_auc_score, recall_score, f1_score, precision_score
-from .. import Sizeable, CreateModelMode, EqualityMixin
+from .. import LOG, Sizeable, CreateModelMode, EqualityMixin
 from . import TorchModel
 
 __all__ = ["ModelHandler", "TorchModelHandler"]
@@ -92,6 +94,7 @@ class TorchModelHandler(ModelHandler):
             dict_params2[key] = (dict_params1[key] + dict_params2[key]) / 2.
 
         self.model.load_state_dict(dict_params2)
+        self.n_updates = max(self.n_updates, other_model_handler.n_updates)
 
     def evaluate(self,
                  data: Tuple[torch.Tensor, torch.Tensor]) -> Dict[str, int]:
@@ -119,5 +122,67 @@ class TorchModelHandler(ModelHandler):
             if len(set(y_true)) == 2:
                 res["auc"] = roc_auc_score(y_true, auc_scores).astype(float)
             else:
-                res["auc"] = 0.5 #TODO: warning
+                res["auc"] = 0.5
+                LOG.warning("# of classes != 2. AUC is set to 0.5.")
         return res
+
+
+class AdaLineHandler(ModelHandler):
+    def __init__(self,
+                 net: AdaLine,
+                 learning_rate: float,
+                 create_model_mode: CreateModelMode=CreateModelMode.UPDATE,
+                 copy_model: bool=True):
+        super(AdaLineHandler, self).__init__(create_model_mode)
+        self.model = copy.deepcopy(net) if copy_model else net
+        self.learning_rate = learning_rate
+    
+    def init(self) -> None:
+        self.model.init_weights()
+    
+    def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
+        x, y = data
+        self.n_updates += len(y)
+        for i in range(len(y)):
+            self.model.model += self.learning_rate * (y[i] - self.model(x[i])) * x[i]
+    
+    def _merge(self, other_model_handler: PegasosHandler) -> None:
+        self.model.model = 0.5 * (self.model.model + other_model_handler.model.model)
+        self.n_updates = max(self.n_updates, other_model_handler.n_updates)
+
+    def evaluate(self,
+                 data: Tuple[torch.Tensor, torch.Tensor]) -> Dict[str, int]:
+        x, y = data
+        scores = self.model(x)
+        y_true = y.cpu().numpy().flatten()
+        y_pred = torch.sign(scores).cpu().numpy().flatten()
+        auc_scores = scores.detach().cpu().numpy().flatten()
+
+        res = {
+            "accuracy": accuracy_score(y_true, y_pred),
+            "precision": precision_score(y_true, y_pred, zero_division=0),
+            "recall": recall_score(y_true, y_pred, zero_division=0),
+            "f1_score": f1_score(y_true, y_pred, zero_division=0),
+            "auc":  roc_auc_score(y_true, auc_scores).astype(float)
+        }
+
+        return res
+
+
+class PegasosHandler(AdaLineHandler):
+    def __init__(self,
+                 net: Pegasos,
+                 lam: float,
+                 create_model_mode: CreateModelMode=CreateModelMode.UPDATE,
+                 copy_model: bool=True):
+        super(PegasosHandler, self).__init__(net, lam, create_model_mode, copy_model)
+    
+    def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
+        x, y = data
+        for i in range(len(y)):
+            self.n_updates += 1
+            lr = 1. / (self.n_updates * self.learning_rate)
+            y_pred = self.model(x[i])
+            self.model.model *= (1. - lr * self.learning_rate)
+            self.model.model += ((y_pred * y[i] - 1) < 0).float() * (lr * y[i] * x[i])
+    

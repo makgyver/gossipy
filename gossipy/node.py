@@ -1,18 +1,18 @@
 import numpy as np
 from numpy.random import randint, normal, choice
-import torch
-import slots
-from typing import Any, Optional, Union, Dict
+from numpy import ndarray
+from torch import Tensor
+from typing import Any, Optional, Union, Dict, Tuple
 from .utils import choice_not_n
 from .model.handler import ModelHandler
 from . import AntiEntropyProtocol, MessageType, Message
 
-__all__ = ["GossipNode", "UAGossipNode", "MABGossipNode"]
+__all__ = ["GossipNode"]
 
 class GossipNode():
     def __init__(self,
                  idx: int, #node's id
-                 data: Any, #node's data
+                 data: Union[Tuple[Tensor, Optional[Tensor]], Tuple[ndarray, Optional[ndarray]]], #node's data
                  round_len: int, #round length
                  n_nodes: int, #number of nodes in the network
                  model_handler: ModelHandler, #object that handles the model learning/inference
@@ -39,9 +39,9 @@ class GossipNode():
 
     def timed_out(self, t: int) -> int:
         if self.sync:
-            return t % self.round_len == self.delay
+            return (t % self.round_len) == self.delay
         else:
-            return t % self.delay == 0
+            return (t % self.delay) == 0
 
     def send(self,
              t: int,

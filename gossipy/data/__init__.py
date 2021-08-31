@@ -5,10 +5,10 @@ import pandas as pd
 import torch
 from sklearn import datasets
 from sklearn.datasets import load_svmlight_file
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from .. import LOG
 
-
-__all__ = ["DataHandler", "DataDispatcher", "load_classification_dataset", "load_recsys_dataset"]
+__all__ = ["DataHandler", "DataDispatcher", "load_classification_dataset"]
 
 
 #TODO: get training set?
@@ -58,7 +58,16 @@ class DataDispatcher():
     def has_test(self) -> bool:
         return self.data_handler.eval_size() > 0
 
-#TODO: download and add new datasets
+
+UCI_URL_AND_CLASS = {
+    "spambase" : ("https://archive.ics.uci.edu/ml/machine-learning-databases/spambase/spambase.data", 57),
+    "sonar" : ("https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data", 60),
+    "ionosphere" : ("https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data", 34),
+    "abalone" : ("https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data", 0),
+    "banknote" : ("https://archive.ics.uci.edu/ml/machine-learning-databases/00267/data_banknote_authentication.txt", 4)
+}
+
+
 def load_classification_dataset(name: str,
                                 path: str=None,
                                 normalize: bool=True,
@@ -69,14 +78,20 @@ def load_classification_dataset(name: str,
     elif name == "breast":
         dataset = datasets.load_breast_cancer()
         X, y = dataset.data, dataset.target
-    elif name in {"sonar", "ionosphere", "abalone", "banknote", "diabetes"}:
-        X, y = load_svmlight_file(os.path.join(path, name + ".svmlight"))
-        X = X.toarray()
+    #TODO: elif add more sklearn datasets
+    #
+    elif name in {"sonar", "ionosphere", "abalone", "banknote", "spambase"}:
+        #if path is not None:
+        #    X, y = load_svmlight_file(os.path.join(path, name + ".svmlight"))
+        #    X = X.toarray()
+        #else:
+        url, label_id = UCI_URL_AND_CLASS[name]
+        LOG.info("Downloading dataset %s from '%s'." %(name, url))
+        data = pd.read_csv(url, header=None).to_numpy()
+        y = LabelEncoder().fit_transform(data[:, label_id])
+        X = np.delete(data, [label_id], axis=1).astype('float64')
     else:
         raise ValueError("Unknown dataset %s." %name)
-
-    #if set(y) == 2:
-    #    y = np.array([0 if yy <= 0 else 1 for yy in y])
 
     if normalize:
         X = StandardScaler().fit_transform(X)
@@ -88,16 +103,16 @@ def load_classification_dataset(name: str,
     return X, y
 
 #TODO: download
-def load_recsys_dataset(name: str,
-                        path: str) -> Dict[int, List[Tuple[int, float]]]:
-    ratings = {}
-    if name == "ml100k" or name == "ml1m":
-        with open(os.path.join(path, name + ".txt"), "r") as f:
-            for line in f.readlines():
-                u, i, r = list(map(int, line.strip().split(",")))
-                if u not in ratings:
-                    ratings[u] = []
-                ratings[u].append((i, r))
-    else:
-        raise ValueError("Unknown dataset %s." %name)
-    return ratings
+# def load_recsys_dataset(name: str,
+#                         path: str) -> Dict[int, List[Tuple[int, float]]]:
+#     ratings = {}
+#     if name == "ml100k" or name == "ml1m":
+#         with open(os.path.join(path, name + ".txt"), "r") as f:
+#             for line in f.readlines():
+#                 u, i, r = list(map(int, line.strip().split(",")))
+#                 if u not in ratings:
+#                     ratings[u] = []
+#                 ratings[u].append((i, r))
+#     else:
+#         raise ValueError("Unknown dataset %s." %name)
+#     return ratings

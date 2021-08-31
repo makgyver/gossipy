@@ -3,6 +3,7 @@ from gossipy.utils import torch_models_eq
 import os
 import sys
 import torch
+import numpy as np
 from torch.optim import SGD
 from torch.nn import functional as F
 import pytest
@@ -93,3 +94,17 @@ def test_GossipNode():
     assert res["f1_score"] == 0.
     assert res["auc"] == 0.
     assert res["recall"] == 0.
+
+    g = GossipNode(
+        idx = 0,
+        data = ((Xtr, ytr), (Xte, yte)),
+        round_len=10,
+        n_nodes=10,
+        model_handler=mh,
+        known_nodes=np.identity(10)[0],
+        sync=False
+    )
+    g.init_model()
+    assert g.timed_out(g.delay)
+    assert g.known_nodes == np.array([0])
+    assert g.get_peer() == 0

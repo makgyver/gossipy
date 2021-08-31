@@ -1,9 +1,16 @@
 from typing import Any
+import logging
 from enum import Enum
 import numpy as np
 import torch
 
 __all__ = ["node", "simul", "utils", "data", "model", "set_seed", "CreateModelMode", "AntiEntropyProtocol", "MessageType"]
+
+logging.basicConfig(level=logging.INFO,
+                    format="[%(asctime)s]  %(message)s",
+                    datefmt='%H:%M:%S-%d%m%y')
+
+LOG = logging.getLogger(__name__)
 
 
 def set_seed(seed=0) -> None:

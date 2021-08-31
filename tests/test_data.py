@@ -7,7 +7,7 @@ import pytest
 
 sys.path.insert(0, os.path.abspath('..'))
 
-from gossipy.data import DataDispatcher, DataHandler, load_classification_dataset, load_recsys_dataset
+from gossipy.data import DataDispatcher, DataHandler, load_classification_dataset
 from gossipy.data.handler import ClassificationDataHandler
 
 
@@ -119,7 +119,10 @@ def test_load_classification_dataset():
 
     #TODO: test one of these {"sonar", "ionosphere", "abalone", "banknote", "diabetes"}
 
-def test_load_recsys_dataset():
-    with pytest.raises(ValueError):
-        load_recsys_dataset("invalid", "")
+    X, y = load_classification_dataset("spambase", normalize=True, as_tensor=True)
+    assert type(X) == torch.Tensor
+    assert type(y) == torch.Tensor
+    assert y.shape[0] == X.shape[0]
+    assert y.shape[0] == 4601
+
 

@@ -9,8 +9,8 @@ import pytest
 sys.path.insert(0, os.path.abspath('..'))
 from gossipy.model import TorchModel
 from gossipy import CreateModelMode, set_seed
-from gossipy.model.handler import ModelHandler, TorchModelHandler
-from gossipy.model.nn import TorchMLP, TorchPerceptron
+from gossipy.model.handler import AdaLineHandler, ModelHandler, PegasosHandler, TorchModelHandler
+from gossipy.model.nn import AdaLine, Pegasos, TorchMLP, TorchPerceptron
 
 def test_TorchModel():
     tm = TorchModel()
@@ -112,7 +112,7 @@ def test_TorchModelHandler():
     tmh.init()
     
     tmh(tmh2, (Xtr, ytr))
-    assert tmh.n_updates == 1
+    assert tmh.n_updates == 2
     assert tmh2.n_updates == 1
 
     params["create_model_mode"] = CreateModelMode.UPDATE
@@ -143,3 +143,66 @@ def test_TorchModelHandler():
     assert result["precision"] == .5
     assert result["auc"] == 1.
 
+def test_AdaLine():
+    ada = AdaLine(4)
+    assert ada.input_dim == 4
+    assert torch.all(ada.model == torch.zeros_like(ada.model))
+
+    ada.init_weights()
+    assert torch.all(ada.model == torch.zeros_like(ada.model))
+
+    assert torch.all(ada(torch.FloatTensor([1,1,1,1])) == torch.zeros_like(ada.model))
+
+    assert str(ada) == "AdaLine(size=4)"
+
+    peg = Pegasos(4)
+    assert str(peg) == "Pegasos(size=4)"
+
+
+def test_AdaLineHandler():
+    ada = AdaLineHandler(AdaLine(2), 0.1, copy_model=False)
+    ada.init()
+
+    assert str(ada.model) == str(AdaLine(2))
+    assert ada.n_updates == 0
+    assert ada.learning_rate == 0.1
+    assert ada.mode == CreateModelMode.UPDATE
+
+    X = torch.FloatTensor([[1,1], [1,0]])
+    y = torch.LongTensor([1, -1])
+    ada._update((X, y))
+    print(ada.model.model)
+    assert torch.allclose(ada.model.model, torch.FloatTensor([-0.0100, 0.1000]))
+
+    ada._merge(AdaLineHandler(AdaLine(2), 0.1, copy_model=False))
+    assert torch.allclose(ada.model.model, torch.FloatTensor([-0.005, 0.05]))
+
+    ada._update((X, y))
+    ada._update((X, y))
+    ada._update((X, y))
+    res = ada.evaluate((X, y))
+    assert res["accuracy"] == res["recall"] == res["f1_score"] == res["auc"] == 1
+
+
+def test_PegasosHandler():
+    pegh = PegasosHandler(Pegasos(2), 0.1, copy_model=False)
+    pegh.init()
+
+    assert str(pegh.model) == str(Pegasos(2))
+    assert pegh.n_updates == 0
+    assert pegh.learning_rate == 0.1
+    assert pegh.mode == CreateModelMode.UPDATE
+
+    X = torch.FloatTensor([[1,1], [1,0]])
+    y = torch.LongTensor([1, -1])
+    pegh._update((X, y))
+    assert torch.allclose(pegh.model.model, torch.FloatTensor([0, 5]))
+
+    pegh._merge(PegasosHandler(Pegasos(2), 0.1, copy_model=False))
+    assert torch.allclose(pegh.model.model, torch.FloatTensor([0, 2.5]))
+
+    pegh._update((X, y))
+    pegh._update((X, y))
+    pegh._update((X, y))
+    res = pegh.evaluate((X, y))
+    assert res["accuracy"] == res["recall"] == res["f1_score"] == res["auc"] == 1

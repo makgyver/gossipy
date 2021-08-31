@@ -2,8 +2,9 @@ import sys
 import numpy as np
 from numpy.random import randint
 import torch
+from torch.nn import Module
 
-__all__ = ["print_flush", "choice_not_n", "sigmoid"]
+__all__ = ["print_flush", "choice_not_n"]
 
 def print_flush(text: str) -> None:
     print(text)
@@ -20,8 +21,8 @@ def choice_not_n(mn: int,
 #def sigmoid(x: float) -> float:
 #    return 1 / (1 + np.exp(-x))
 
-def torch_models_eq(m1: torch.nn.Module,
-                    m2: torch.nn.Module) -> bool:
+def torch_models_eq(m1: Module,
+                    m2: Module) -> bool:
     for (k1, i1), (k2, i2) in zip(m1.state_dict().items(), m2.state_dict().items()):
         if not k1 == k2 or not torch.equal(i1, i2):
             return False

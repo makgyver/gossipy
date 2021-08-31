@@ -55,3 +55,27 @@ class TorchMLP(TorchModel):
     
     def __str__(self) -> str:
         return "TorchMLP(size=%d)\n%s" %(self.get_size(), str(self.model))
+
+
+class AdaLine(TorchModel):
+    def __init__(self, dim: int):
+        super(AdaLine, self).__init__()
+        self.input_dim = dim
+        self.model = torch.zeros(self.input_dim)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model @ x.T
+
+    def get_size(self) -> int:
+        return self.input_dim
+
+    def init_weights(self) -> None:
+        pass
+    
+    def __str__(self) -> str:
+        return "AdaLine(size=%d)" %(self.get_size())
+
+
+class Pegasos(AdaLine):
+    def __str__(self) -> str:
+        return "Pegasos(size=%d)" %(self.get_size())
