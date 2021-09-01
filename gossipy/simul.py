@@ -1,11 +1,11 @@
 from __future__ import annotations
 import numpy as np
-from numpy.random import shuffle, random
-from typing import Any, Optional, Dict, List, Callable, Tuple
+from numpy.random import shuffle, random, randint
+from typing import Any, DefaultDict, Optional, Dict, List, Callable, Tuple
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pickle
-from . import AntiEntropyProtocol, LOG
+from . import AntiEntropyProtocol, LOG, Message
 from .data import DataDispatcher
 from .node import GossipNode
 from .utils import print_flush
@@ -23,19 +23,23 @@ class GossipSimulator():
                  model_handler_class: ModelHandler,
                  model_handler_params: Dict[str, Any],
                  topology: Optional[np.ndarray],
-                 message_failure_rate: float=0., # [0,1]
+                 drop_prob: float=0., # [0,1]
                  online_prob: float=1., # [0,1]
-                 round_synced: bool=True): 
-        assert 0 <= message_failure_rate <= 1, "message_failure_rate must be in the range [0,1]."
+                 delay: Optional[Tuple[int, int]]=None,
+                 round_synced: bool=True):
+        
+        assert 0 <= drop_prob <= 1, "drop_prob must be in the range [0,1]."
         assert 0 <= online_prob <= 1, "online_prob must be in the range [0,1]."
+        assert (not delay) or (0 <= delay[0] <= delay[1]), "delay value is not correct."
 
         self.data_dispatcher = data_dispatcher
         self.n_nodes = data_dispatcher.size()
         self.delta = delta #round_len
         self.protocol = protocol
         self.topology = topology
-        self.message_failure_rate = message_failure_rate
+        self.drop_prob = drop_prob
         self.online_prob = online_prob
+        self.delay = delay
         self.nodes = {i: gossip_node_class(i,
                                            data_dispatcher[i],
                                            delta,
@@ -69,10 +73,11 @@ class GossipSimulator():
         n_msg = 0
         n_msg_failed = 0
         tot_size = 0
+        msg_queues = DefaultDict(list)
+        rep_queues = DefaultDict(list)
         for t in pbar:
             if t % self.delta == 0: shuffle(node_ids)
             
-            message_queue = []
             for i in node_ids:
                 node = self.nodes[i]
                 if node.timed_out(t):
@@ -81,23 +86,24 @@ class GossipSimulator():
                     n_msg += 1
                     tot_size += msg.get_size()
                     if msg: 
-                        if random() >= self.message_failure_rate:
-                            message_queue.append(msg)
+                        if random() >= self.drop_prob:
+                            d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
+                            msg_queues[t + d].append(msg)
                         else:
                             n_msg_failed += 1
             
-            reply_queue = []
-            for msg in message_queue:
+            for msg in msg_queues[t]:
                 if random() < self.online_prob:
-                    reply = self.nodes[msg.receiver].receive(msg)
+                    reply = self.nodes[msg.receiver].receive(t, msg)
                     if reply:
-                        if random() > self.message_failure_rate:
-                            reply_queue.append(reply)
+                        if random() > self.drop_prob:
+                            d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
+                            rep_queues[t + d].append(reply)
                         else:
                             n_msg_failed += 1
             
-            for reply in reply_queue:
-                self.nodes[reply.receiver].receive(reply)
+            for reply in rep_queues[t]:
+                self.nodes[reply.receiver].receive(t, reply)
                 n_msg += 1
                 tot_size += reply.get_size()
 
@@ -154,8 +160,9 @@ def repeat_simulation(data_dispatcher: DataDispatcher,
                       model_handler_params: Dict[str, Any],
                       topology_fun: Optional[Callable[[], np.ndarray]], #CHECK: typing
                       n_rounds: Optional[int]=1000,
-                      message_failure_rate: float=0., # [0,1]
+                      drop_prob: float=0., # [0,1]
                       online_prob: float=1., # [0,1]
+                      delay: Optional[Tuple[int, int]]=None,
                       repetitions: Optional[int]=10,
                       round_synced: bool=True,
                       verbose: Optional[bool]=True) -> Tuple[List[GossipSimulator],
@@ -175,8 +182,9 @@ def repeat_simulation(data_dispatcher: DataDispatcher,
                                       model_handler_class=model_handler_class,
                                       model_handler_params=model_handler_params,
                                       topology=topology,
-                                      message_failure_rate=message_failure_rate,
+                                      drop_prob=drop_prob,
                                       online_prob=online_prob,
+                                      delay=delay,
                                       round_synced=round_synced)
             evaluation, evaluation_user = sims[i].start(n_rounds=n_rounds)
             eval_list.append(evaluation)

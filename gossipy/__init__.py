@@ -64,10 +64,12 @@ class Sizeable():
 
 class Message(Sizeable):
     def __init__(self,
+                 timestamp: int,
                  sender: int,
                  receiver: int,
                  type: MessageType,
                  value: Any):
+        self.timestamp = timestamp
         self.sender = sender
         self.receiver = receiver
         self.type = type
@@ -91,6 +93,9 @@ class Message(Sizeable):
             raise TypeError("Cannot compute the size of the payload!")
         
     def __str__(self) -> str:
-        s: str = "[%d -> %d]{%s}: " %(self.sender, self.receiver, self.type.name)
+        s: str = "T%d [%d -> %d] {%s}: " %(self.timestamp,
+                                           self.sender,
+                                           self.receiver,
+                                           self.type.name)
         s += "ACK" if self.value is None else str(self.value)
         return s

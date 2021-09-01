@@ -64,12 +64,12 @@ def test_GossipNode():
     assert torch_models_eq(msg.value.model, mh.model)
     assert msg.sender == g.idx
 
-    assert g.receive(msg) is None
+    assert g.receive(0, msg) is None
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PULL)
     assert msg.value is None
     assert msg.type == MessageType.PULL
-    response = g.receive(msg)
+    response = g.receive(0, msg)
     assert response.type ==  MessageType.REPLY
     assert response.sender == 0
     assert response.receiver == 0
@@ -166,10 +166,10 @@ def test_PassThroughNode():
     set_seed(987654)
     assert torch.allclose(g.model_handler.model.model, g2.model_handler.model.model)
 
-    g2.receive(msg)
+    g2.receive(0, msg)
 
     msg = g.send(0, 1, protocol=AntiEntropyProtocol.PUSH)
-    g2.receive(msg)
+    g2.receive(0, msg)
 
     assert torch.allclose(g.model_handler.model.model, g2.model_handler.model.model)
 
@@ -186,7 +186,7 @@ def test_PassThroughNode():
     assert msg.value is None
     assert msg.type == MessageType.PULL
 
-    response = g2.receive(msg)
+    response = g2.receive(0, msg)
     assert response.type ==  MessageType.REPLY
     assert response.sender == 1
     assert response.receiver == 0
@@ -255,7 +255,7 @@ def test_CacheNeighNode():
     set_seed(987654)
 
     old_model = copy.deepcopy(g2.model_handler.model.model)
-    g2.receive(msg)
+    g2.receive(0, msg)
 
     assert torch.allclose(old_model, g2.model_handler.model.model)
     assert torch.allclose(g2.cache[0].model.model, g.model_handler.model.model)
@@ -272,7 +272,7 @@ def test_CacheNeighNode():
     assert msg.value is None
     assert msg.type == MessageType.PULL
 
-    response = g2.receive(msg)
+    response = g2.receive(0, msg)
     assert response.type ==  MessageType.REPLY
     assert response.sender == 1
     assert response.receiver == 0

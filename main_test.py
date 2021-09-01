@@ -28,6 +28,7 @@ res = repeat_simulation(data_dispatcher=dispatcher,
                                               "create_model_mode" : CreateModelMode.UPDATE_MERGE},
                         topology_fun=None,
                         n_rounds=10,
+                        delay=(0, 10),
                         repetitions=1,
                         round_synced=True,
                         verbose=True)

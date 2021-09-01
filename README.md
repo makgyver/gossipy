@@ -9,7 +9,6 @@ Python module for simulating gossip learning.
 
 - [ ] Logger (ongoing)
 - [ ] Models cache (partially done)
-- [ ] Message delay
 - [ ] Model partitioning
 - [ ] Model sampling
 - [ ] Token account

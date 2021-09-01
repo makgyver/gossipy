@@ -46,7 +46,7 @@ def test_GossipSimulator():
                                  "learning_rate" : .1,
                                  "create_model_mode" : CreateModelMode.UPDATE_MERGE},
                              topology=None,
-                             message_failure_rate=0,
+                             drop_prob=0,
                              online_prob=1,
                              round_synced=True)
 
@@ -57,7 +57,7 @@ def test_GossipSimulator():
     assert gossip.protocol == AntiEntropyProtocol.PULL
     assert gossip.topology is None
     assert gossip.online_prob == 1
-    assert gossip.message_failure_rate == 0
+    assert gossip.drop_prob == 0
     assert gossip.nodes[0].sync
     
     assert torch_models_eq(gossip.nodes[0].model_handler.model, net)
@@ -83,7 +83,7 @@ def test_GossipSimulator():
     assert gossip2.protocol == AntiEntropyProtocol.PULL
     assert gossip2.topology is None
     assert gossip2.online_prob == 1
-    assert gossip2.message_failure_rate == 0
+    assert gossip2.drop_prob == 0
     assert gossip2.nodes[0].sync
 
     #plot_evaluation([evals], "test")
@@ -117,7 +117,7 @@ def test_GossipSimulator():
     assert gossip.protocol == AntiEntropyProtocol.PULL
     assert gossip.topology is None
     assert gossip.online_prob == 1
-    assert gossip.message_failure_rate == 0
+    assert gossip.drop_prob == 0
     assert gossip.nodes[0].sync
 
 

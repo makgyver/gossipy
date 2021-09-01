@@ -13,7 +13,8 @@ __all__ = ["GossipNode", "PassThroughNode", "CacheNeighNode"]
 class GossipNode():
     def __init__(self,
                  idx: int, #node's id
-                 data: Union[Tuple[Tensor, Optional[Tensor]], Tuple[ndarray, Optional[ndarray]]], #node's data
+                 data: Union[Tuple[Tensor, Optional[Tensor]],
+                             Tuple[ndarray, Optional[ndarray]]], #node's data
                  round_len: int, #round length
                  n_nodes: int, #number of nodes in the network
                  model_handler: ModelHandler, #object that handles the model learning/inference
@@ -26,13 +27,11 @@ class GossipNode():
         self.model_handler = model_handler
         self.sync = sync
         self.delay = randint(0, round_len) if sync else int(normal(round_len, round_len/10))
-        #self.n_updates = 0
         self.known_nodes = np.where(known_nodes > 0)[0] if known_nodes is not None else None
 
     def init_model(self, *args, **kwargs) -> None:
         self.model_handler.init()
 
-    #CHECK: peer sampling service
     def get_peer(self) -> int:
         if self.known_nodes is not None:
             return choice(self.known_nodes)
@@ -49,15 +48,15 @@ class GossipNode():
              peer: int,
              protocol: AntiEntropyProtocol) -> Union[Message, None]:
         if protocol == AntiEntropyProtocol.PUSH:
-            return Message(self.idx, peer, MessageType.PUSH, self.model_handler.copy())
+            return Message(t, self.idx, peer, MessageType.PUSH, self.model_handler.copy())
         elif protocol == AntiEntropyProtocol.PULL:
-            return Message(self.idx, peer, MessageType.PULL, None)
+            return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
-            return Message(self.idx, peer, MessageType.PUSH_PULL, self.model_handler.copy())
+            return Message(t, self.idx, peer, MessageType.PUSH_PULL, self.model_handler.copy())
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
-    def receive(self, msg: Message) -> Union[Message, None]:
+    def receive(self, t: int, msg: Message) -> Union[Message, None]:
         msg_type: MessageType
         recv_model: Any 
         msg_type, recv_model = msg.type, msg.value
@@ -68,7 +67,7 @@ class GossipNode():
             #self.n_updates += 1
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
-            return Message(self.idx, msg.sender, MessageType.REPLY, self.model_handler.copy())
+            return Message(t, self.idx, msg.sender, MessageType.REPLY, self.model_handler.copy())
         return None
 
     def evaluate(self,
@@ -85,7 +84,8 @@ class GossipNode():
 class PassThroughNode(GossipNode):
     def __init__(self,
                  idx: int, #node's id
-                 data: Union[Tuple[Tensor, Optional[Tensor]], Tuple[ndarray, Optional[ndarray]]], #node's data
+                 data: Union[Tuple[Tensor, Optional[Tensor]],
+                             Tuple[ndarray, Optional[ndarray]]], #node's data
                  round_len: int, #round length
                  n_nodes: int, #number of nodes in the network
                  model_handler: ModelHandler, #object that handles the model learning/inference
@@ -106,21 +106,23 @@ class PassThroughNode(GossipNode):
              protocol: AntiEntropyProtocol) -> Union[Message, None]:
 
         if protocol == AntiEntropyProtocol.PUSH:
-            return Message(self.idx,
+            return Message(t,
+                           self.idx,
                            peer, 
                            MessageType.PUSH,
                            (self.model_handler.copy(), self.n_neighs))
         elif protocol == AntiEntropyProtocol.PULL:
-            return Message(self.idx, peer, MessageType.PULL, None)
+            return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
-            return Message(self.idx,
+            return Message(t,
+                           self.idx,
                            peer,
                            MessageType.PUSH_PULL,
                            (self.model_handler.copy(), self.n_neighs))
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
-    def receive(self, msg: Message) -> Union[Message, None]:
+    def receive(self, t:int, msg: Message) -> Union[Message, None]:
         msg_type: MessageType
         recv_model: Any 
         msg_type = msg.type
@@ -139,7 +141,8 @@ class PassThroughNode(GossipNode):
 
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
-            return Message(self.idx,
+            return Message(t,
+                           self.idx,
                            msg.sender,
                            MessageType.REPLY,
                            (self.model_handler.copy(), self.n_neighs))
@@ -172,22 +175,24 @@ class CacheNeighNode(GossipNode):
 
         if protocol == AntiEntropyProtocol.PUSH:
             self.model_handler(self.cache[peer], self.data[0])
-            return Message(self.idx,
-                           peer, 
+            return Message(t,
+                           self.idx,
+                           peer,
                            MessageType.PUSH,
                            self.model_handler.copy())
         elif protocol == AntiEntropyProtocol.PULL:
-            return Message(self.idx, peer, MessageType.PULL, None)
+            return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
             self.model_handler(self.cache[peer], self.data[0])
-            return Message(self.idx,
+            return Message(t,
+                           self.idx,
                            peer,
                            MessageType.PUSH_PULL,
                            self.model_handler.copy())
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
-    def receive(self, msg: Message) -> Union[Message, None]:
+    def receive(self, t: int, msg: Message) -> Union[Message, None]:
         msg_type: MessageType
         recv_model: Any 
         sender, msg_type, recv_model = msg.sender, msg.type, msg.value
@@ -199,7 +204,8 @@ class CacheNeighNode(GossipNode):
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
             self.model_handler(self.cache[sender], self.data[0])
-            return Message(self.idx,
+            return Message(t,
+                           self.idx,
                            msg.sender,
                            MessageType.REPLY,
                            self.model_handler.copy())

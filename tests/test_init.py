@@ -21,19 +21,20 @@ def test_Sizeable():
         s.get_size()
 
 def test_Message():
-    msg = Message(1, 2, MessageType.PULL, 42)
+    msg = Message(42, 1, 2, MessageType.PULL, 42)
+    assert msg.timestamp == 42
     assert msg.sender == 1
     assert msg.receiver == 2
     assert msg.type == MessageType.PULL
     assert msg.value == 42
     assert msg.get_size() == 1
-    assert str(msg) == "[1 -> 2]{PULL}: 42"
+    assert str(msg) == "T42 [1 -> 2] {PULL}: 42"
 
-    msg = Message(1, 2, MessageType.PULL, None)
+    msg = Message(42, 1, 2, MessageType.PULL, None)
     assert msg.get_size() == 1
-    assert str(msg) == "[1 -> 2]{PULL}: ACK"
+    assert str(msg) == "T42 [1 -> 2] {PULL}: ACK"
 
-    msg = Message(1, 2, MessageType.PULL, "test")
+    msg = Message(42, 1, 2, MessageType.PULL, "test")
     with pytest.raises(TypeError):
         msg.get_size()
     
@@ -41,13 +42,13 @@ def test_Message():
         def get_size(self) -> int:
             return 42
 
-    msg = Message(1, 2, MessageType.PULL, TempClass())
+    msg = Message(42, 1, 2, MessageType.PULL, TempClass())
     assert msg.get_size() == 42
 
-    msg = Message(1, 2, MessageType.PULL, [42, TempClass(), None])
+    msg = Message(42, 1, 2, MessageType.PULL, [42, TempClass(), None])
     assert msg.get_size() == 43
 
-    msg = Message(1, 2, MessageType.PULL, [42, TempClass(), "test"])
+    msg = Message(42, 1, 2, MessageType.PULL, [42, TempClass(), "test"])
     with pytest.raises(TypeError):
         msg.get_size()
     
