@@ -8,13 +8,12 @@ Python module for simulating gossip learning.
 ### Features
 
 - [ ] Logger (ongoing)
-- [ ] Gossip-based peer sampling
-- [ ] Models cache
-- [ ] Learning rate decay
+- [ ] Models cache (partially done)
+- [ ] Message delay
 - [ ] Model partitioning
 - [ ] Model sampling
 - [ ] Token account
-
+- [ ] Perfect matching (Ormandi 2013)
 
 ### Extras
 

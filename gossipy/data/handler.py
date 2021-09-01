@@ -51,8 +51,8 @@ class ClassificationDataHandler(DataHandler):
             else: return None
         else: return self[idx]
 
-    def size(self) -> int:
-        return self.Xtr.shape[0]
+    def size(self, dim: int=0) -> int:
+        return self.Xtr.shape[dim]
     
     def get_eval_set(self) -> Tuple[Any, Any]:
         return self.Xte, self.yte

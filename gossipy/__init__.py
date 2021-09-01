@@ -6,11 +6,22 @@ import torch
 
 __all__ = ["node", "simul", "utils", "data", "model", "set_seed", "CreateModelMode", "AntiEntropyProtocol", "MessageType"]
 
+
+class DuplicateFilter(object):
+    def __init__(self):
+        self.msgs = set()
+
+    def filter(self, record):
+        rv = record.msg not in self.msgs
+        self.msgs.add(record.msg)
+        return rv
+
 logging.basicConfig(level=logging.INFO,
                     format="[%(asctime)s]  %(message)s",
                     datefmt='%H:%M:%S-%d%m%y')
 
 LOG = logging.getLogger(__name__)
+LOG.addFilter(DuplicateFilter())
 
 
 def set_seed(seed=0) -> None:
@@ -22,6 +33,7 @@ class CreateModelMode(Enum):
     UPDATE = 1
     MERGE_UPDATE = 2
     UPDATE_MERGE = 3
+    PASS = 4
 
 
 class AntiEntropyProtocol(Enum):

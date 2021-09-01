@@ -5,7 +5,7 @@ from typing import Any, Optional, Dict, List, Callable, Tuple
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pickle
-from . import AntiEntropyProtocol
+from . import AntiEntropyProtocol, LOG
 from .data import DataDispatcher
 from .node import GossipNode
 from .utils import print_flush
@@ -66,7 +66,8 @@ class GossipSimulator():
         pbar = tqdm(range(n_rounds * self.delta))
         evals = []
         evals_user = []
-        n_mgs = 0
+        n_msg = 0
+        n_msg_failed = 0
         tot_size = 0
         for t in pbar:
             if t % self.delta == 0: shuffle(node_ids)
@@ -77,37 +78,47 @@ class GossipSimulator():
                 if node.timed_out(t):
                     peer = node.get_peer()
                     msg = node.send(t, peer, self.protocol)
-                    n_mgs += 1
+                    n_msg += 1
                     tot_size += msg.get_size()
-                    if msg and random() > self.message_failure_rate:
-                        message_queue.append(msg)
+                    if msg: 
+                        if random() >= self.message_failure_rate:
+                            message_queue.append(msg)
+                        else:
+                            n_msg_failed += 1
             
             reply_queue = []
             for msg in message_queue:
                 if random() < self.online_prob:
                     reply = self.nodes[msg.receiver].receive(msg)
-                    if reply and random() > self.message_failure_rate:
-                        reply_queue.append(reply)
+                    if reply:
+                        if random() > self.message_failure_rate:
+                            reply_queue.append(reply)
+                        else:
+                            n_msg_failed += 1
             
             for reply in reply_queue:
                 self.nodes[reply.receiver].receive(reply)
-                n_mgs += 1
+                n_msg += 1
                 tot_size += reply.get_size()
 
             evaluation = 0
             if (t+1) % self.delta == 0:
-                evaluation_user = self._collect_results([n.evaluate() for _, n in self.nodes.items() if n.has_test()])
+                ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
+                evaluation_user = self._collect_results(ev)
                 
                 if self.data_dispatcher.has_test():
-                    evaluation = self._collect_results([n.evaluate(self.data_dispatcher.get_eval_set()) for _, n in self.nodes.items()])
+                    ev = [n.evaluate(self.data_dispatcher.get_eval_set())
+                          for _, n in self.nodes.items()]
+                    evaluation = self._collect_results(ev)
                 else: evaluation = {}
 
                 evals.append(evaluation)
                 evals_user.append(evaluation_user)
 
-        print_flush("# Mgs:     %d" %n_mgs)
-        print_flush("Tot. size: %d" %tot_size)
-        return evals, evals_user #, n_mgs, tot_size
+        LOG.info("# Sent messages: %d" %n_msg)
+        LOG.info("# Failed messages: %d" %n_msg_failed)
+        LOG.info("Total size: %d" %tot_size)
+        return evals, evals_user
     
     def save(self, filename) -> None:
         with open(filename, 'wb') as f:
@@ -122,15 +133,16 @@ class GossipSimulator():
 
 def plot_evaluation(evals: List[List[Dict]],
                     title: str) -> None:
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
     for k in evals[0][0]:
         evs = [[d[k] for d in l] for l in evals]
         mu: float = np.mean(evs, axis=0)
         std: float = np.std(evs, axis=0)
-        plt.figure()
         plt.fill_between(range(len(mu)), mu-std, mu+std, alpha=0.2)
-        plt.legend(loc="lower right")
         plt.title(title)
         plt.plot(range(len(mu)), mu, label=k)
+    ax.legend(loc="lower right")
     plt.show()
 
 

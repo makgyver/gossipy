@@ -16,7 +16,7 @@ class DataHandler():
     def __getitem__(self, idx: int) -> Any:
         raise NotImplementedError()
 
-    def size(self) -> int:
+    def size(self, dim: int=0) -> int:
         raise NotImplementedError()
 
     def get_eval_set(self) -> Tuple[Any, Any]:
@@ -59,19 +59,22 @@ class DataDispatcher():
         return self.data_handler.eval_size() > 0
 
 
+UCI_BASE_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/"
+
 UCI_URL_AND_CLASS = {
-    "spambase" : ("https://archive.ics.uci.edu/ml/machine-learning-databases/spambase/spambase.data", 57),
-    "sonar" : ("https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data", 60),
-    "ionosphere" : ("https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data", 34),
-    "abalone" : ("https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data", 0),
-    "banknote" : ("https://archive.ics.uci.edu/ml/machine-learning-databases/00267/data_banknote_authentication.txt", 4)
+    "spambase" : (UCI_BASE_URL + "spambase/spambase.data", 57),
+    "sonar" : (UCI_BASE_URL + "undocumented/connectionist-bench/sonar/sonar.all-data", 60),
+    "ionosphere" : (UCI_BASE_URL + "ionosphere/ionosphere.data", 34),
+    "abalone" : (UCI_BASE_URL + "abalone/abalone.data", 0),
+    "banknote" : (UCI_BASE_URL + "00267/data_banknote_authentication.txt", 4)
 }
 
 
 def load_classification_dataset(name: str,
                                 path: str=None,
                                 normalize: bool=True,
-                                as_tensor: bool=True) -> Union[Tuple[torch.Tensor, torch.Tensor], Tuple[np.ndarray, np.ndarray]]:
+                                as_tensor: bool=True) -> Union[Tuple[torch.Tensor, torch.Tensor],
+                                                               Tuple[np.ndarray, np.ndarray]]:
     if name == "iris":
         dataset = datasets.load_iris()
         X, y = dataset.data, dataset.target

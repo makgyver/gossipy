@@ -1,19 +1,12 @@
 import torch
-import pandas as pd
-import numpy as np
-from numpy.random import choice
-from typing import OrderedDict, Union
-from torch.nn import functional as F
-from torch.nn.modules.loss import CrossEntropyLoss, NLLLoss
-#from baseline import sklearn_mlp, torch_mlp
+from torch.nn.modules.loss import CrossEntropyLoss
 from gossipy import set_seed, AntiEntropyProtocol, CreateModelMode
-from gossipy.node import GossipNode#, UAGossipNode, MABGossipNode
+from gossipy.node import GossipNode
 from gossipy.model.handler import TorchModelHandler
 from gossipy.model.nn import TorchMLP
 from gossipy.data import load_classification_dataset, DataDispatcher
 from gossipy.data.handler import ClassificationDataHandler
-from gossipy.simul import GossipSimulator, repeat_simulation
-from gossipy.utils import print_flush
+from gossipy.simul import repeat_simulation
 
 
 set_seed(98765)
@@ -34,8 +27,8 @@ res = repeat_simulation(data_dispatcher=dispatcher,
                                               "learning_rate" : .1,
                                               "create_model_mode" : CreateModelMode.UPDATE_MERGE},
                         topology_fun=None,
-                        n_rounds=100,
-                        repetitions=5,
+                        n_rounds=10,
+                        repetitions=1,
                         round_synced=True,
                         verbose=True)
 

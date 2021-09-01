@@ -44,6 +44,8 @@ class ModelHandler(Sizeable, EqualityMixin):
             self._update(data)
             recv_model._update(data)
             self._merge(recv_model)
+        elif self.mode == CreateModelMode.PASS:
+            self.model = copy.deepcopy(recv_model.model)
         else:
             raise ValueError("Unknown create model mode %s" %str(self.mode))
 
@@ -123,7 +125,7 @@ class TorchModelHandler(ModelHandler):
                 res["auc"] = roc_auc_score(y_true, auc_scores).astype(float)
             else:
                 res["auc"] = 0.5
-                LOG.warning("# of classes != 2. AUC is set to 0.5.")
+                LOG.warning("*** WARNING: # of classes != 2. AUC is set to 0.5. ***")
         return res
 
 
@@ -155,7 +157,7 @@ class AdaLineHandler(ModelHandler):
         x, y = data
         scores = self.model(x)
         y_true = y.cpu().numpy().flatten()
-        y_pred = torch.sign(scores).cpu().numpy().flatten()
+        y_pred = 2 * (scores >= 0).float().cpu().numpy().flatten() - 1
         auc_scores = scores.detach().cpu().numpy().flatten()
 
         res = {
