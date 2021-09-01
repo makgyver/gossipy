@@ -4,8 +4,18 @@ from torch.nn import Module, Linear, Sequential
 from torch.nn.init import xavier_uniform_
 from torch.nn.modules.activation import ReLU, Softmax, Sigmoid
 from typing import Tuple
-
 from . import TorchModel
+
+# AUTHORSHIP
+__version__ = "0.0.0dev"
+__author__ = "Mirko Polato"
+__copyright__ = "Copyright 2021, gossipy"
+__license__ = "MIT"
+__maintainer__ = "Mirko Polato, PhD"
+__email__ = "mak1788@gmail.com"
+__status__ = "Development"
+#
+
 
 __all__ = ["TorchPerceptron", "TorchMLP"]
 
