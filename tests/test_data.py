@@ -26,6 +26,9 @@ def test_DataHandler():
     
     with pytest.raises(NotImplementedError):
         dh.eval_size()
+    
+    with pytest.raises(NotImplementedError):
+        dh.train_size()
 
 def test_ClassificationDataHandler():
     X = torch.FloatTensor([[1,2], [3,4]])

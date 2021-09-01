@@ -33,6 +33,9 @@ class DataHandler():
     def get_eval_set(self) -> Tuple[Any, Any]:
         raise NotImplementedError()
     
+    def get_train_set(self) -> Tuple[Any, Any]:
+        raise NotImplementedError()
+
     def eval_size(self) -> int:
         raise NotImplementedError()
 

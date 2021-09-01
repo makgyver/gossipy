@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-from torch.utils.data import random_split
 from typing import Any, Tuple, Union, List
 from sklearn.model_selection import train_test_split
 from . import DataHandler
@@ -14,7 +13,6 @@ __maintainer__ = "Mirko Polato, PhD"
 __email__ = "mak1788@gmail.com"
 __status__ = "Development"
 #
-
 
 __all__ = ["ClassificationDataHandler"]
 
@@ -33,9 +31,6 @@ class ClassificationDataHandler(DataHandler):
             if isinstance(X, torch.Tensor):
                 n: int = X.shape[0]
                 te: int = round(n * test_size)
-                #split = random_split(torch.LongTensor(range(n)),
-                #                    [n - te, te],
-                #                    generator=torch.Generator().manual_seed(seed))
                 torch.manual_seed(seed)
                 perm = torch.randperm(n)
                 split = perm[:n-te], perm[n-te:]
@@ -65,6 +60,9 @@ class ClassificationDataHandler(DataHandler):
     def size(self, dim: int=0) -> int:
         return self.Xtr.shape[dim]
     
+    def get_train_set(self) -> Tuple[Any, Any]:
+        return self.Xtr, self.ytr
+
     def get_eval_set(self) -> Tuple[Any, Any]:
         return self.Xte, self.yte
     
