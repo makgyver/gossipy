@@ -169,7 +169,7 @@ def repeat_simulation(data_dispatcher: DataDispatcher,
                       gossip_node_class: GossipNode,
                       model_handler_class: ModelHandler,
                       model_handler_params: Dict[str, Any],
-                      topology_fun: Optional[Callable[[], np.ndarray]], #CHECK: typing
+                      topology: Optional[np.ndarray], #CHECK: typing
                       n_rounds: Optional[int]=1000,
                       drop_prob: float=0., # [0,1]
                       online_prob: float=1., # [0,1]
@@ -185,7 +185,6 @@ def repeat_simulation(data_dispatcher: DataDispatcher,
     try:
         for i in range(repetitions):
             print_flush("Simulation %d/%d" %(i+1, repetitions))
-            topology = topology_fun() if topology_fun is not None else None
             sims[i] = GossipSimulator(data_dispatcher=data_dispatcher,
                                       delta=round_delta,
                                       protocol=protocol,

@@ -28,7 +28,8 @@ def test_DataHandler():
         dh.eval_size()
     
     with pytest.raises(NotImplementedError):
-        dh.train_size()
+        dh.get_train_set()
+
 
 def test_ClassificationDataHandler():
     X = torch.FloatTensor([[1,2], [3,4]])
@@ -106,6 +107,20 @@ def test_load_classification_dataset():
     assert len(set(y)) == 3
     assert X.shape[1] == 4
 
+    X, y = load_classification_dataset("digits", normalize=False, as_tensor=False)
+    assert type(X) == np.ndarray
+    assert type(y) == np.ndarray
+    assert y.shape[0] == X.shape[0]
+    assert len(set(y)) == 10
+    assert X.shape[1] == 64
+
+    X, y = load_classification_dataset("wine", normalize=False, as_tensor=False)
+    assert type(X) == np.ndarray
+    assert type(y) == np.ndarray
+    assert y.shape[0] == X.shape[0]
+    assert len(set(y)) == 3
+    assert X.shape[1] == 13
+
     X, y = load_classification_dataset("breast", normalize=True, as_tensor=True)
     assert type(X) == torch.Tensor
     assert type(y) == torch.Tensor
@@ -117,7 +132,7 @@ def test_load_classification_dataset():
     for i in range(30):
         assert isclose(torch.std(X[:, i]).item(), 1, rel_tol=1e-4, abs_tol=1e-3) #ugly but there is no other way
     
-    with pytest.raises(ValueError):
+    with pytest.raises(FileNotFoundError):
         load_classification_dataset("invalid")
 
     #TODO: test one of these {"sonar", "ionosphere", "abalone", "banknote", "diabetes"}

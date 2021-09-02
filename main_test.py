@@ -1,4 +1,7 @@
+from networkx.generators.random_graphs import erdos_renyi_graph
+from networkx.generators.trees import random_tree
 import torch
+import networkx as nx
 from torch.nn.modules.loss import CrossEntropyLoss
 from gossipy import set_seed, AntiEntropyProtocol, CreateModelMode
 from gossipy.node import GossipNode
@@ -13,6 +16,9 @@ set_seed(98765)
 X, y = load_classification_dataset("breast", as_tensor=True)
 data_handler = ClassificationDataHandler(X, y, test_size=.3)
 dispatcher = DataDispatcher(data_handler, n=100, eval_on_user=True)
+#topology = nx.to_numpy_matrix(erdos_renyi_graph(100, 0.3))
+topology = nx.to_numpy_matrix(random_tree(100))
+#topology = None
 
 #set_seed(98765)
 res = repeat_simulation(data_dispatcher=dispatcher,
@@ -26,7 +32,7 @@ res = repeat_simulation(data_dispatcher=dispatcher,
                                               "criterion" : CrossEntropyLoss(),
                                               "learning_rate" : .1,
                                               "create_model_mode" : CreateModelMode.UPDATE_MERGE},
-                        topology_fun=None,
+                        topology=topology,
                         n_rounds=10,
                         delay=(0, 10),
                         repetitions=1,

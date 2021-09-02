@@ -1,6 +1,6 @@
-import copy
+import random
 import numpy as np
-from numpy.random import randint, normal, choice, rand
+from numpy.random import randint, normal, rand
 from numpy import ndarray
 from torch import Tensor
 from typing import Any, Optional, Union, Dict, Tuple
@@ -37,14 +37,14 @@ class GossipNode():
         self.model_handler = model_handler
         self.sync = sync
         self.delay = randint(0, round_len) if sync else int(normal(round_len, round_len/10))
-        self.known_nodes = np.where(known_nodes > 0)[0] if known_nodes is not None else None
+        self.known_nodes = list(np.where(known_nodes > 0)[1]) if known_nodes is not None else None
 
     def init_model(self, *args, **kwargs) -> None:
         self.model_handler.init()
 
     def get_peer(self) -> int:
         if self.known_nodes is not None:
-            return choice(self.known_nodes)
+            return random.choice(self.known_nodes)
         return choice_not_n(0, self.n_nodes, self.idx)
 
     def timed_out(self, t: int) -> int:

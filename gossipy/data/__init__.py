@@ -84,31 +84,31 @@ UCI_URL_AND_CLASS = {
 }
 
 
-def load_classification_dataset(name: str,
-                                path: str=None,
+def load_classification_dataset(name_or_path: str,
                                 normalize: bool=True,
                                 as_tensor: bool=True) -> Union[Tuple[torch.Tensor, torch.Tensor],
                                                                Tuple[np.ndarray, np.ndarray]]:
-    if name == "iris":
+    if name_or_path == "iris":
         dataset = datasets.load_iris()
         X, y = dataset.data, dataset.target
-    elif name == "breast":
+    elif name_or_path == "breast":
         dataset = datasets.load_breast_cancer()
         X, y = dataset.data, dataset.target
-    #TODO: elif add more sklearn datasets
-    #
-    elif name in {"sonar", "ionosphere", "abalone", "banknote", "spambase"}:
-        #if path is not None:
-        #    X, y = load_svmlight_file(os.path.join(path, name + ".svmlight"))
-        #    X = X.toarray()
-        #else:
-        url, label_id = UCI_URL_AND_CLASS[name]
-        LOG.info("Downloading dataset %s from '%s'." %(name, url))
+    elif name_or_path == "digits":
+        dataset = datasets.load_digits()
+        X, y = dataset.data, dataset.target
+    elif name_or_path == "wine":
+        dataset = datasets.load_wine()
+        X, y = dataset.data, dataset.target
+    elif name_or_path in {"sonar", "ionosphere", "abalone", "banknote", "spambase"}:
+        url, label_id = UCI_URL_AND_CLASS[name_or_path]
+        LOG.info("Downloading dataset %s from '%s'." %(name_or_path, url))
         data = pd.read_csv(url, header=None).to_numpy()
         y = LabelEncoder().fit_transform(data[:, label_id])
         X = np.delete(data, [label_id], axis=1).astype('float64')
     else:
-        raise ValueError("Unknown dataset %s." %name)
+        X, y = load_svmlight_file(name_or_path)
+        X = X.toarray()
 
     if normalize:
         X = StandardScaler().fit_transform(X)
@@ -118,6 +118,7 @@ def load_classification_dataset(name: str,
         y = torch.tensor(y).long()#.reshape(y.shape[0], 1)
 
     return X, y
+
 
 #TODO: download
 # def load_recsys_dataset(name: str,

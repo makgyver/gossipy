@@ -100,7 +100,7 @@ def test_GossipSimulator():
             "criterion" : CrossEntropyLoss(),
             "learning_rate" : .1,
             "create_model_mode" : CreateModelMode.UPDATE_MERGE},
-        topology_fun=None,
+        topology=None,
         n_rounds=10,
         repetitions=2,
         round_synced=True,
