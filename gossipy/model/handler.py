@@ -160,7 +160,7 @@ class AdaLineHandler(ModelHandler):
             self.model.model += self.learning_rate * (y[i] - self.model(x[i])) * x[i]
     
     def _merge(self, other_model_handler: PegasosHandler) -> None:
-        self.model.model = 0.5 * (self.model.model + other_model_handler.model.model)
+        self.model.model = torch.nn.Parameter(0.5 * (self.model.model + other_model_handler.model.model), requires_grad=False)
         self.n_updates = max(self.n_updates, other_model_handler.n_updates)
 
     def evaluate(self,

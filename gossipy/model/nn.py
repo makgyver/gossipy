@@ -71,7 +71,7 @@ class AdaLine(TorchModel):
     def __init__(self, dim: int):
         super(AdaLine, self).__init__()
         self.input_dim = dim
-        self.model = torch.zeros(self.input_dim)
+        self.model = torch.nn.Parameter(torch.zeros(self.input_dim), requires_grad=False)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model @ x.T

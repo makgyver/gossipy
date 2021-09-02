@@ -1,5 +1,7 @@
 import torch
 from typing import Any
+
+from torch.nn.modules.container import ParameterList
 from .. import EqualityMixin, Sizeable
 from ..utils import torch_models_eq
 
@@ -38,3 +40,6 @@ class TorchModel(torch.nn.Module, Sizeable):
     
     def __str__(self) -> str:
         return "TorchModel(size=%d)" %self.get_size()
+    
+    def get_params_list(self):
+        return ParameterList(self.parameters())

@@ -1,3 +1,4 @@
+from torch.nn.modules.container import ParameterList
 from gossipy.utils import torch_models_eq
 import os
 import sys
@@ -19,6 +20,7 @@ def test_TorchModel():
     
     assert tm.get_size() == 0
     assert str(tm) == "TorchModel(size=0)"
+    assert len(tm.get_params_list()) == 0
 
     class TempModel(TorchModel):
         def __init__(self):
@@ -171,7 +173,6 @@ def test_AdaLineHandler():
     X = torch.FloatTensor([[1,1], [1,0]])
     y = torch.LongTensor([1, -1])
     ada._update((X, y))
-    print(ada.model.model)
     assert torch.allclose(ada.model.model, torch.FloatTensor([-0.0100, 0.1000]))
 
     ada._merge(AdaLineHandler(AdaLine(2), 0.1, copy_model=False))
