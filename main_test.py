@@ -15,7 +15,7 @@ from gossipy.simul import repeat_simulation
 set_seed(98765)
 X, y = load_classification_dataset("breast", as_tensor=True)
 data_handler = ClassificationDataHandler(X, y, test_size=.3)
-dispatcher = DataDispatcher(data_handler, n=100, eval_on_user=True)
+dispatcher = DataDispatcher(data_handler, n=100, eval_on_user=False)
 #topology = nx.to_numpy_matrix(erdos_renyi_graph(100, 0.3))
 topology = nx.to_numpy_matrix(random_tree(100))
 #topology = None

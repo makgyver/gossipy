@@ -17,4 +17,3 @@ Python module for simulating gossip learning.
 ### Extras
 
 - [ ] Documentation
-- [ ] Authorship

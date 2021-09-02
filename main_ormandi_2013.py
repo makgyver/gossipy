@@ -20,7 +20,7 @@ res = repeat_simulation(data_dispatcher=DataDispatcher(data_handler, eval_on_use
                         model_handler_params={"net" : Pegasos(data_handler.size(1)),
                                               "lam" : .01,
                                               "create_model_mode" : CreateModelMode.MERGE_UPDATE},
-                        topology_fun=None,
+                        topology=None,
                         n_rounds=100,
                         repetitions=1,
                         round_synced=False,

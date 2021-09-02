@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
-from numpy.random import shuffle, random, randint
-from typing import Any, DefaultDict, Optional, Dict, List, Callable, Tuple
+from numpy.random import shuffle, random, randint, choice
+from typing import Any, DefaultDict, Optional, Dict, List, Tuple
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pickle
@@ -37,10 +37,12 @@ class GossipSimulator():
                  drop_prob: float=0., # [0,1]
                  online_prob: float=1., # [0,1]
                  delay: Optional[Tuple[int, int]]=None,
+                 sampling_eval: float=0., #[0, 1]
                  round_synced: bool=True):
         
         assert 0 <= drop_prob <= 1, "drop_prob must be in the range [0,1]."
         assert 0 <= online_prob <= 1, "online_prob must be in the range [0,1]."
+        assert 0 <= sampling_eval <= 1, "sampling_eval must be in the range [0,1]."
         assert (not delay) or (0 <= delay[0] <= delay[1]), "delay value is not correct."
 
         self.data_dispatcher = data_dispatcher
@@ -51,6 +53,7 @@ class GossipSimulator():
         self.drop_prob = drop_prob
         self.online_prob = online_prob
         self.delay = delay
+        self.sampling_eval = sampling_eval
         self.nodes = {i: gossip_node_class(i,
                                            data_dispatcher[i],
                                            delta,
@@ -118,19 +121,22 @@ class GossipSimulator():
                 n_msg += 1
                 tot_size += reply.get_size()
 
-            evaluation = 0
             if (t+1) % self.delta == 0:
-                ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
-                evaluation_user = self._collect_results(ev)
+                if self.sampling_eval > 0:
+                    sample = choice(list(self.nodes.keys()), int(self.n_nodes * self.sampling_eval))
+                    ev = [self.nodes[i].evaluate() for i in sample if self.nodes[i].has_test()]
+                else:
+                    ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
+                evals_user.append(self._collect_results(ev))
                 
                 if self.data_dispatcher.has_test():
-                    ev = [n.evaluate(self.data_dispatcher.get_eval_set())
-                          for _, n in self.nodes.items()]
-                    evaluation = self._collect_results(ev)
-                else: evaluation = {}
-
-                evals.append(evaluation)
-                evals_user.append(evaluation_user)
+                    if self.sampling_eval > 0:
+                        ev = [self.nodes[i].evaluate(self.data_dispatcher.get_eval_set())
+                              for i in sample]
+                    else:
+                        ev = [n.evaluate(self.data_dispatcher.get_eval_set())
+                              for _, n in self.nodes.items()]
+                    evals.append(self._collect_results(ev))
 
         LOG.info("# Sent messages: %d" %n_msg)
         LOG.info("# Failed messages: %d" %n_msg_failed)
@@ -150,15 +156,19 @@ class GossipSimulator():
 
 def plot_evaluation(evals: List[List[Dict]],
                     title: str) -> None:
+    if not evals[0][0]: return
     fig = plt.figure()
+    fig.canvas.set_window_title(title)
     ax = fig.add_subplot(111)
     for k in evals[0][0]:
         evs = [[d[k] for d in l] for l in evals]
         mu: float = np.mean(evs, axis=0)
         std: float = np.std(evs, axis=0)
-        plt.fill_between(range(len(mu)), mu-std, mu+std, alpha=0.2)
+        plt.fill_between(range(1, len(mu)+1), mu-std, mu+std, alpha=0.2)
         plt.title(title)
-        plt.plot(range(len(mu)), mu, label=k)
+        plt.xlabel("cycle")
+        plt.ylabel("value")
+        plt.plot(range(1, len(mu)+1), mu, label=k)
     ax.legend(loc="lower right")
     plt.show()
 
@@ -169,7 +179,7 @@ def repeat_simulation(data_dispatcher: DataDispatcher,
                       gossip_node_class: GossipNode,
                       model_handler_class: ModelHandler,
                       model_handler_params: Dict[str, Any],
-                      topology: Optional[np.ndarray], #CHECK: typing
+                      topology: Optional[np.ndarray],
                       n_rounds: Optional[int]=1000,
                       drop_prob: float=0., # [0,1]
                       online_prob: float=1., # [0,1]

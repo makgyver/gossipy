@@ -37,7 +37,7 @@ class GossipNode():
         self.model_handler = model_handler
         self.sync = sync
         self.delay = randint(0, round_len) if sync else int(normal(round_len, round_len/10))
-        self.known_nodes = list(np.where(known_nodes > 0)[1]) if known_nodes is not None else None
+        self.known_nodes = list(np.where(known_nodes > 0)[-1]) if known_nodes is not None else None
 
     def init_model(self, *args, **kwargs) -> None:
         self.model_handler.init()
@@ -48,10 +48,7 @@ class GossipNode():
         return choice_not_n(0, self.n_nodes, self.idx)
 
     def timed_out(self, t: int) -> int:
-        if self.sync:
-            return (t % self.round_len) == self.delay
-        else:
-            return (t % self.delay) == 0
+        return ((t % self.round_len) == self.delay) if self.sync else ((t % self.delay) == 0)
 
     def send(self,
              t: int,
@@ -74,14 +71,13 @@ class GossipNode():
            msg_type == MessageType.REPLY or \
            msg_type == MessageType.PUSH_PULL:
             self.model_handler(recv_model, self.data[0])
-            #self.n_updates += 1
+
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
             return Message(t, self.idx, msg.sender, MessageType.REPLY, self.model_handler.copy())
         return None
 
-    def evaluate(self,
-                 ext_data: Optional[Any]=None) -> Dict[str, float]:
+    def evaluate(self, ext_data: Optional[Any]=None) -> Dict[str, float]:
         if ext_data is None:
             return self.model_handler.evaluate(self.data[1])
         else:

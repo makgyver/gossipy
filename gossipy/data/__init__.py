@@ -22,7 +22,6 @@ __status__ = "Development"
 __all__ = ["DataHandler", "DataDispatcher", "load_classification_dataset"]
 
 
-#TODO: get training set?
 class DataHandler():
     def __getitem__(self, idx: int) -> Any:
         raise NotImplementedError()
