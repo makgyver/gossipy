@@ -5,6 +5,7 @@ import torch
 import pytest
 
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('.'))
 from gossipy import Message, Sizeable, set_seed, MessageType
 
 def test_set_seed() -> None:

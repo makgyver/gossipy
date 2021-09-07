@@ -1,9 +1,7 @@
 import torch
-from typing import Any
-
 from torch.nn.modules.container import ParameterList
-from .. import EqualityMixin, Sizeable
-from ..utils import torch_models_eq
+
+from .. import Sizeable
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"

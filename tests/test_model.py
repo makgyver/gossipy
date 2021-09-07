@@ -8,6 +8,8 @@ from torch.nn import functional as F
 import pytest
 
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('.'))
+
 from gossipy.model import TorchModel
 from gossipy import CreateModelMode, set_seed
 from gossipy.model.handler import AdaLineHandler, ModelHandler, PegasosHandler, TorchModelHandler

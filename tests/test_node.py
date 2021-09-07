@@ -10,6 +10,8 @@ from torch.nn import functional as F
 import pytest
 
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('.'))
+
 from gossipy.node import CacheNeighNode, GossipNode, PassThroughNode
 from gossipy.model.handler import PegasosHandler, TorchModelHandler
 from gossipy.model.nn import Pegasos, TorchMLP

@@ -1,8 +1,9 @@
 import os
 import sys
-#from math import isclose
 
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('.'))
+
 from gossipy.utils import print_flush, choice_not_n
 
 def test_print_flush(capsys):

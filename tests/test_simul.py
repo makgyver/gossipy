@@ -12,7 +12,9 @@ from torch.optim import SGD
 from torch.nn import CrossEntropyLoss
 import matplotlib.pyplot as plt
 from unittest import mock
+
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('.'))
 
 from gossipy.model.handler import TorchModelHandler
 from gossipy.node import GossipNode
