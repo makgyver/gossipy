@@ -18,10 +18,18 @@ __status__ = "Development"
 
 class TorchPartitionManager:
     def __init__(self, net_proto: TorchModel, n_parts: int):
+        self._check(net_proto)
         self.str_arch = str(net_proto)
-        self.n_parts = min(n_parts, net_proto.get_size()) 
+        self.n_parts = min(n_parts, net_proto.get_size())
         self.partitions = self._partition(net_proto, self.n_parts)
     
+    def _check(self, net: TorchModel):
+        plist = ParameterList(net.parameters())
+        for t in plist:
+            if t.dim() > 3:
+                raise TypeError("Partitioning is only not supported on\
+                                 networks with at most 3D layers.")
+
     def _partition(self, net: TorchModel, n: int):
         plist = ParameterList(net.parameters())
         parts = {i : {j : None for j in range(len(plist))} for i in range(n)}
@@ -52,17 +60,16 @@ class TorchPartitionManager:
                     ids = [[], [], []]
             elif tensor.dim() == 2:
                 if diff == 0 or shift[1] == 0:
-                    parts[ni][ti] = (torch.LongTensor(ids[1]),
-                                     torch.LongTensor(ids[0]))
+                    parts[ni][ti] = (torch.LongTensor(ids[0]),
+                                     torch.LongTensor(ids[1]))
                     ids = [[], [], []]
-            elif tensor.dim() == 3:
+            else:#if tensor.dim() == 3:
                 if diff == 0 or shift[2] == 0:
-                    parts[ni][ti] = (torch.LongTensor(ids[2]),
+                    parts[ni][ti] = (torch.LongTensor(ids[0]),
                                      torch.LongTensor(ids[1]),
-                                     torch.LongTensor(ids[0]))
+                                     torch.LongTensor(ids[2]))
                     ids = [[], [], []]
-            else:
-                raise TypeError("Operation not supported for layers with more than 3 dimensions.")
+            
             
             if shift[0] == 0:
                 if tensor.dim() == 1: ti += 1
@@ -93,7 +100,7 @@ class TorchPartitionManager:
         assert reduce in {"mean", "sum"}, "reduce can be either 'sum' or 'mean'."
 
         if id_part >= self.n_parts:
-            LOG.warning("Skipped merging models on non exizting partition id.")
+            LOG.warning("Skipped merging models on non existing partition id.")
             return
 
         plist1 = ParameterList(net1.parameters())
