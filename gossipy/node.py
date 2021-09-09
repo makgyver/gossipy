@@ -1,3 +1,4 @@
+from gossipy.model.sampling import TorchModelPartition, TorchModelSampling
 import random
 import numpy as np
 from numpy.random import randint, normal, rand
@@ -5,7 +6,7 @@ from numpy import ndarray
 from torch import Tensor
 from typing import Any, Optional, Union, Dict, Tuple
 from .utils import choice_not_n
-from .model.handler import ModelHandler
+from .model.handler import ModelHandler, PartitionedTMH, SamplingTMH
 from . import AntiEntropyProtocol, CreateModelMode, MessageType, Message
 
 # AUTHORSHIP
@@ -98,12 +99,12 @@ class PassThroughNode(GossipNode):
                  known_nodes: Optional[np.ndarray]=None, #reachable nodes according to the network topology
                  sync=True):
         super(PassThroughNode, self).__init__(idx,
-                                                    data,
-                                                    round_len,
-                                                    n_nodes,
-                                                    model_handler,
-                                                    known_nodes,
-                                                    sync)
+                                              data,
+                                              round_len,
+                                              n_nodes,
+                                              model_handler,
+                                              known_nodes,
+                                              sync)
         self.n_neighs = len(self.known_nodes)
 
     def send(self,
@@ -215,4 +216,135 @@ class CacheNeighNode(GossipNode):
                            msg.sender,
                            MessageType.REPLY,
                            self.model_handler.copy())
+        return None
+
+
+class SamplingBasedNode(GossipNode):
+    def __init__(self,
+                 idx: int, #node's id
+                 sample_size: float,
+                 data: Union[Tuple[Tensor, Optional[Tensor]],
+                             Tuple[ndarray, Optional[ndarray]]], #node's data
+                 round_len: int, #round length
+                 n_nodes: int, #number of nodes in the network
+                 model_handler: SamplingTMH, #object that handles the model learning/inference
+                 known_nodes: np.ndarray, #reachable nodes according to the network topology
+                 sync=True):
+        super(SamplingBasedNode, self).__init__(idx,
+                                                data,
+                                                round_len,
+                                                n_nodes,
+                                                model_handler,
+                                                known_nodes,
+                                                sync)
+        assert 0 < sample_size <= 1, "sample_size must be in the range (0, 1]."
+        self.sample_size = sample_size
+                        
+    def send(self,
+             t: int,
+             peer: int,
+             protocol: AntiEntropyProtocol) -> Union[Message, None]:
+
+        if protocol == AntiEntropyProtocol.PUSH:
+            return Message(t,
+                           self.idx,
+                           peer,
+                           MessageType.PUSH,
+                           (self.model_handler.copy(), self.sample_size))
+        elif protocol == AntiEntropyProtocol.PULL:
+            return Message(t, self.idx, peer, MessageType.PULL, None)
+        elif protocol == AntiEntropyProtocol.PUSH_PULL:
+            return Message(t,
+                           self.idx,
+                           peer,
+                           MessageType.PUSH_PULL,
+                           (self.model_handler.copy(), self.sample_size))
+        else:
+            raise ValueError("Unknown protocol %s." %protocol)
+
+    def receive(self, t: int, msg: Message) -> Union[Message, None]:
+        msg_type: MessageType
+        recv_model: Any 
+        msg_type = msg.type
+
+        if msg_type == MessageType.PUSH or \
+           msg_type == MessageType.REPLY or \
+           msg_type == MessageType.PUSH_PULL:
+            recv_model, sample_size = msg.value
+            sample = TorchModelSampling.sample(sample_size, recv_model.model)
+            self.model_handler(recv_model, self.data[0], sample)
+
+        if msg_type == MessageType.PULL or \
+           msg_type == MessageType.PUSH_PULL:
+            return Message(t,
+                           self.idx,
+                           msg.sender,
+                           MessageType.REPLY,
+                           (self.model_handler.copy(), self.sample_size))
+        return None
+
+
+class PartitioningBasedNode(GossipNode):
+    def __init__(self,
+                 idx: int, #node's id
+                 partitioner: TorchModelPartition,
+                 data: Union[Tuple[Tensor, Optional[Tensor]],
+                             Tuple[ndarray, Optional[ndarray]]], #node's data
+                 round_len: int, #round length
+                 n_nodes: int, #number of nodes in the network
+                 model_handler: PartitionedTMH, #object that handles the model learning/inference
+                 known_nodes: np.ndarray, #reachable nodes according to the network topology
+                 sync=True):
+        super(PartitioningBasedNode, self).__init__(idx,
+                                                    data,
+                                                    round_len,
+                                                    n_nodes,
+                                                    model_handler,
+                                                    known_nodes,
+                                                    sync)
+        self.partitioner = partitioner
+                        
+    def send(self,
+             t: int,
+             peer: int,
+             protocol: AntiEntropyProtocol) -> Union[Message, None]:
+
+        if protocol == AntiEntropyProtocol.PUSH:
+            pid = np.random.randint(0, self.partitioner.n_parts)
+            return Message(t,
+                           self.idx,
+                           peer,
+                           MessageType.PUSH,
+                           (self.model_handler.copy(), pid))
+        elif protocol == AntiEntropyProtocol.PULL:
+            return Message(t, self.idx, peer, MessageType.PULL, None)
+        elif protocol == AntiEntropyProtocol.PUSH_PULL:
+            pid = np.random.randint(0, self.partitioner.n_parts)
+            return Message(t,
+                           self.idx,
+                           peer,
+                           MessageType.PUSH_PULL,
+                           (self.model_handler.copy(), pid))
+        else:
+            raise ValueError("Unknown protocol %s." %protocol)
+
+    def receive(self, t: int, msg: Message) -> Union[Message, None]:
+        msg_type: MessageType
+        recv_model: Any 
+        msg_type = msg.type
+
+        if msg_type == MessageType.PUSH or \
+           msg_type == MessageType.REPLY or \
+           msg_type == MessageType.PUSH_PULL:
+            recv_model, pid = msg.value
+            self.model_handler(recv_model, self.data[0], pid)
+
+        if msg_type == MessageType.PULL or \
+           msg_type == MessageType.PUSH_PULL:
+            pid = np.random.randint(0, self.partitioner.n_parts)
+            return Message(t,
+                           self.idx,
+                           msg.sender,
+                           MessageType.REPLY,
+                           (self.model_handler.copy(), pid))
         return None

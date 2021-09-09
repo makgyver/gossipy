@@ -4,11 +4,11 @@ import numpy as np
 from numpy.random import choice
 from collections import Counter
 from torch import LongTensor
-from typing import Dict, Tuple, Optional, Union
+from typing import Dict, Tuple, Optional
 from torch.nn import ParameterList
 
 from .. import LOG
-from gossipy.model.nn import TorchModel, TorchPerceptron
+from gossipy.model.nn import TorchModel
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"
@@ -24,19 +24,18 @@ __all__ = ["TorchModelSampling", "TorchModelPartition"]
 
 
 class TorchModelSampling:
-    def __init__(self, size: float):
+
+    @classmethod
+    def sample(cls, size: float, net: TorchModel) -> Dict[int, Optional[Tuple[LongTensor, ...]]]:
         assert 0 < size <= 1, "size must be in the range (0, 1]."
         if size >= 0.9:
             LOG.warning("You are using a high sample size (=%.2f) which can impact "\
                          "the performance without much advantage in terms of saved bandwith." %size)
-        self.size = size
-
-    def sample(self, net: TorchModel) -> Dict[int, Optional[Tuple[LongTensor, ...]]]:
+        
         plist = ParameterList(net.parameters())
         probs = np.array([torch.numel(t) for t in plist], dtype='float')
-        print(probs, sum(probs))
         probs /= sum(probs)
-        sample_size = int(round(self.size * net.get_size()))
+        sample_size = max(1, int(round(size * net.get_size())))
         counter = dict(Counter(list(choice(len(plist), size=sample_size, p=probs))))
         samples = {i : None for i in range(len(plist))}
         for i, c in counter.items():
@@ -46,10 +45,11 @@ class TorchModelSampling:
                 
         return samples
     
-    def merge(self, sample: Dict[int, Optional[Tuple[LongTensor, ...]]],
-                    net1: TorchModel,
-                    net2: TorchModel,
-                    reduce: str="mean") -> None:
+    @classmethod
+    def merge(cls, sample: Dict[int, Optional[Tuple[LongTensor, ...]]],
+                   net1: TorchModel,
+                   net2: TorchModel,
+                   reduce: str="mean") -> None:
         assert str(net1) == str(net2), "net1 and net2 must have the same architecture."
         assert reduce in {"mean", "sum"}, "reduce must be either 'sum' or 'mean'."
 
@@ -142,21 +142,21 @@ class TorchModelPartition:
     def merge(self, id_part: int,
                     net1: TorchModel,
                     net2: TorchModel,
-                    reduce: str="mean") -> None:
+                    weights: Optional[Tuple[int, int]]=None) -> None:
         assert str(net1) == self.str_arch, "net1 is not compatible."
         assert str(net2) == self.str_arch, "net2 is not compatible."
-        assert reduce in {"mean", "sum"}, "reduce must be either 'sum' or 'mean'."
         
         id_part = id_part % self.n_parts
         plist1 = ParameterList(net1.parameters())
         plist2 = ParameterList(net2.parameters())
 
+        w = weights if (weights is not None and weights != (0,0)) else (1,1)
+        mul1, mul2 = w[0] / sum(w), w[1] / sum(w)
         with torch.no_grad():
             for i in range(len(plist1)):
                 t_ids = self.partitions[id_part][i]
                 if t_ids is not None:
-                    mul = 2 if reduce == "mean" else 1
-                    plist1[i][t_ids] = (plist1[i][t_ids] + plist2[i][t_ids]) * mul
+                    plist1[i][t_ids] = mul1 * plist1[i][t_ids] + mul2 * plist2[i][t_ids]
                     
 
                 
