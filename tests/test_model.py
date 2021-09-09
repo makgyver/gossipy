@@ -12,9 +12,9 @@ sys.path.insert(0, os.path.abspath('.'))
 
 from gossipy.model import TorchModel
 from gossipy import CreateModelMode, set_seed
-from gossipy.model.handler import AdaLineHandler, ModelHandler, PartitionedTMH, PegasosHandler, TorchModelHandler
+from gossipy.model.handler import AdaLineHandler, ModelHandler, PartitionedTMH, PegasosHandler, SamplingTMH, TorchModelHandler
 from gossipy.model.nn import AdaLine, Pegasos, TorchMLP, TorchPerceptron
-from gossipy.model.sampling import TorchModelPartition
+from gossipy.model.sampling import TorchModelPartition, TorchModelSampling
 
 def test_TorchModel():
     tm = TorchModel()
@@ -212,7 +212,6 @@ def test_PegasosHandler():
     assert res["accuracy"] == res["recall"] == res["f1_score"] == res["auc"] == 1
 
 
-
 def test_PTMH():
     set_seed(987654)
     mlp = TorchMLP(2, 2, (4,))
@@ -267,3 +266,37 @@ def test_PTMH():
     assert result["f1_score"] == 2/3
     assert result["precision"] == .5
     assert result["auc"] == 1.
+
+
+def test_STMH():
+    set_seed(987654)
+    mlp = TorchMLP(2, 2, (4,))
+    params = {
+        "net" : mlp,
+        "optimizer" : SGD,
+        "l2_reg": 0.001,
+        "criterion" : F.mse_loss,
+        "learning_rate" : .1,
+    }
+    tmh = SamplingTMH(**params)
+    tmh.init()
+
+    assert str(tmh.model) == str(mlp)
+    assert tmh.n_updates == 0
+    assert tmh.optimizer.param_groups[0]['lr'] == .1
+    assert tmh.optimizer.param_groups[0]['weight_decay'] == .001
+    Xtr = torch.FloatTensor([[1, 1], [0.1, 0.1]])
+    ytr = torch.FloatTensor([[1, 0], [0, 1]])
+
+    tmh2 = SamplingTMH(**params)
+    assert not torch_models_eq(tmh.model, tmh2.model)
+    tmh2.init()
+
+    tmh(tmh2, (Xtr, ytr), TorchModelSampling.sample(.1, mlp))
+
+    result = tmh.evaluate((Xtr, ytr))
+    assert result["accuracy"] == 0.5
+    assert result["recall"] == 1.
+    assert result["f1_score"] == 2/3
+    assert result["precision"] == .5
+    assert result["auc"] == 0.

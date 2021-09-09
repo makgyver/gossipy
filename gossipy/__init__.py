@@ -30,7 +30,7 @@ logging.basicConfig(level=logging.INFO,
                     format="[%(asctime)s]  %(message)s",
                     datefmt='%H:%M:%S-%d%m%y')
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger("gossipy")
 LOG.addFilter(DuplicateFilter())
 
 

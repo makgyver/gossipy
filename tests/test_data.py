@@ -45,6 +45,9 @@ def test_ClassificationDataHandler():
     cdh = ClassificationDataHandler(X, y, 0, 42)
     assert torch.all(cdh.Xtr == X)
     assert torch.all(cdh.ytr == y)
+    X_, y_ = cdh.get_train_set()
+    assert torch.all(X == X_)
+    assert torch.all(y == y_)
 
     X = np.array([[1,2], [3,4]])
     y = np.array([0, 1])

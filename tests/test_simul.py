@@ -1,6 +1,5 @@
 from gossipy.utils import torch_models_eq
-from gossipy import data
-import gossipy
+from gossipy import data, LOG
 from gossipy.model.nn import TorchMLP
 from gossipy.data import DataDispatcher
 from gossipy.data.handler import ClassificationDataHandler
@@ -122,6 +121,42 @@ def test_GossipSimulator():
     assert gossip.drop_prob == 0
     assert gossip.nodes[0].sync
 
+    
+import unittest
+
+class TestStringMethods(unittest.TestCase):
+
+    def test_fail(self):
+        set_seed(42)
+        Xtr = torch.FloatTensor([[0,1],[-1,0],[-1,1],
+                                [1,-1],[-1,-2],[2,1],
+                                [0,2], [-2,2],
+                                [0,-2], [2,-2]])
+        ytr = torch.LongTensor([0, 0, 0,
+                                1, 1, 1,
+                                0, 0,
+                                1, 1])
+        cdh = ClassificationDataHandler(Xtr, ytr, 0.4, 42)
+        data_dispatcher = DataDispatcher(cdh, 2, True)
+        net = TorchMLP(2, 2, (2,))
+        gossip = GossipSimulator(data_dispatcher=data_dispatcher,
+                                delta=5,
+                                protocol=AntiEntropyProtocol.PULL,
+                                gossip_node_class=GossipNode,model_handler_class=TorchModelHandler,
+                                model_handler_params={
+                                    "net" : net,
+                                    "optimizer" : SGD,
+                                    "l2_reg": 0.001,
+                                    "criterion" : CrossEntropyLoss(),
+                                    "learning_rate" : .1,
+                                    "create_model_mode" : CreateModelMode.UPDATE_MERGE},
+                                topology=None,
+                                drop_prob=0.9,
+                                online_prob=1,
+                                round_synced=True)
+        with self.assertLogs(logger='gossipy', level='INFO') as cm:
+            gossip.start(10)
+            assert cm.output[1] != "INFO:gossipy:# Failed messages: 0"
 
 @mock.patch("%s.simul.plt" % __name__)
 def test_plot(mock_plt):

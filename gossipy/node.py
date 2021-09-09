@@ -287,7 +287,6 @@ class SamplingBasedNode(GossipNode):
 class PartitioningBasedNode(GossipNode):
     def __init__(self,
                  idx: int, #node's id
-                 partitioner: TorchModelPartition,
                  data: Union[Tuple[Tensor, Optional[Tensor]],
                              Tuple[ndarray, Optional[ndarray]]], #node's data
                  round_len: int, #round length
@@ -302,7 +301,6 @@ class PartitioningBasedNode(GossipNode):
                                                     model_handler,
                                                     known_nodes,
                                                     sync)
-        self.partitioner = partitioner
                         
     def send(self,
              t: int,
@@ -310,7 +308,7 @@ class PartitioningBasedNode(GossipNode):
              protocol: AntiEntropyProtocol) -> Union[Message, None]:
 
         if protocol == AntiEntropyProtocol.PUSH:
-            pid = np.random.randint(0, self.partitioner.n_parts)
+            pid = np.random.randint(0, self.model_handler.tm_partition.n_parts)
             return Message(t,
                            self.idx,
                            peer,
@@ -319,7 +317,7 @@ class PartitioningBasedNode(GossipNode):
         elif protocol == AntiEntropyProtocol.PULL:
             return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
-            pid = np.random.randint(0, self.partitioner.n_parts)
+            pid = np.random.randint(0, self.model_handler.tm_partition.n_parts)
             return Message(t,
                            self.idx,
                            peer,
@@ -341,7 +339,7 @@ class PartitioningBasedNode(GossipNode):
 
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
-            pid = np.random.randint(0, self.partitioner.n_parts)
+            pid = np.random.randint(0, self.model_handler.tm_partition.n_parts)
             return Message(t,
                            self.idx,
                            msg.sender,
