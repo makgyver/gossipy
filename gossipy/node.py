@@ -1,7 +1,7 @@
 from gossipy.model.sampling import TorchModelPartition, TorchModelSampling
 import random
 import numpy as np
-from numpy.random import randint, normal, rand
+from numpy.random import randint, normal, rand, binomial
 from numpy import ndarray
 from torch import Tensor
 from typing import Any, Optional, Union, Dict, Tuple
@@ -346,3 +346,78 @@ class PartitioningBasedNode(GossipNode):
                            MessageType.REPLY,
                            (self.model_handler.copy(), pid))
         return None
+
+
+class TokenAccount():
+    def __init__(self):
+        self.n_tokens = 0
+    
+    def add(self, n: int=1) -> None:
+        self.n_tokens += n
+    
+    def proactive(self) -> float:
+        raise NotImplementedError()
+
+    def reactive(self, utility: int) -> int:
+        raise NotImplementedError()
+
+
+class PurelyProactiveTokenAccount(TokenAccount):
+    def proactive(self) -> float:
+        return 1
+
+    def reactive(self, utility: int) -> int:
+        return 0
+
+
+class PurelyReactiveTokenAccount(TokenAccount):
+    def __init__(self, k: int=1):
+        super(PurelyReactiveTokenAccount, self).__init__()
+        self.k = k
+
+    def proactive(self) -> float:
+        return 0
+
+    def reactive(self, utility: int) -> int:
+        return int(utility * self.k)
+
+
+class SimpleTokenAccount(TokenAccount):
+    def __init__(self, C: int): #1
+        super(TokenAccount, self).__init__()
+        self.capacity = C
+    
+    def proactive(self) -> float:
+        return int(self.n_tokens >= self.capacity)
+
+    def reactive(self, utility: int) -> int:
+        return int(self.n_tokens > 0)
+
+
+class GeneralizedTokenAccount(SimpleTokenAccount):
+    def __init__(self, C: int, A: int): #1
+        super(SimpleTokenAccount, self).__init__(C)
+        self.reactivity = A
+
+    def reactive(self, utility: int) -> int:
+        num = self.reactivity + self.n_tokens - 1
+        return int(num / self.reactivity if utility > 0 else num / (2 * self.reactivity))
+
+
+class RandomizedTokenAccount(GeneralizedTokenAccount):
+    def __init__(self, C: int, A: int):
+        super(GeneralizedTokenAccount, self).__init__(C, A)
+    
+    def proactive(self) -> float:
+        if self.n_tokens < self.reactivity - 1:
+            return 0
+        elif self.reactivity - 1 <= self.n_tokens <= self.capacity:
+            return (self.n_tokens - self.reactivity + 1) / (self.capacity - self.reactivity + 1)
+        else:
+            return 1
+
+    def reactive(self, utility: int) -> int:
+        if utility > 0:
+            r = self.n_tokens / self.reactivity
+            return r + binomial(1, r - int(r)) #randRound
+        return 0

@@ -272,7 +272,7 @@ class PartitionedTMH(TorchModelHandler):
         self._adjust_gradient()
         self.optimizer.step()
     
-    def _adjust_gradient(self):
+    def _adjust_gradient(self) -> None:
         plist = ParameterList(self.model.parameters())
         with torch.no_grad():
             for p, t_ids in self.tm_partition.partitions.items():
