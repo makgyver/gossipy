@@ -1,13 +1,13 @@
 from __future__ import annotations
 import numpy as np
 from numpy.random import shuffle, random, randint, choice
-from typing import Any, DefaultDict, Optional, Dict, List, Tuple
+from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pickle
 from . import AntiEntropyProtocol, LOG, Message
 from .data import DataDispatcher
-from .node import GossipNode
+from .node import GossipNode, TokenAccount
 from .utils import print_flush
 from .model.handler import ModelHandler
 
@@ -151,6 +151,127 @@ class GossipSimulator():
     def load(cls, filename) -> GossipSimulator:
         with open(filename, 'rb') as f:
             return pickle.load(f)
+
+
+class TokenizedGossipSimulator(GossipSimulator):
+    def __init__(self,
+                 data_dispatcher: DataDispatcher,
+                 token_account_class: TokenAccount,
+                 token_account_params: Dict[str, Any],
+                 utility_fun: Callable[[ModelHandler, ModelHandler], int],
+                 delta: int,
+                 protocol: AntiEntropyProtocol,
+                 gossip_node_class: GossipNode,
+                 model_handler_class: ModelHandler,
+                 model_handler_params: Dict[str, Any],
+                 topology: Optional[np.ndarray],
+                 drop_prob: float=0., # [0,1]
+                 online_prob: float=1., # [0,1]
+                 delay: Optional[Tuple[int, int]]=None,
+                 sampling_eval: float=0., #[0, 1]
+                 round_synced: bool=True):
+        super(TokenizedGossipSimulator, self).__init__(data_dispatcher,
+                                                       delta,
+                                                       protocol,
+                                                       gossip_node_class,
+                                                       model_handler_class,
+                                                       model_handler_params,
+                                                       topology,
+                                                       drop_prob,
+                                                       online_prob,
+                                                       delay,
+                                                       sampling_eval,
+                                                       round_synced)
+        self.accounts = {i:token_account_class(**token_account_params) for i in range(self.n_nodes)}
+        self.utility_fun = utility_fun
+    
+    def start(self,
+              n_rounds: int=100,
+              scratch=True) -> List[float]:
+        if scratch: self._init_nodes()
+        node_ids = np.arange(self.n_nodes)
+        pbar = tqdm(range(n_rounds * self.delta))
+        evals = []
+        evals_user = []
+        n_msg = 0
+        n_msg_failed = 0
+        tot_size = 0
+        msg_queues = DefaultDict(list)
+        rep_queues = DefaultDict(list)
+        for t in pbar:
+            if t % self.delta == 0: shuffle(node_ids)
+            
+            for i in node_ids:
+                node = self.nodes[i]
+                if node.timed_out(t):
+                    if random() < self.accounts[i].proactive():
+                        peer = node.get_peer()
+                        msg = node.send(t, peer, self.protocol)
+                        n_msg += 1
+                        tot_size += msg.get_size()
+                        if msg: 
+                            if random() >= self.drop_prob:
+                                d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
+                                msg_queues[t + d].append(msg)
+                            else:
+                                n_msg_failed += 1
+                    else:
+                        self.accounts[i].add(1)
+            
+            for msg in msg_queues[t]:
+                if random() < self.online_prob:
+                    reply = self.nodes[msg.receiver].receive(t, msg)
+                    if reply:
+                        if random() > self.drop_prob:
+                            d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
+                            rep_queues[t + d].append(reply)
+                        else:
+                            n_msg_failed += 1
+
+                    if not reply:
+                        utility = self.utility_fun(self.nodes[msg.receiver].model_handler, 
+                                                   msg.value[0])
+                        reaction = self.accounts[msg.receiver].reactive(utility)
+                        if reaction:
+                            self.accounts[i].sub(reaction)
+                            for _ in range(reaction):
+                                peer = node.get_peer()
+                                msg = node.send(t, peer, self.protocol)
+                                n_msg += 1
+                                tot_size += msg.get_size()
+                                if msg: 
+                                    if random() >= self.drop_prob:
+                                        d = randint(self.delay[0], self.delay[1]+1) if self.delay else 1
+                                        msg_queues[t + d].append(msg)
+                                    else:
+                                        n_msg_failed += 1
+
+            for reply in rep_queues[t]:
+                self.nodes[reply.receiver].receive(t, reply)
+                n_msg += 1
+                tot_size += reply.get_size()
+
+            if (t+1) % self.delta == 0:
+                if self.sampling_eval > 0:
+                    sample = choice(list(self.nodes.keys()), int(self.n_nodes * self.sampling_eval))
+                    ev = [self.nodes[i].evaluate() for i in sample if self.nodes[i].has_test()]
+                else:
+                    ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
+                evals_user.append(self._collect_results(ev))
+                
+                if self.data_dispatcher.has_test():
+                    if self.sampling_eval > 0:
+                        ev = [self.nodes[i].evaluate(self.data_dispatcher.get_eval_set())
+                              for i in sample]
+                    else:
+                        ev = [n.evaluate(self.data_dispatcher.get_eval_set())
+                              for _, n in self.nodes.items()]
+                    evals.append(self._collect_results(ev))
+
+        LOG.info("# Sent messages: %d" %n_msg)
+        LOG.info("# Failed messages: %d" %n_msg_failed)
+        LOG.info("Total size: %d" %tot_size)
+        return evals, evals_user
 
 
 

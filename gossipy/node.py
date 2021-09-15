@@ -19,7 +19,18 @@ __email__ = "mak1788@gmail.com"
 __status__ = "Development"
 #
 
-__all__ = ["GossipNode", "PassThroughNode", "CacheNeighNode"]
+__all__ = ["GossipNode",
+           "PassThroughNode",
+           "CacheNeighNode",
+           "SamplingBasedNode",
+           "PartitioningBasedNode",
+           "TokenAccount",
+           "PurelyProactiveTokenAccount",
+           "PurelyReactiveTokenAccount",
+           "SimpleTokenAccount",
+           "GeneralizedTokenAccount",
+           "RandomizedTokenAccount"]
+
 
 class GossipNode():
     def __init__(self,
@@ -56,18 +67,18 @@ class GossipNode():
              peer: int,
              protocol: AntiEntropyProtocol) -> Union[Message, None]:
         if protocol == AntiEntropyProtocol.PUSH:
-            return Message(t, self.idx, peer, MessageType.PUSH, self.model_handler.copy())
+            return Message(t, self.idx, peer, MessageType.PUSH, (self.model_handler.copy(),))
         elif protocol == AntiEntropyProtocol.PULL:
             return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
-            return Message(t, self.idx, peer, MessageType.PUSH_PULL, self.model_handler.copy())
+            return Message(t, self.idx, peer, MessageType.PUSH_PULL, (self.model_handler.copy(),))
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
     def receive(self, t: int, msg: Message) -> Union[Message, None]:
         msg_type: MessageType
         recv_model: Any 
-        msg_type, recv_model = msg.type, msg.value
+        msg_type, recv_model = msg.type, msg.value[0] if msg.value else None
         if msg_type == MessageType.PUSH or \
            msg_type == MessageType.REPLY or \
            msg_type == MessageType.PUSH_PULL:
@@ -75,7 +86,7 @@ class GossipNode():
 
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
-            return Message(t, self.idx, msg.sender, MessageType.REPLY, self.model_handler.copy())
+            return Message(t, self.idx, msg.sender, MessageType.REPLY, (self.model_handler.copy(),))
         return None
 
     def evaluate(self, ext_data: Optional[Any]=None) -> Dict[str, float]:
@@ -186,7 +197,7 @@ class CacheNeighNode(GossipNode):
                            self.idx,
                            peer,
                            MessageType.PUSH,
-                           self.model_handler.copy())
+                           (self.model_handler.copy(),))
         elif protocol == AntiEntropyProtocol.PULL:
             return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
@@ -195,14 +206,14 @@ class CacheNeighNode(GossipNode):
                            self.idx,
                            peer,
                            MessageType.PUSH_PULL,
-                           self.model_handler.copy())
+                           (self.model_handler.copy(),))
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
     def receive(self, t: int, msg: Message) -> Union[Message, None]:
         msg_type: MessageType
         recv_model: Any 
-        sender, msg_type, recv_model = msg.sender, msg.type, msg.value
+        sender, msg_type, recv_model = msg.sender, msg.type, msg.value[0] if msg.value else None
         if msg_type == MessageType.PUSH or \
            msg_type == MessageType.REPLY or \
            msg_type == MessageType.PUSH_PULL:
@@ -215,7 +226,7 @@ class CacheNeighNode(GossipNode):
                            self.idx,
                            msg.sender,
                            MessageType.REPLY,
-                           self.model_handler.copy())
+                           (self.model_handler.copy(),))
         return None
 
 
@@ -354,6 +365,9 @@ class TokenAccount():
     
     def add(self, n: int=1) -> None:
         self.n_tokens += n
+
+    def sub(self, n: int=1) -> None:
+        self.n_tokens = max(0, self.n_tokens - n)
     
     def proactive(self) -> float:
         raise NotImplementedError()
@@ -362,6 +376,7 @@ class TokenAccount():
         raise NotImplementedError()
 
 
+# Same as SimpleTokenAccount(0)
 class PurelyProactiveTokenAccount(TokenAccount):
     def proactive(self) -> float:
         return 1
@@ -383,7 +398,8 @@ class PurelyReactiveTokenAccount(TokenAccount):
 
 
 class SimpleTokenAccount(TokenAccount):
-    def __init__(self, C: int): #1
+    def __init__(self, C: int=0): #purely proactive
+        assert C >= 1, "The capacity C must be non-negative."
         super(TokenAccount, self).__init__()
         self.capacity = C
     
@@ -396,6 +412,9 @@ class SimpleTokenAccount(TokenAccount):
 
 class GeneralizedTokenAccount(SimpleTokenAccount):
     def __init__(self, C: int, A: int): #1
+        assert C >= 1, "The capacity C must be positive."
+        assert A >= 1, "The reactivity A must be positive."
+        assert A <= C, "The capacity C must be greater or equal than the reactivity A."
         super(SimpleTokenAccount, self).__init__(C)
         self.reactivity = A
 
