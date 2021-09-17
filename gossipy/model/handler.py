@@ -11,6 +11,7 @@ from sklearn.metrics import accuracy_score, roc_auc_score, recall_score, f1_scor
 from .. import LOG, Sizeable, CreateModelMode, EqualityMixin
 from . import TorchModel
 from .sampling import TorchModelPartition, TorchModelSampling
+from gossipy import CacheItem, CacheKey
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"
@@ -72,6 +73,24 @@ class ModelHandler(Sizeable, EqualityMixin):
     
     def get_size(self) -> int:
         return self.model.get_size() if self.model is not None else 0
+    
+    # CLASS METHODS - CACHING
+    cache = {}
+    @classmethod
+    def push_cache(cls, key: CacheKey, value: Any):
+        if key not in cls.cache:
+            cls.cache[key] = CacheItem(value)
+        else:
+            cls.cache[key].add_ref()
+    
+    @classmethod
+    def pop_cache(cls, key: CacheKey):
+        if key not in cls.cache:
+            return None
+        obj = cls.cache[key].del_ref()
+        if not cls.cache[key].is_referenced():
+            del cls.cache[key]
+        return obj
 
 
 class TorchModelHandler(ModelHandler):
@@ -129,9 +148,9 @@ class TorchModelHandler(ModelHandler):
         
         res = {
             "accuracy": accuracy_score(y_true, y_pred),
-            "precision": precision_score(y_true, y_pred, zero_division=0),
-            "recall": recall_score(y_true, y_pred, zero_division=0),
-            "f1_score": f1_score(y_true, y_pred, zero_division=0)
+            "precision": precision_score(y_true, y_pred, zero_division=0, average="macro"),
+            "recall": recall_score(y_true, y_pred, zero_division=0, average="macro"),
+            "f1_score": f1_score(y_true, y_pred, zero_division=0, average="macro")
         }
 
         if scores.shape[1] == 2:
@@ -178,9 +197,9 @@ class AdaLineHandler(ModelHandler):
 
         res = {
             "accuracy": accuracy_score(y_true, y_pred),
-            "precision": precision_score(y_true, y_pred, zero_division=0),
-            "recall": recall_score(y_true, y_pred, zero_division=0),
-            "f1_score": f1_score(y_true, y_pred, zero_division=0),
+            "precision": precision_score(y_true, y_pred, zero_division=0, average="macro"),
+            "recall": recall_score(y_true, y_pred, zero_division=0, average="macro"),
+            "f1_score": f1_score(y_true, y_pred, zero_division=0, average="macro"),
             "auc":  roc_auc_score(y_true, auc_scores).astype(float)
         }
 

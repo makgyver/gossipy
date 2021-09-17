@@ -1,3 +1,4 @@
+
 from typing import Any
 import logging
 from enum import Enum
@@ -14,7 +15,7 @@ __email__ = "mak1788@gmail.com"
 __status__ = "Development"
 #
 
-__all__ = ["node", "simul", "utils", "data", "model", "set_seed", "CreateModelMode", "AntiEntropyProtocol", "MessageType"]
+__all__ = ["node", "simul", "utils", "data", "model", "set_seed", "DuplicateFilter", "CreateModelMode", "AntiEntropyProtocol", "MessageType", "CacheKey", "CacheItem"]
 
 
 class DuplicateFilter(object):
@@ -70,6 +71,51 @@ class EqualityMixin(object):
 class Sizeable():
     def get_size(self) -> int:
         raise NotImplementedError()
+
+
+class CacheKey(Sizeable):
+    def __init__(self, *args):
+        self.key = tuple(args)
+    
+    def get(self):
+        return self.key
+    
+    def get_size(self) -> int:
+        from gossipy.model.handler import ModelHandler
+        val = ModelHandler.cache[self].value
+        if isinstance(val, (float, int, bool)): return 1
+        elif isinstance(val, Sizeable): return val.get_size()
+        else: return 0 #TODO: warning
+    
+    def __repr__(self):
+        return str(self.key)
+    
+    def __hash__(self):
+        return hash(self.key)
+    
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, CacheKey):
+            return self.key == other.key
+        return False
+
+    def __ne__(self, other: Any):
+        return not (self == other)
+
+
+class CacheItem:
+    def __init__(self, value: Any):
+        self.value = value
+        self.refs = 1
+    
+    def add_ref(self):
+        self.refs += 1
+    
+    def del_ref(self):
+        self.refs -= 1
+        return self.value
+    
+    def is_referenced(self):
+        return self.refs > 0
 
 
 class Message(Sizeable):

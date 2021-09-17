@@ -5,6 +5,7 @@ from numpy.random import randint, normal, rand, binomial
 from numpy import ndarray
 from torch import Tensor
 from typing import Any, Optional, Union, Dict, Tuple
+from gossipy import CacheKey
 from .utils import choice_not_n
 from .model.handler import ModelHandler, PartitionedTMH, SamplingTMH
 from . import AntiEntropyProtocol, CreateModelMode, MessageType, Message
@@ -67,11 +68,15 @@ class GossipNode():
              peer: int,
              protocol: AntiEntropyProtocol) -> Union[Message, None]:
         if protocol == AntiEntropyProtocol.PUSH:
-            return Message(t, self.idx, peer, MessageType.PUSH, (self.model_handler.copy(),))
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
+            return Message(t, self.idx, peer, MessageType.PUSH, (key,))
         elif protocol == AntiEntropyProtocol.PULL:
             return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
-            return Message(t, self.idx, peer, MessageType.PUSH_PULL, (self.model_handler.copy(),))
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
+            return Message(t, self.idx, peer, MessageType.PUSH_PULL, (key,))
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
@@ -82,11 +87,14 @@ class GossipNode():
         if msg_type == MessageType.PUSH or \
            msg_type == MessageType.REPLY or \
            msg_type == MessageType.PUSH_PULL:
+            recv_model = self.model_handler.pop_cache(recv_model)
             self.model_handler(recv_model, self.data[0])
 
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
-            return Message(t, self.idx, msg.sender, MessageType.REPLY, (self.model_handler.copy(),))
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
+            return Message(t, self.idx, msg.sender, MessageType.REPLY, (key,))
         return None
 
     def evaluate(self, ext_data: Optional[Any]=None) -> Dict[str, float]:
@@ -399,8 +407,8 @@ class PurelyReactiveTokenAccount(TokenAccount):
 
 class SimpleTokenAccount(TokenAccount):
     def __init__(self, C: int=0): #purely proactive
+        super(SimpleTokenAccount, self).__init__()
         assert C >= 1, "The capacity C must be non-negative."
-        super(TokenAccount, self).__init__()
         self.capacity = C
     
     def proactive(self) -> float:
@@ -412,10 +420,10 @@ class SimpleTokenAccount(TokenAccount):
 
 class GeneralizedTokenAccount(SimpleTokenAccount):
     def __init__(self, C: int, A: int): #1
+        super(GeneralizedTokenAccount, self).__init__(C)
         assert C >= 1, "The capacity C must be positive."
         assert A >= 1, "The reactivity A must be positive."
         assert A <= C, "The capacity C must be greater or equal than the reactivity A."
-        super(SimpleTokenAccount, self).__init__(C)
         self.reactivity = A
 
     def reactive(self, utility: int) -> int:
@@ -425,7 +433,7 @@ class GeneralizedTokenAccount(SimpleTokenAccount):
 
 class RandomizedTokenAccount(GeneralizedTokenAccount):
     def __init__(self, C: int, A: int):
-        super(GeneralizedTokenAccount, self).__init__(C, A)
+        super(RandomizedTokenAccount, self).__init__(C, A)
     
     def proactive(self) -> float:
         if self.n_tokens < self.reactivity - 1:

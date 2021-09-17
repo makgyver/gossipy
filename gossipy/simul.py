@@ -1,11 +1,12 @@
 from __future__ import annotations
 import numpy as np
+from numpy.lib.arraysetops import isin
 from numpy.random import shuffle, random, randint, choice
 from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pickle
-from . import AntiEntropyProtocol, LOG, Message
+from . import AntiEntropyProtocol, LOG, CacheKey
 from .data import DataDispatcher
 from .node import GossipNode, TokenAccount
 from .utils import print_flush
@@ -78,7 +79,7 @@ class GossipSimulator():
 
     def start(self,
               n_rounds: int=100,
-              scratch=True) -> List[float]:
+              scratch=True) -> Tuple[List[float], List[float]]:
         if scratch: self._init_nodes()
         node_ids = np.arange(self.n_nodes)
         pbar = tqdm(range(n_rounds * self.delta))
@@ -115,11 +116,13 @@ class GossipSimulator():
                             rep_queues[t + d].append(reply)
                         else:
                             n_msg_failed += 1
-            
+            del msg_queues[t]
+
             for reply in rep_queues[t]:
                 self.nodes[reply.receiver].receive(t, reply)
                 n_msg += 1
                 tot_size += reply.get_size()
+            del rep_queues[t]
 
             if (t+1) % self.delta == 0:
                 if self.sampling_eval > 0:
@@ -187,7 +190,7 @@ class TokenizedGossipSimulator(GossipSimulator):
     
     def start(self,
               n_rounds: int=100,
-              scratch=True) -> List[float]:
+              scratch=True) -> Tuple[List[float], List[float]]:
         if scratch: self._init_nodes()
         node_ids = np.arange(self.n_nodes)
         pbar = tqdm(range(n_rounds * self.delta))
@@ -217,9 +220,11 @@ class TokenizedGossipSimulator(GossipSimulator):
                                 n_msg_failed += 1
                     else:
                         self.accounts[i].add(1)
-            
+
             for msg in msg_queues[t]:
                 if random() < self.online_prob:
+                    if isinstance(msg.value[0], CacheKey):
+                        sender_mh = ModelHandler.cache[msg.value[0]].value
                     reply = self.nodes[msg.receiver].receive(t, msg)
                     if reply:
                         if random() > self.drop_prob:
@@ -230,10 +235,10 @@ class TokenizedGossipSimulator(GossipSimulator):
 
                     if not reply:
                         utility = self.utility_fun(self.nodes[msg.receiver].model_handler, 
-                                                   msg.value[0])
+                                                   sender_mh)#msg.value[0])
                         reaction = self.accounts[msg.receiver].reactive(utility)
                         if reaction:
-                            self.accounts[i].sub(reaction)
+                            self.accounts[msg.receiver].sub(reaction)
                             for _ in range(reaction):
                                 peer = node.get_peer()
                                 msg = node.send(t, peer, self.protocol)
@@ -245,11 +250,13 @@ class TokenizedGossipSimulator(GossipSimulator):
                                         msg_queues[t + d].append(msg)
                                     else:
                                         n_msg_failed += 1
+            del msg_queues[t]
 
             for reply in rep_queues[t]:
                 self.nodes[reply.receiver].receive(t, reply)
                 n_msg += 1
                 tot_size += reply.get_size()
+            del rep_queues[t]
 
             if (t+1) % self.delta == 0:
                 if self.sampling_eval > 0:
@@ -276,7 +283,7 @@ class TokenizedGossipSimulator(GossipSimulator):
 
 
 def plot_evaluation(evals: List[List[Dict]],
-                    title: str) -> None:
+                    title: str="No title") -> None:
     if not evals[0][0]: return
     fig = plt.figure()
     fig.canvas.set_window_title(title)
