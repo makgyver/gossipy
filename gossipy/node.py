@@ -132,19 +132,23 @@ class PassThroughNode(GossipNode):
              protocol: AntiEntropyProtocol) -> Union[Message, None]:
 
         if protocol == AntiEntropyProtocol.PUSH:
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            peer, 
                            MessageType.PUSH,
-                           (self.model_handler.copy(), self.n_neighs))
+                           (key, self.n_neighs))
         elif protocol == AntiEntropyProtocol.PULL:
             return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            peer,
                            MessageType.PUSH_PULL,
-                           (self.model_handler.copy(), self.n_neighs))
+                           (key, self.n_neighs))
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
@@ -157,6 +161,7 @@ class PassThroughNode(GossipNode):
            msg_type == MessageType.PUSH_PULL:
             
             (recv_model, deg) = msg.value
+            recv_model = self.model_handler.pop_cache(recv_model)
             if  rand() < min(1, deg / self.n_neighs):
                 self.model_handler(recv_model, self.data[0])
             else: #PASSTHROUGH
@@ -167,11 +172,13 @@ class PassThroughNode(GossipNode):
 
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            msg.sender,
                            MessageType.REPLY,
-                           (self.model_handler.copy(), self.n_neighs))
+                           (key, self.n_neighs))
         return None
 
 
@@ -192,7 +199,11 @@ class CacheNeighNode(GossipNode):
                                              model_handler,
                                              known_nodes,
                                              sync)
-        self.cache = {i : self.model_handler.copy() for i in self.known_nodes}
+        key = CacheKey(self.idx, self.model_handler.n_updates)
+        self.model_handler.push_cache(key, self.model_handler.copy())
+        for _ in range(len(self.known_nodes) - 1):
+            self.model_handler.cache[key].add_ref()
+        self.cache = {i : key for i in self.known_nodes}
                         
     def send(self,
              t: int,
@@ -200,21 +211,27 @@ class CacheNeighNode(GossipNode):
              protocol: AntiEntropyProtocol) -> Union[Message, None]:
 
         if protocol == AntiEntropyProtocol.PUSH:
-            self.model_handler(self.cache[peer], self.data[0])
+            cached_model = self.model_handler.pop_cache(self.cache[peer])
+            self.model_handler(cached_model, self.data[0])
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            peer,
                            MessageType.PUSH,
-                           (self.model_handler.copy(),))
+                           (key,))
         elif protocol == AntiEntropyProtocol.PULL:
             return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
-            self.model_handler(self.cache[peer], self.data[0])
+            cached_model = self.model_handler.pop_cache(self.cache[peer])
+            self.model_handler(cached_model, self.data[0])
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            peer,
                            MessageType.PUSH_PULL,
-                           (self.model_handler.copy(),))
+                           (key,))
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
@@ -225,16 +242,19 @@ class CacheNeighNode(GossipNode):
         if msg_type == MessageType.PUSH or \
            msg_type == MessageType.REPLY or \
            msg_type == MessageType.PUSH_PULL:
-            self.cache[sender] = recv_model.copy()
+            self.cache[sender] = recv_model
 
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
-            self.model_handler(self.cache[sender], self.data[0])
+            cached_model = self.model_handler.pop_cache(self.cache[sender])
+            self.model_handler(cached_model, self.data[0])
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            msg.sender,
                            MessageType.REPLY,
-                           (self.model_handler.copy(),))
+                           (key,))
         return None
 
 
@@ -265,19 +285,23 @@ class SamplingBasedNode(GossipNode):
              protocol: AntiEntropyProtocol) -> Union[Message, None]:
 
         if protocol == AntiEntropyProtocol.PUSH:
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            peer,
                            MessageType.PUSH,
-                           (self.model_handler.copy(), self.sample_size))
+                           (key, self.sample_size))
         elif protocol == AntiEntropyProtocol.PULL:
             return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            peer,
                            MessageType.PUSH_PULL,
-                           (self.model_handler.copy(), self.sample_size))
+                           (key, self.sample_size))
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
@@ -290,16 +314,19 @@ class SamplingBasedNode(GossipNode):
            msg_type == MessageType.REPLY or \
            msg_type == MessageType.PUSH_PULL:
             recv_model, sample_size = msg.value
+            recv_model = self.model_handler.pop_cache(recv_model)
             sample = TorchModelSampling.sample(sample_size, recv_model.model)
             self.model_handler(recv_model, self.data[0], sample)
 
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
+            key = CacheKey(self.idx, self.model_handler.n_updates)
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            msg.sender,
                            MessageType.REPLY,
-                           (self.model_handler.copy(), self.sample_size))
+                           (key, self.sample_size))
         return None
 
 
@@ -328,20 +355,24 @@ class PartitioningBasedNode(GossipNode):
 
         if protocol == AntiEntropyProtocol.PUSH:
             pid = np.random.randint(0, self.model_handler.tm_partition.n_parts)
+            key = CacheKey(self.idx, str(self.model_handler.n_updates))
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            peer,
                            MessageType.PUSH,
-                           (self.model_handler.copy(), pid))
+                           (key, pid))
         elif protocol == AntiEntropyProtocol.PULL:
             return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
             pid = np.random.randint(0, self.model_handler.tm_partition.n_parts)
+            key = CacheKey(self.idx, str(self.model_handler.n_updates))
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            peer,
                            MessageType.PUSH_PULL,
-                           (self.model_handler.copy(), pid))
+                           (key, pid))
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
@@ -354,16 +385,19 @@ class PartitioningBasedNode(GossipNode):
            msg_type == MessageType.REPLY or \
            msg_type == MessageType.PUSH_PULL:
             recv_model, pid = msg.value
+            recv_model = self.model_handler.pop_cache(recv_model)
             self.model_handler(recv_model, self.data[0], pid)
 
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
             pid = np.random.randint(0, self.model_handler.tm_partition.n_parts)
+            key = CacheKey(self.idx, str(self.model_handler.n_updates))
+            self.model_handler.push_cache(key, self.model_handler.copy())
             return Message(t,
                            self.idx,
                            msg.sender,
                            MessageType.REPLY,
-                           (self.model_handler.copy(), pid))
+                           (key, pid))
         return None
 
 
@@ -406,9 +440,9 @@ class PurelyReactiveTokenAccount(TokenAccount):
 
 
 class SimpleTokenAccount(TokenAccount):
-    def __init__(self, C: int=0): #purely proactive
+    def __init__(self, C: int=0):
         super(SimpleTokenAccount, self).__init__()
-        assert C >= 1, "The capacity C must be non-negative."
+        assert C >= 1, "The capacity C must be strictly positive."
         self.capacity = C
     
     def proactive(self) -> float:

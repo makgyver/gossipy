@@ -143,9 +143,9 @@ def test_TorchModelHandler():
 
     result = tmh.evaluate((Xtr, ytr))
     assert result["accuracy"] == 0.5
-    assert result["recall"] == 1.
-    assert result["f1_score"] == 2/3
-    assert result["precision"] == .5
+    assert result["recall"] == .5
+    assert result["f1_score"] == 1/3
+    assert result["precision"] == .25
     assert result["auc"] == 1.
 
 def test_AdaLine():
@@ -262,9 +262,9 @@ def test_PTMH():
 
     result = tmh.evaluate((Xtr, ytr))
     assert result["accuracy"] == 0.5
-    assert result["recall"] == 1.
-    assert result["f1_score"] == 2/3
-    assert result["precision"] == .5
+    assert result["recall"] == .5
+    assert result["f1_score"] == 1/3
+    assert result["precision"] == .25
     assert result["auc"] == 1.
 
 
@@ -296,7 +296,7 @@ def test_STMH():
 
     result = tmh.evaluate((Xtr, ytr))
     assert result["accuracy"] == 0.5
-    assert result["recall"] == 1.
-    assert result["f1_score"] == 2/3
-    assert result["precision"] == .5
+    assert result["recall"] == .5
+    assert result["f1_score"] == 1/3
+    assert result["precision"] == .25
     assert result["auc"] == 0.

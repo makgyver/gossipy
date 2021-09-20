@@ -9,7 +9,6 @@ Python module for simulating gossip learning.
 
 - [ ] Logger (partially implemented)
 - [ ] Models cache [Ormandi 2013, Giaretta 2019] (partially implemented)
-- [ ] Token account [Donner 2018, Hegedus 2021] (partially implemented)
 - [ ] Perfect matching [Ormandi 2013]
 
 ### Extras

@@ -19,6 +19,7 @@ from gossipy.model.nn import Pegasos, TorchMLP
 from gossipy import AntiEntropyProtocol, CreateModelMode, MessageType, set_seed
 
 def test_GossipNode():
+    TorchModelHandler.cache.clear()
     set_seed(987654)
     mlp = TorchMLP(2, 2, (4,))
     params = {
@@ -64,7 +65,7 @@ def test_GossipNode():
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH)
     assert msg.type == MessageType.PUSH
-    assert torch_models_eq(msg.value[0].model, mh.model)
+    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
     assert msg.sender == g.idx
 
     assert g.receive(0, msg) is None
@@ -76,10 +77,10 @@ def test_GossipNode():
     assert response.type ==  MessageType.REPLY
     assert response.sender == 0
     assert response.receiver == 0
-    assert torch_models_eq(response.value[0].model, mh.model)
+    assert torch_models_eq(TorchModelHandler.cache[response.value[0]].value.model, mh.model)
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH_PULL)
-    assert torch_models_eq(msg.value[0].model, mh.model)
+    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
     assert msg.type == MessageType.PUSH_PULL
 
     with pytest.raises(ValueError):
@@ -115,6 +116,7 @@ def test_GossipNode():
 
 
 def test_PassThroughNode():
+    TorchModelHandler.cache.clear()
     params = {
         "net" : Pegasos(2),
         "lam" : .1,
@@ -162,7 +164,7 @@ def test_PassThroughNode():
     msg = g.send(0, 1, protocol=AntiEntropyProtocol.PUSH)
     assert msg.sender == 0
     assert msg.receiver == 1
-    assert torch_models_eq(msg.value[0].model, mh.model)
+    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
     assert msg.value[1] == 2
     assert msg.type == MessageType.PUSH
 
@@ -179,7 +181,7 @@ def test_PassThroughNode():
     msg = g.send(0, 1, protocol=AntiEntropyProtocol.PUSH_PULL)
     assert msg.sender == 0
     assert msg.receiver == 1
-    assert torch_models_eq(msg.value[0].model, mh.model)
+    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
     assert msg.value[1] == 2
     assert msg.type == MessageType.PUSH_PULL
 
@@ -194,13 +196,14 @@ def test_PassThroughNode():
     assert response.sender == 1
     assert response.receiver == 0
     assert response.value[1] == 6
-    assert isinstance(response.value[0], PegasosHandler)
+    assert isinstance(TorchModelHandler.cache[response.value[0]].value, PegasosHandler)
     
     with pytest.raises(ValueError):
         g.send(0, 1, protocol=10)
 
 
 def test_CacheNeighNode():
+    TorchModelHandler.cache.clear()
     params = {
         "net" : Pegasos(2),
         "lam" : .1,
@@ -238,6 +241,14 @@ def test_CacheNeighNode():
 
     g.model_handler._update(g.data[0])
 
+    msg = g.send(0, 1, protocol=AntiEntropyProtocol.PUSH)
+    assert msg.sender == 0
+    assert msg.receiver == 1
+    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
+    assert msg.type == MessageType.PUSH
+
+    set_seed(987654)
+
     g2 = CacheNeighNode(
         idx = 1,
         data = ((Xtr, ytr), (Xte, yte)),
@@ -249,24 +260,16 @@ def test_CacheNeighNode():
     )
     g2.init_model()
 
-    msg = g.send(0, 1, protocol=AntiEntropyProtocol.PUSH)
-    assert msg.sender == 0
-    assert msg.receiver == 1
-    assert torch_models_eq(msg.value[0].model, mh.model)
-    assert msg.type == MessageType.PUSH
-
-    set_seed(987654)
-
     old_model = copy.deepcopy(g2.model_handler.model.model)
     g2.receive(0, msg)
 
     assert torch.allclose(old_model, g2.model_handler.model.model)
-    assert torch.allclose(g2.cache[0].model.model, g.model_handler.model.model)
+    assert torch.allclose(TorchModelHandler.cache[g2.cache[0]].value.model.model, g.model_handler.model.model)
 
     msg = g.send(0, 1, protocol=AntiEntropyProtocol.PUSH_PULL)
     assert msg.sender == 0
     assert msg.receiver == 1
-    assert torch_models_eq(msg.value[0].model, mh.model)
+    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
     assert msg.type == MessageType.PUSH_PULL
 
     msg = g.send(0, 1, protocol=AntiEntropyProtocol.PULL)
@@ -279,13 +282,14 @@ def test_CacheNeighNode():
     assert response.type ==  MessageType.REPLY
     assert response.sender == 1
     assert response.receiver == 0
-    assert isinstance(response.value[0], PegasosHandler)
+    assert isinstance(TorchModelHandler.cache[response.value[0]].value, PegasosHandler)
     
     with pytest.raises(ValueError):
         g.send(0, 1, protocol=10)
 
 
 def test_PBGossipNode():
+    TorchModelHandler.cache.clear()
     set_seed(987654)
     mlp = TorchMLP(2, 2, (4,))
     part = TorchModelPartition(mlp, 3)
@@ -333,7 +337,7 @@ def test_PBGossipNode():
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH)
     assert msg.type == MessageType.PUSH
-    assert torch_models_eq(msg.value[0].model, tmh.model)
+    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, tmh.model)
     assert 0 <= msg.value[1] <= 2
     assert msg.sender == g.idx
 
@@ -346,11 +350,11 @@ def test_PBGossipNode():
     assert response.type ==  MessageType.REPLY
     assert response.sender == 0
     assert response.receiver == 0
-    assert torch_models_eq(response.value[0].model, tmh.model)
+    assert torch_models_eq(TorchModelHandler.cache[response.value[0]].value.model, tmh.model)
     assert 0 <= response.value[1] <= 2
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH_PULL)
-    assert torch_models_eq(msg.value[0].model, tmh.model)
+    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, tmh.model)
     assert 0 <= msg.value[1] <= 2
     assert msg.type == MessageType.PUSH_PULL
 
@@ -359,17 +363,17 @@ def test_PBGossipNode():
     
     res = g.evaluate()
     assert res["accuracy"] == 0.5
-    assert res["precision"] == 0.
-    assert res["f1_score"] == 0.
+    assert res["precision"] == 0.25
+    assert res["f1_score"] == 1/3
     assert res["auc"] == 0.
-    assert res["recall"] == 0.
+    assert res["recall"] == 0.5
 
     res = g.evaluate((Xte, yte))
     assert res["accuracy"] == 0.5
-    assert res["precision"] == 0.
-    assert res["f1_score"] == 0.
+    assert res["precision"] == 0.25
+    assert res["f1_score"] == 1/3
     assert res["auc"] == 0.
-    assert res["recall"] == 0.
+    assert res["recall"] == 0.5
 
     g = PartitioningBasedNode(
         idx = 0,
@@ -387,6 +391,7 @@ def test_PBGossipNode():
 
 
 def test_SBGossipNode():
+    TorchModelHandler.cache.clear()
     set_seed(987654)
     mlp = TorchMLP(2, 2, (4,))
     params = {
@@ -433,7 +438,7 @@ def test_SBGossipNode():
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH)
     assert msg.type == MessageType.PUSH
-    assert torch_models_eq(msg.value[0].model, tmh.model)
+    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, tmh.model)
     assert msg.value[1] == .3
     assert msg.sender == g.idx
 
@@ -446,11 +451,11 @@ def test_SBGossipNode():
     assert response.type ==  MessageType.REPLY
     assert response.sender == 0
     assert response.receiver == 0
-    assert torch_models_eq(response.value[0].model, tmh.model)
+    assert torch_models_eq(TorchModelHandler.cache[response.value[0]].value.model, tmh.model)
     assert response.value[1] == .3
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH_PULL)
-    assert torch_models_eq(msg.value[0].model, tmh.model)
+    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, tmh.model)
     assert msg.value[1] == .3
     assert msg.type == MessageType.PUSH_PULL
 
@@ -459,17 +464,17 @@ def test_SBGossipNode():
     
     res = g.evaluate()
     assert res["accuracy"] == 0.5
-    assert res["precision"] == 0.5
-    assert res["f1_score"] == 2/3
+    assert res["precision"] == 0.25
+    assert res["f1_score"] == 1/3
     assert res["auc"] == 1
-    assert res["recall"] == 1.
+    assert res["recall"] == .5
 
     res = g.evaluate((Xte, yte))
     assert res["accuracy"] == 0.5
-    assert res["precision"] == 0.5
-    assert res["f1_score"] == 2/3
+    assert res["precision"] == 0.25
+    assert res["f1_score"] == 1/3
     assert res["auc"] == 1
-    assert res["recall"] == 1
+    assert res["recall"] == .5
 
     g = PartitioningBasedNode(
         idx = 0,

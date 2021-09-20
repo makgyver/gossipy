@@ -23,6 +23,7 @@ from gossipy import AntiEntropyProtocol, CreateModelMode, set_seed
 
 
 def test_GossipSimulator():
+    TorchModelHandler.cache.clear()
     set_seed(42)
     Xtr = torch.FloatTensor([[0,1],[-1,0],[-1,1],
                              [1,-1],[-1,-2],[2,1],

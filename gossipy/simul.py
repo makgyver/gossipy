@@ -119,9 +119,9 @@ class GossipSimulator():
             del msg_queues[t]
 
             for reply in rep_queues[t]:
+                tot_size += reply.get_size()
                 self.nodes[reply.receiver].receive(t, reply)
                 n_msg += 1
-                tot_size += reply.get_size()
             del rep_queues[t]
 
             if (t+1) % self.delta == 0:
