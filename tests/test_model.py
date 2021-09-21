@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
 
 from gossipy.model import TorchModel
-from gossipy import CreateModelMode, set_seed
+from gossipy import CacheKey, CreateModelMode, set_seed
 from gossipy.model.handler import AdaLineHandler, ModelHandler, PartitionedTMH, PegasosHandler, SamplingTMH, TorchModelHandler
 from gossipy.model.nn import AdaLine, Pegasos, TorchMLP, TorchPerceptron
 from gossipy.model.sampling import TorchModelPartition, TorchModelSampling
@@ -300,3 +300,18 @@ def test_STMH():
     assert result["f1_score"] == 1/3
     assert result["precision"] == .25
     assert result["auc"] == 0.
+
+def test_cache():
+    k = CacheKey(42)
+    k2 = CacheKey(17)
+    ModelHandler.push_cache(k, 42)
+    ModelHandler.push_cache(k, 33)
+    r = ModelHandler.pop_cache(k)
+    assert r == 42
+    r = ModelHandler.pop_cache(k2)
+    assert r is None
+    r = ModelHandler.pop_cache(k)
+    assert r == 42
+    r = ModelHandler.pop_cache(k)
+    assert r is None
+

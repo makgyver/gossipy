@@ -4,6 +4,7 @@ from math import isclose
 import torch
 import numpy as np
 import pytest
+import tempfile
 
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
@@ -147,4 +148,19 @@ def test_load_classification_dataset():
     assert y.shape[0] == X.shape[0]
     assert y.shape[0] == 4601
 
+  
+    f = tempfile.NamedTemporaryFile("w", delete=False)
+    f.write('1 0:1 1:2 2:3\n0 0:17 1:1 2:2\n')
+    f.write('1 0:12 1:22 2:32\n0 0:17 1:14 2:2\n')
+    f.write('1 0:13 1:23 2:33\n0 0:17 1:15 2:2\n')
+    f.close()
+    X, y = load_classification_dataset(f.name, normalize=False)
+    os.remove(f.name)
+    assert torch.allclose(y, torch.LongTensor([1,0,1,0,1,0]))
+    assert torch.allclose(X, torch.FloatTensor([ [1,2,3],
+                                                [17,1,2],
+                                                [12,22,32],
+                                                [17,14,2],
+                                                [13,23,33],
+                                                [17,15,2] ]))
 

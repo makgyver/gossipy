@@ -1,5 +1,5 @@
 
-from typing import Any
+from typing import Any, Tuple
 import logging
 from enum import Enum
 import numpy as np
@@ -104,7 +104,7 @@ class CacheKey(Sizeable):
         return not (self == other)
 
 
-class CacheItem:
+class CacheItem(Sizeable):
     def __init__(self, value: Any):
         self.value = value
         self.refs = 1
@@ -118,6 +118,24 @@ class CacheItem:
     
     def is_referenced(self):
         return self.refs > 0
+    
+    def get_size(self) -> int:
+        if isinstance(self.value, (tuple, list)):
+            sz: int = 0
+            for t in self.value:
+                if t is None: continue
+                if isinstance(t, (float, int, bool)): sz += 1
+                elif isinstance(t, Sizeable): sz += t.get_size()
+                else: 
+                    LOG.warning("Impossible to compute the size of %s. Set to 0." %t)
+            return max(sz, 1)
+        elif isinstance(self.value, Sizeable):
+            return self.value.get_size()
+        elif isinstance(self.value, (float, int, bool)):
+            return 1
+        else:
+            LOG.warning("Impossible to compute the size of %s. Set to 0." %self.value)
+            return 0
 
 
 class Message(Sizeable):
@@ -126,7 +144,7 @@ class Message(Sizeable):
                  sender: int,
                  receiver: int,
                  type: MessageType,
-                 value: Any):
+                 value: Tuple[Any, ...]):
         self.timestamp = timestamp
         self.sender = sender
         self.receiver = receiver
