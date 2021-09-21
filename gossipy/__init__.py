@@ -85,7 +85,9 @@ class CacheKey(Sizeable):
         val = ModelHandler.cache[self].value
         if isinstance(val, (float, int, bool)): return 1
         elif isinstance(val, Sizeable): return val.get_size()
-        else: return 0 #TODO: warning
+        else: 
+            LOG.warning("Impossible to compute the size of %s. Set to 0." %val)
+            return 0
     
     def __repr__(self):
         return str(self.key)
