@@ -440,7 +440,7 @@ class PurelyReactiveTokenAccount(TokenAccount):
 
 
 class SimpleTokenAccount(TokenAccount):
-    def __init__(self, C: int=0):
+    def __init__(self, C: int=1):
         super(SimpleTokenAccount, self).__init__()
         assert C >= 1, "The capacity C must be strictly positive."
         self.capacity = C
@@ -480,5 +480,5 @@ class RandomizedTokenAccount(GeneralizedTokenAccount):
     def reactive(self, utility: int) -> int:
         if utility > 0:
             r = self.n_tokens / self.reactivity
-            return r + binomial(1, r - int(r)) #randRound
+            return int(r) + binomial(1, r - int(r)) #randRound
         return 0

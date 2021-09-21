@@ -13,7 +13,7 @@ import pytest
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
 
-from gossipy.node import CacheNeighNode, GossipNode, PassThroughNode, PartitioningBasedNode, SamplingBasedNode
+from gossipy.node import CacheNeighNode, GeneralizedTokenAccount, GossipNode, PassThroughNode, PartitioningBasedNode, PurelyProactiveTokenAccount, PurelyReactiveTokenAccount, RandomizedTokenAccount, SamplingBasedNode, SimpleTokenAccount, TokenAccount
 from gossipy.model.handler import PartitionedTMH, PegasosHandler, SamplingTMH, TorchModelHandler
 from gossipy.model.nn import Pegasos, TorchMLP
 from gossipy import AntiEntropyProtocol, CreateModelMode, MessageType, set_seed
@@ -489,3 +489,97 @@ def test_SBGossipNode():
     assert g.timed_out(g.delay)
     assert g.known_nodes == np.array([0])
     assert g.get_peer() == 0
+
+
+def test_TokenAccount():
+    ta = TokenAccount()
+    assert ta.n_tokens == 0
+    ta.add(3)
+    assert ta.n_tokens == 3
+    ta.sub()
+    assert ta.n_tokens == 2
+    with pytest.raises(NotImplementedError):
+        ta.proactive()
+    with pytest.raises(NotImplementedError):
+        ta.reactive(1)
+
+def test_PurelyTA():
+    ppta = PurelyProactiveTokenAccount()
+    assert ppta.n_tokens == 0
+    assert ppta.proactive() == 1
+    assert ppta.reactive(1) == 0
+    assert ppta.reactive(10) == 0
+
+    prta = PurelyReactiveTokenAccount(10)
+    assert prta.k == 10
+    assert prta.proactive() == 0
+    assert prta.reactive(1) == 10
+    assert prta.reactive(10) == 100
+
+
+def test_SimpleTA():
+    with pytest.raises(AssertionError):
+        SimpleTokenAccount(C=0)
+    sta = SimpleTokenAccount(C=1)
+    assert sta.capacity == 1
+    assert not sta.proactive()
+    assert not sta.proactive()
+    sta.add()
+    assert sta.proactive()
+    assert sta.reactive(1) == 1
+    assert sta.reactive(0) == 1
+
+
+def test_GeneralizedTA():
+    with pytest.raises(AssertionError):
+        GeneralizedTokenAccount(C=1, A=0)
+    
+    with pytest.raises(AssertionError):
+        GeneralizedTokenAccount(C=3, A=4)
+
+    gta = GeneralizedTokenAccount(C=1, A=1)
+    assert gta.capacity == 1
+    assert gta.reactivity == 1
+    assert not gta.proactive()
+    assert gta.reactive(1) == 0
+    assert gta.reactive(0) == 0
+    gta.add()
+    assert gta.proactive()
+    assert gta.reactive(0) == 0
+    assert gta.reactive(10) == 1
+
+
+def test_RandomizedTA():
+    with pytest.raises(AssertionError):
+        RandomizedTokenAccount(C=1, A=0)
+    
+    with pytest.raises(AssertionError):
+        RandomizedTokenAccount(C=3, A=4)
+
+    rta = RandomizedTokenAccount(C=2, A=2)
+    assert rta.capacity == 2
+    assert rta.reactivity == 2
+    assert rta.proactive() == 0
+    assert rta.reactive(1) == 0
+    assert rta.reactive(0) == 0
+    rta.add()
+    assert rta.proactive() == 0
+    assert rta.reactive(0) == 0
+    assert rta.reactive(10) == 1
+    rta.add()
+    assert rta.proactive() == 1
+    assert rta.reactive(0) == 0
+    assert rta.reactive(10) == 1
+    rta.add(10)
+    assert rta.proactive() == 1
+    assert rta.reactive(0) == 0
+    assert rta.reactive(10) == 6
+
+    rta = RandomizedTokenAccount(C=5, A=1)
+    assert rta.proactive() == 0
+    assert rta.reactive(1) == 0
+    assert rta.reactive(0) == 0
+    rta.add(2)
+    assert rta.proactive() == 0.4
+    assert rta.reactive(1) == 2
+    assert rta.reactive(0) == 0
