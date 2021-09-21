@@ -29,7 +29,7 @@ class DuplicateFilter(object):
 
 logging.basicConfig(level=logging.INFO,
                     format="[%(asctime)s]  %(message)s",
-                    datefmt='%H:%M:%S-%d%m%y')
+                    datefmt='%d%m%y-%H:%M:%S')
 
 LOG = logging.getLogger("gossipy")
 LOG.addFilter(DuplicateFilter())
