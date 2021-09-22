@@ -5,11 +5,11 @@ from numpy.random import shuffle, random, randint, choice
 from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-import pickle
+import dill
+
 from . import AntiEntropyProtocol, LOG, CacheKey
 from .data import DataDispatcher
 from .node import GossipNode, TokenAccount
-from .utils import print_flush
 from .model.handler import ModelHandler
 
 # AUTHORSHIP
@@ -55,16 +55,25 @@ class GossipSimulator():
         self.online_prob = online_prob
         self.delay = delay
         self.sampling_eval = sampling_eval
-        self.nodes = {i: gossip_node_class(i,
-                                           data_dispatcher[i],
-                                           delta,
-                                           self.n_nodes,
-                                           model_handler_class(**model_handler_params),
-                                           topology[i] if topology is not None else None,
-                                           round_synced)
-                                           for i in range(self.n_nodes)}
+        self.gossip_node_class = gossip_node_class
+        self.model_handler_class = model_handler_class
+        self.model_handler_params = model_handler_params
+        self.topology = topology
+        self.round_synced = round_synced
+        self.initialized = False
+        
 
-    def _init_nodes(self) -> None:
+    def init_nodes(self, seed:int=98765) -> None:
+        self.initialized = True
+        self.data_dispatcher.assign(seed)
+        self.nodes = {i: self.gossip_node_class(i,
+                                           self.data_dispatcher[i],
+                                           self.delta,
+                                           self.n_nodes,
+                                           self.model_handler_class(**self.model_handler_params),
+                                           self.topology[i] if self.topology is not None else None,
+                                           self.round_synced)
+                                           for i in range(self.n_nodes)}
         for _, node in self.nodes.items():
             node.init_model()
 
@@ -77,10 +86,8 @@ class GossipSimulator():
             res[k] = np.mean(res[k])
         return res
 
-    def start(self,
-              n_rounds: int=100,
-              scratch=True) -> Tuple[List[float], List[float]]:
-        if scratch: self._init_nodes()
+    def start(self, n_rounds: int=100) -> Tuple[List[float], List[float]]:
+        assert self.initialized, "The simulator is not inizialized. Please, call the method 'init_nodes'."
         node_ids = np.arange(self.n_nodes)
         pbar = tqdm(range(n_rounds * self.delta))
         evals = []
@@ -147,13 +154,19 @@ class GossipSimulator():
         return evals, evals_user
     
     def save(self, filename) -> None:
+        dump = {
+            "simul": self,
+            "cache": ModelHandler.cache
+        }
         with open(filename, 'wb') as f:
-            pickle.dump(self, f)
+            dill.dump(dump, f)
 
     @classmethod
     def load(cls, filename) -> GossipSimulator:
         with open(filename, 'rb') as f:
-            return pickle.load(f)
+            loaded = dill.load(f)
+            ModelHandler.cache = loaded["cache"]
+            return loaded["simul"]
 
 
 class TokenizedGossipSimulator(GossipSimulator):
@@ -185,13 +198,16 @@ class TokenizedGossipSimulator(GossipSimulator):
                                                        delay,
                                                        sampling_eval,
                                                        round_synced)
-        self.accounts = {i:token_account_class(**token_account_params) for i in range(self.n_nodes)}
         self.utility_fun = utility_fun
+        self.token_account_class = token_account_class
+        self.token_account_params = token_account_params
     
-    def start(self,
-              n_rounds: int=100,
-              scratch=True) -> Tuple[List[float], List[float]]:
-        if scratch: self._init_nodes()
+    def init_nodes(self, seed: int=98765) -> None:
+        super().init_nodes(seed)
+        self.accounts = {i: self.token_account_class(**self.token_account_params)
+                            for i in range(self.n_nodes)}
+    
+    def start(self, n_rounds: int=100) -> Tuple[List[float], List[float]]:
         node_ids = np.arange(self.n_nodes)
         pbar = tqdm(range(n_rounds * self.delta))
         evals = []
@@ -223,7 +239,7 @@ class TokenizedGossipSimulator(GossipSimulator):
 
             for msg in msg_queues[t]:
                 if random() < self.online_prob:
-                    if isinstance(msg.value[0], CacheKey):
+                    if msg.value and isinstance(msg.value[0], CacheKey):
                         sender_mh = ModelHandler.cache[msg.value[0]].value
                     reply = self.nodes[msg.receiver].receive(t, msg)
                     if reply:
@@ -253,9 +269,9 @@ class TokenizedGossipSimulator(GossipSimulator):
             del msg_queues[t]
 
             for reply in rep_queues[t]:
+                tot_size += reply.get_size()
                 self.nodes[reply.receiver].receive(t, reply)
                 n_msg += 1
-                tot_size += reply.get_size()
             del rep_queues[t]
 
             if (t+1) % self.delta == 0:
@@ -281,7 +297,6 @@ class TokenizedGossipSimulator(GossipSimulator):
         return evals, evals_user
 
 
-
 def plot_evaluation(evals: List[List[Dict]],
                     title: str="No title") -> None:
     if not evals[0][0]: return
@@ -301,50 +316,26 @@ def plot_evaluation(evals: List[List[Dict]],
     plt.show()
 
 
-def repeat_simulation(data_dispatcher: DataDispatcher,
-                      round_delta: int,
-                      protocol: AntiEntropyProtocol,
-                      gossip_node_class: GossipNode,
-                      model_handler_class: ModelHandler,
-                      model_handler_params: Dict[str, Any],
-                      topology: Optional[np.ndarray],
+def repeat_simulation(gossip_simulator: GossipSimulator,
                       n_rounds: Optional[int]=1000,
-                      drop_prob: float=0., # [0,1]
-                      online_prob: float=1., # [0,1]
-                      delay: Optional[Tuple[int, int]]=None,
                       repetitions: Optional[int]=10,
-                      round_synced: bool=True,
-                      verbose: Optional[bool]=True) -> Tuple[List[GossipSimulator],
-                                                             List[List[float]]]:
+                      seed: int = 98765,
+                      verbose: Optional[bool]=True) -> Tuple[List[List[float]], List[List[float]]]:
     
     eval_list: List[List[float]] = []
     eval_user_list: List[List[float]] = []
-    sims: List[GossipSimulator] = [None for i in range(repetitions)]
     try:
         for i in range(repetitions):
-            print_flush("Simulation %d/%d" %(i+1, repetitions))
-            sims[i] = GossipSimulator(data_dispatcher=data_dispatcher,
-                                      delta=round_delta,
-                                      protocol=protocol,
-                                      gossip_node_class=gossip_node_class,
-                                      model_handler_class=model_handler_class,
-                                      model_handler_params=model_handler_params,
-                                      topology=topology,
-                                      drop_prob=drop_prob,
-                                      online_prob=online_prob,
-                                      delay=delay,
-                                      round_synced=round_synced)
-            evaluation, evaluation_user = sims[i].start(n_rounds=n_rounds)
+            LOG.info("Simulation %d/%d" %(i+1, repetitions))
+            gossip_simulator.init_nodes(98765*i)
+            evaluation, evaluation_user = gossip_simulator.start(n_rounds=n_rounds)
             eval_list.append(evaluation)
             eval_user_list.append(evaluation_user)
     except KeyboardInterrupt:
-        print_flush("Execution interrupted during the %d/%d simulation." %(i+1, repetitions))
+        LOG.info("Execution interrupted during the %d/%d simulation." %(i+1, repetitions))
 
-    #print(np.mean([n.n_updates for _,n in sims[0].nodes.items()]))
-    #print(np.min([n.n_updates for _,n in sims[0].nodes.items()]))
-    #print(np.max([n.n_updates for _,n in sims[0].nodes.items()]))
     if verbose and eval_list:
         plot_evaluation(eval_list, "Overall test")
         plot_evaluation(eval_user_list, "User-wise test")
     
-    return sims, eval_list, eval_user_list
+    return eval_list, eval_user_list

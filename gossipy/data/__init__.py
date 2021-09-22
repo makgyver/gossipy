@@ -49,14 +49,24 @@ class DataDispatcher():
         if n <= 1: n = data_handler.size()
         self.data_handler = data_handler
         self.n = n
-        self.tr_assignments = [[] for _ in range(n)]
-        self.te_assignments = [[] for _ in range(n)]
-        for i in range(data_handler.size()):
-            self.tr_assignments[i % n].append(i)
         self.eval_on_user = eval_on_user
-        if eval_on_user:
-            for i in range(data_handler.eval_size()):
-                self.te_assignments[i % n].append(i)
+        #self.assign()
+    
+    def assign(self, seed=42):
+        self.tr_assignments = [[] for _ in range(self.n)]
+        self.te_assignments = [[] for _ in range(self.n)]
+
+        torch.manual_seed(seed)
+        iperm = torch.randperm(self.data_handler.size()).tolist()
+
+        for i in range(self.data_handler.size()):
+            self.tr_assignments[i % self.n].append(iperm[i])
+        
+        if self.eval_on_user:
+            iperm = torch.randperm(self.data_handler.eval_size()).tolist()
+            for i in range(self.data_handler.eval_size()):
+                self.te_assignments[i % self.n].append(iperm[i])
+
 
     def __getitem__(self, idx: int) -> Any:
         assert(0 <= idx < self.n), "Index %d out of range." %idx

@@ -86,6 +86,7 @@ def test_DataDispatcher():
     cdh = ClassificationDataHandler(X, y, 0.5, 42)
 
     dd = DataDispatcher(cdh, 2, True)
+    dd.assign()
     assert dd.data_handler == cdh
     assert dd.n == 2
     assert len(dd.tr_assignments[0]) == 1

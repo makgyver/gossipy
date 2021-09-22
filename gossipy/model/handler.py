@@ -82,8 +82,9 @@ class ModelHandler(Sizeable, EqualityMixin):
             cls.cache[key] = CacheItem(value)
         else:
             cls.cache[key].add_ref()
-            if value != cls.cache[key]:
-                LOG.warning("Cache warning: pushed an already existing key with a non matching value.")
+            #if value != cls.cache[key]:
+            #    LOG.warning("Cache warning: pushed an already existing key with a non matching value.")
+            #    LOG.warning("               %s != %s" %(value, cls.cache[key]))
     
     @classmethod
     def pop_cache(cls, key: CacheKey):
