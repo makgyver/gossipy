@@ -6,26 +6,32 @@ from gossipy.data import load_classification_dataset, DataDispatcher
 from gossipy.data.handler import ClassificationDataHandler
 from gossipy.simul import GossipSimulator, repeat_simulation
 
-
 set_seed(42)
 X, y = load_classification_dataset("spambase", as_tensor=True)
 y = 2*y - 1 #convert 0/1 labels to -1/1
 data_handler = ClassificationDataHandler(X, y, test_size=.1)
 
-simulator = GossipSimulator(data_dispatcher=DataDispatcher(data_handler, eval_on_user=False),
-                            delta=100,
-                            protocol=AntiEntropyProtocol.PUSH,
-                            gossip_node_class=GossipNode,
-                            model_handler_class=PegasosHandler,
-                            model_handler_params={"net" : Pegasos(data_handler.size(1)),
-                                                "lam" : .01,
-                                                "create_model_mode" : CreateModelMode.MERGE_UPDATE},
-                            topology=None,
-                            round_synced=False)
+simulator = GossipSimulator(
+    data_dispatcher=DataDispatcher(data_handler, eval_on_user=False),
+    delta=100,
+    protocol=AntiEntropyProtocol.PUSH,
+    gossip_node_class=GossipNode,
+    model_handler_class=PegasosHandler,
+    model_handler_params={
+        "net" : Pegasos(data_handler.size(1)),
+        "lam" : .01,
+        "create_model_mode" : CreateModelMode.MERGE_UPDATE
+    },
+    topology=None,
+    sampling_eval=.1,
+    round_synced=False
+)
 
-res = repeat_simulation(gossip_simulator=simulator,
-                        n_rounds=100,
-                        repetitions=1,
-                        verbose=True)
+res = repeat_simulation(
+    gossip_simulator=simulator,
+    n_rounds=100,
+    repetitions=1,
+    verbose=True
+)
 
 

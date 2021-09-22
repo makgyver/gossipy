@@ -11,6 +11,7 @@ from . import AntiEntropyProtocol, LOG, CacheKey
 from .data import DataDispatcher
 from .node import GossipNode, TokenAccount
 from .model.handler import ModelHandler
+from .utils import print_flush
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"
@@ -217,8 +218,13 @@ class TokenizedGossipSimulator(GossipSimulator):
         tot_size = 0
         msg_queues = DefaultDict(list)
         rep_queues = DefaultDict(list)
+        avg_tokens = [0]
         for t in pbar:
-            if t % self.delta == 0: shuffle(node_ids)
+            if t % self.delta == 0: 
+                shuffle(node_ids)
+                if t > 0:
+                    avg_tokens.append(np.mean([a.n_tokens for a in self.accounts.values()]))
+                    print_flush(avg_tokens[-1])
             
             for i in node_ids:
                 node = self.nodes[i]
