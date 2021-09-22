@@ -156,7 +156,7 @@ class GossipSimulator():
     def save(self, filename) -> None:
         dump = {
             "simul": self,
-            "cache": ModelHandler.cache
+            "cache": ModelHandler._CACHE
         }
         with open(filename, 'wb') as f:
             dill.dump(dump, f)
@@ -165,7 +165,7 @@ class GossipSimulator():
     def load(cls, filename) -> GossipSimulator:
         with open(filename, 'rb') as f:
             loaded = dill.load(f)
-            ModelHandler.cache = loaded["cache"]
+            ModelHandler._CACHE = loaded["cache"]
             return loaded["simul"]
 
 
@@ -240,7 +240,7 @@ class TokenizedGossipSimulator(GossipSimulator):
             for msg in msg_queues[t]:
                 if random() < self.online_prob:
                     if msg.value and isinstance(msg.value[0], CacheKey):
-                        sender_mh = ModelHandler.cache[msg.value[0]].value
+                        sender_mh = ModelHandler._CACHE[msg.value[0]].value
                     reply = self.nodes[msg.receiver].receive(t, msg)
                     if reply:
                         if random() > self.drop_prob:

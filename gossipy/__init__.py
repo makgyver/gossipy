@@ -82,7 +82,7 @@ class CacheKey(Sizeable):
     
     def get_size(self) -> int:
         from gossipy.model.handler import ModelHandler
-        val = ModelHandler.cache[self].value
+        val = ModelHandler._CACHE[self].value
         if isinstance(val, (float, int, bool)): return 1
         elif isinstance(val, Sizeable): return val.get_size()
         else: 

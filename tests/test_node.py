@@ -19,7 +19,7 @@ from gossipy.model.nn import Pegasos, TorchMLP
 from gossipy import AntiEntropyProtocol, CreateModelMode, MessageType, set_seed
 
 def test_GossipNode():
-    TorchModelHandler.cache.clear()
+    TorchModelHandler._CACHE.clear()
     set_seed(987654)
     mlp = TorchMLP(2, 2, (4,))
     params = {
@@ -65,7 +65,7 @@ def test_GossipNode():
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH)
     assert msg.type == MessageType.PUSH
-    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[msg.value[0]].value.model, mh.model)
     assert msg.sender == g.idx
 
     assert g.receive(0, msg) is None
@@ -77,10 +77,10 @@ def test_GossipNode():
     assert response.type ==  MessageType.REPLY
     assert response.sender == 0
     assert response.receiver == 0
-    assert torch_models_eq(TorchModelHandler.cache[response.value[0]].value.model, mh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[response.value[0]].value.model, mh.model)
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH_PULL)
-    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[msg.value[0]].value.model, mh.model)
     assert msg.type == MessageType.PUSH_PULL
 
     with pytest.raises(ValueError):
@@ -116,7 +116,7 @@ def test_GossipNode():
 
 
 def test_PassThroughNode():
-    TorchModelHandler.cache.clear()
+    TorchModelHandler._CACHE.clear()
     params = {
         "net" : Pegasos(2),
         "lam" : .1,
@@ -164,7 +164,7 @@ def test_PassThroughNode():
     msg = g.send(0, 1, protocol=AntiEntropyProtocol.PUSH)
     assert msg.sender == 0
     assert msg.receiver == 1
-    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[msg.value[0]].value.model, mh.model)
     assert msg.value[1] == 2
     assert msg.type == MessageType.PUSH
 
@@ -181,7 +181,7 @@ def test_PassThroughNode():
     msg = g.send(0, 1, protocol=AntiEntropyProtocol.PUSH_PULL)
     assert msg.sender == 0
     assert msg.receiver == 1
-    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[msg.value[0]].value.model, mh.model)
     assert msg.value[1] == 2
     assert msg.type == MessageType.PUSH_PULL
 
@@ -196,14 +196,14 @@ def test_PassThroughNode():
     assert response.sender == 1
     assert response.receiver == 0
     assert response.value[1] == 6
-    assert isinstance(TorchModelHandler.cache[response.value[0]].value, PegasosHandler)
+    assert isinstance(TorchModelHandler._CACHE[response.value[0]].value, PegasosHandler)
     
     with pytest.raises(ValueError):
         g.send(0, 1, protocol=10)
 
 
 def test_CacheNeighNode():
-    TorchModelHandler.cache.clear()
+    TorchModelHandler._CACHE.clear()
     params = {
         "net" : Pegasos(2),
         "lam" : .1,
@@ -244,7 +244,7 @@ def test_CacheNeighNode():
     msg = g.send(0, 1, protocol=AntiEntropyProtocol.PUSH)
     assert msg.sender == 0
     assert msg.receiver == 1
-    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[msg.value[0]].value.model, mh.model)
     assert msg.type == MessageType.PUSH
 
     set_seed(987654)
@@ -264,12 +264,12 @@ def test_CacheNeighNode():
     g2.receive(0, msg)
 
     assert torch.allclose(old_model, g2.model_handler.model.model)
-    assert torch.allclose(TorchModelHandler.cache[g2.cache[0]].value.model.model, g.model_handler.model.model)
+    assert torch.allclose(TorchModelHandler._CACHE[g2.cache[0]].value.model.model, g.model_handler.model.model)
 
     msg = g.send(0, 1, protocol=AntiEntropyProtocol.PUSH_PULL)
     assert msg.sender == 0
     assert msg.receiver == 1
-    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, mh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[msg.value[0]].value.model, mh.model)
     assert msg.type == MessageType.PUSH_PULL
 
     msg = g.send(0, 1, protocol=AntiEntropyProtocol.PULL)
@@ -282,14 +282,14 @@ def test_CacheNeighNode():
     assert response.type ==  MessageType.REPLY
     assert response.sender == 1
     assert response.receiver == 0
-    assert isinstance(TorchModelHandler.cache[response.value[0]].value, PegasosHandler)
+    assert isinstance(TorchModelHandler._CACHE[response.value[0]].value, PegasosHandler)
     
     with pytest.raises(ValueError):
         g.send(0, 1, protocol=10)
 
 
 def test_PBGossipNode():
-    TorchModelHandler.cache.clear()
+    TorchModelHandler._CACHE.clear()
     set_seed(987654)
     mlp = TorchMLP(2, 2, (4,))
     part = TorchModelPartition(mlp, 3)
@@ -337,7 +337,7 @@ def test_PBGossipNode():
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH)
     assert msg.type == MessageType.PUSH
-    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, tmh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[msg.value[0]].value.model, tmh.model)
     assert 0 <= msg.value[1] <= 2
     assert msg.sender == g.idx
 
@@ -350,11 +350,11 @@ def test_PBGossipNode():
     assert response.type ==  MessageType.REPLY
     assert response.sender == 0
     assert response.receiver == 0
-    assert torch_models_eq(TorchModelHandler.cache[response.value[0]].value.model, tmh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[response.value[0]].value.model, tmh.model)
     assert 0 <= response.value[1] <= 2
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH_PULL)
-    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, tmh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[msg.value[0]].value.model, tmh.model)
     assert 0 <= msg.value[1] <= 2
     assert msg.type == MessageType.PUSH_PULL
 
@@ -391,7 +391,7 @@ def test_PBGossipNode():
 
 
 def test_SBGossipNode():
-    TorchModelHandler.cache.clear()
+    TorchModelHandler._CACHE.clear()
     set_seed(987654)
     mlp = TorchMLP(2, 2, (4,))
     params = {
@@ -438,7 +438,7 @@ def test_SBGossipNode():
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH)
     assert msg.type == MessageType.PUSH
-    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, tmh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[msg.value[0]].value.model, tmh.model)
     assert msg.value[1] == .3
     assert msg.sender == g.idx
 
@@ -451,11 +451,11 @@ def test_SBGossipNode():
     assert response.type ==  MessageType.REPLY
     assert response.sender == 0
     assert response.receiver == 0
-    assert torch_models_eq(TorchModelHandler.cache[response.value[0]].value.model, tmh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[response.value[0]].value.model, tmh.model)
     assert response.value[1] == .3
 
     msg = g.send(0, 0, protocol=AntiEntropyProtocol.PUSH_PULL)
-    assert torch_models_eq(TorchModelHandler.cache[msg.value[0]].value.model, tmh.model)
+    assert torch_models_eq(TorchModelHandler._CACHE[msg.value[0]].value.model, tmh.model)
     assert msg.value[1] == .3
     assert msg.type == MessageType.PUSH_PULL
 

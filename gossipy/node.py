@@ -202,7 +202,7 @@ class CacheNeighNode(GossipNode):
         key = CacheKey(self.idx, self.model_handler.n_updates)
         self.model_handler.push_cache(key, self.model_handler.copy())
         for _ in range(len(self.known_nodes) - 1):
-            self.model_handler.cache[key].add_ref()
+            self.model_handler._CACHE[key].add_ref()
         self.cache = {i : key for i in self.known_nodes}
                         
     def send(self,

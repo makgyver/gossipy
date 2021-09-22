@@ -24,7 +24,7 @@ from gossipy import AntiEntropyProtocol, CreateModelMode, model, set_seed
 
 
 def test_GossipSimulator():
-    TorchModelHandler.cache.clear()
+    TorchModelHandler._CACHE.clear()
     set_seed(42)
     Xtr = torch.FloatTensor([[0,1],[-1,0],[-1,1],
                              [1,-1],[-1,-2],[2,1],
@@ -160,7 +160,7 @@ def test_plot(mock_plt):
 
 
 def test_TokenizedGossipSimulator():
-    TorchModelHandler.cache.clear()
+    TorchModelHandler._CACHE.clear()
     set_seed(42)
     Xtr = torch.FloatTensor([[0,1],[-1,0],[-1,1],
                              [1,-1],[-1,-2],[2,1],
@@ -206,7 +206,7 @@ def test_TokenizedGossipSimulator():
     assert not torch_models_eq(gossip.nodes[0].model_handler.model, net)
 
     evals, evals_user = gossip.start(100)
-    print(ModelHandler.cache)
+    print(ModelHandler._CACHE)
     assert len(evals) == 100
     assert len(evals_user) == 100
 

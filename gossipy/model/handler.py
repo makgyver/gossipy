@@ -75,24 +75,24 @@ class ModelHandler(Sizeable, EqualityMixin):
         return self.model.get_size() if self.model is not None else 0
     
     # CLASS METHODS - CACHING
-    cache = {}
-    @classmethod
-    def push_cache(cls, key: CacheKey, value: Any):
-        if key not in cls.cache:
-            cls.cache[key] = CacheItem(value)
+    _CACHE : Dict[CacheKey, CacheItem] = {}
+    @staticmethod
+    def push_cache(key: CacheKey, value: Any):
+        if key not in ModelHandler._CACHE:
+            ModelHandler._CACHE[key] = CacheItem(value)
         else:
-            cls.cache[key].add_ref()
+            ModelHandler._CACHE[key].add_ref()
             #if value != cls.cache[key]:
             #    LOG.warning("Cache warning: pushed an already existing key with a non matching value.")
             #    LOG.warning("               %s != %s" %(value, cls.cache[key]))
     
-    @classmethod
-    def pop_cache(cls, key: CacheKey):
-        if key not in cls.cache:
+    @staticmethod
+    def pop_cache(key: CacheKey):
+        if key not in ModelHandler._CACHE:
             return None
-        obj = cls.cache[key].del_ref()
-        if not cls.cache[key].is_referenced():
-            del cls.cache[key]
+        obj = ModelHandler._CACHE[key].del_ref()
+        if not ModelHandler._CACHE[key].is_referenced():
+            del ModelHandler._CACHE[key]
         return obj
 
 
