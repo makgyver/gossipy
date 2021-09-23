@@ -130,3 +130,6 @@ dmypy.json
 .DS_Store
 .vscode/settings.json
 .vscode/launch.json
+main_test.py
+main_marvel.py
+main.py
