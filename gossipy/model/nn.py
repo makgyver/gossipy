@@ -89,3 +89,19 @@ class AdaLine(TorchModel):
 class Pegasos(AdaLine):
     def __str__(self) -> str:
         return "Pegasos(size=%d)" %(self.get_size())
+
+
+class LogisticRegression(TorchModel):
+    def __init__(self, input_dim: int, output_dim: int):
+        super(LogisticRegression, self).__init__()
+        self.model = torch.nn.Linear(input_dim, output_dim)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)
+    
+    def init_weights(self) -> None:
+        pass
+    
+    def __str__(self) -> str:
+        return "LogisticRegression(in_size=%d, out_size=%d)" %(self.model.in_features,
+                                                               self.model.out_features)
