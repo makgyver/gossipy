@@ -1,3 +1,10 @@
+[travis-img]: https://travis-ci.org/makgyver/gossipy.svg?branch=master
+[travis-url]: https://travis-ci.org/makgyver/gossipy
+[language]: https://img.shields.io/github/languages/top/makgyver/gossipy
+[issues]: https://img.shields.io/github/issues/makgyver/gossipy
+[license]: https://img.shields.io/github/license/makgyver/gossipy
+[version]: https://img.shields.io/badge/python-3.7|3.8|3.9-blue
+
 # :warning: UNDER DEVELOPMENT :warning:
 
 # gossipy 
