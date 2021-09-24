@@ -1,5 +1,5 @@
-[travis-img]: https://travis-ci.com/makgyver/gossipy.svg?branch=master
-[travis-url]: https://travis-ci.com/makgyver/gossipy
+[travis-img]: https://app.travis-ci.com/makgyver/gossipy.svg?branch=main
+[travis-url]: https://app.travis-ci.com/github/makgyver/gossipy
 [language]: https://img.shields.io/github/languages/top/makgyver/gossipy
 [issues]: https://img.shields.io/github/issues/makgyver/gossipy
 [license]: https://img.shields.io/github/license/makgyver/gossipy
