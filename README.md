@@ -1,14 +1,19 @@
-[travis-img]: https://app.travis-ci.com/makgyver/gossipy.svg?branch=main
+[travis-img]: https://img.shields.io/travis/com/makgyver/gossipy?style=flat-square
 [travis-url]: https://app.travis-ci.com/github/makgyver/gossipy
 
-[language]: https://img.shields.io/github/languages/top/makgyver/gossipy
-[issues]: https://img.shields.io/github/issues/makgyver/gossipy
-[license]: https://img.shields.io/github/license/makgyver/gossipy
-[version]: https://img.shields.io/badge/python-3.7|3.8|3.9-blue
+[language]: https://img.shields.io/github/languages/top/makgyver/gossipy?style=flat-square
+[issues]: https://img.shields.io/github/issues/makgyver/gossipy?style=flat-square
+[license]: https://img.shields.io/github/license/makgyver/gossipy?style=flat-square
+[version]: https://img.shields.io/badge/python-3.7|3.8|3.9-blue?style=flat-square
+
+[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
 
 [![Build Status][travis-img]][travis-url]
-[![Coverage Status](https://coveralls.io/repos/github/makgyver/gossipy/badge.svg?branch=main)](https://coveralls.io/github/makgyver/gossipy?branch=main)
-![version] ![issues] ![license]
+[![Coverage Status](https://badgen.net/coveralls/c/github/makgyver/gossipy?style=flat-square)](https://coveralls.io/github/makgyver/gossipy?branch=main)
+![version] ![issues]
+[![GitHub latest commit](https://img.shields.io/github/last-commit/makgyver/gossipy?style=flat-square)](https://github.com/makgyver/gossipy/commit/)
+![license]
+
 
 # :warning: UNDER DEVELOPMENT :warning:
 
