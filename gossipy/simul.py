@@ -1,6 +1,5 @@
 from __future__ import annotations
 import numpy as np
-from numpy.lib.arraysetops import isin
 from numpy.random import shuffle, random, randint, choice
 from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from tqdm import tqdm
@@ -24,7 +23,7 @@ __status__ = "Development"
 #
 
 
-__all__ = ["GossipSimulator", "plot_evaluation", "repeat_simulation"]
+__all__ = ["GossipSimulator", "TokenizedGossipSimulator", "plot_evaluation", "repeat_simulation"]
 
 
 class GossipSimulator():
@@ -224,7 +223,7 @@ class TokenizedGossipSimulator(GossipSimulator):
                 shuffle(node_ids)
                 if t > 0:
                     avg_tokens.append(np.mean([a.n_tokens for a in self.accounts.values()]))
-                    print_flush(avg_tokens[-1])
+                    #print_flush(avg_tokens[-1])
             
             for i in node_ids:
                 node = self.nodes[i]
