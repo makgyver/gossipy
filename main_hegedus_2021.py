@@ -11,6 +11,16 @@ from gossipy.data import load_classification_dataset, DataDispatcher
 from gossipy.data.handler import ClassificationDataHandler
 from gossipy.simul import GossipSimulator, TokenizedGossipSimulator, plot_evaluation
 
+# AUTHORSHIP
+__version__ = "0.0.0dev"
+__author__ = "Mirko Polato"
+__copyright__ = "Copyright 2021, gossipy"
+__license__ = "MIT"
+__maintainer__ = "Mirko Polato, PhD"
+__email__ = "mak1788@gmail.com"
+__status__ = "Development"
+#
+
 
 set_seed(98765)
 X, y = load_classification_dataset("spambase", as_tensor=True)
@@ -44,7 +54,7 @@ sim = GossipSimulator(
     topology=topology,
     delay=(0, 10),
     online_prob=.2, #Approximates the average online rate of the STUNner's smartphone traces
-    #drop_prob=.1, #Simulate the possibility of message dropping
+    #drop_prob=.1, #Simulates the possibility of message dropping
     sampling_eval=.1,
     round_synced=True
 )

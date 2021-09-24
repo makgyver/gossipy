@@ -2,7 +2,7 @@ from collections import OrderedDict
 import torch
 from torch.nn import Module, Linear, Sequential
 from torch.nn.init import xavier_uniform_
-from torch.nn.modules.activation import ReLU, Softmax, Sigmoid
+from torch.nn.modules.activation import ReLU, Sigmoid
 from typing import Tuple
 from . import TorchModel
 
@@ -17,7 +17,7 @@ __status__ = "Development"
 #
 
 
-__all__ = ["TorchPerceptron", "TorchMLP"]
+__all__ = ["TorchPerceptron", "TorchMLP", "AdaLine", "Pegasos", "LogisticRegression"]
 
 class TorchPerceptron(TorchModel):
     def __init__(self, dim: int):

@@ -1,4 +1,3 @@
-
 from typing import Any, Tuple
 import logging
 from enum import Enum
@@ -15,7 +14,18 @@ __email__ = "mak1788@gmail.com"
 __status__ = "Development"
 #
 
-__all__ = ["node", "simul", "utils", "data", "model", "set_seed", "DuplicateFilter", "CreateModelMode", "AntiEntropyProtocol", "MessageType", "CacheKey", "CacheItem"]
+__all__ = ["node",
+           "simul",
+           "utils",
+           "data",
+           "model",
+           "set_seed",
+           "DuplicateFilter",
+           "CreateModelMode",
+           "AntiEntropyProtocol",
+           "MessageType",
+           "CacheKey",
+           "CacheItem"]
 
 
 class DuplicateFilter(object):

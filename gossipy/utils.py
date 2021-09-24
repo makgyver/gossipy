@@ -1,6 +1,4 @@
 import sys
-from typing import Any
-import numpy as np
 from numpy.random import randint
 import torch
 from torch.nn import Module
@@ -16,7 +14,7 @@ __status__ = "Development"
 #
 
 
-__all__ = ["print_flush", "choice_not_n"]
+__all__ = ["print_flush", "choice_not_n", "torch_models_eq"]
 
 def print_flush(text: str) -> None:
     print(text)
