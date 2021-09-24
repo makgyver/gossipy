@@ -261,7 +261,6 @@ class CacheNeighNode(GossipNode):
 class SamplingBasedNode(GossipNode):
     def __init__(self,
                  idx: int, #node's id
-                 sample_size: float,
                  data: Union[Tuple[Tensor, Optional[Tensor]],
                              Tuple[ndarray, Optional[ndarray]]], #node's data
                  round_len: int, #round length
@@ -276,8 +275,6 @@ class SamplingBasedNode(GossipNode):
                                                 model_handler,
                                                 known_nodes,
                                                 sync)
-        assert 0 < sample_size <= 1, "sample_size must be in the range (0, 1]."
-        self.sample_size = sample_size
                         
     def send(self,
              t: int,
@@ -291,7 +288,7 @@ class SamplingBasedNode(GossipNode):
                            self.idx,
                            peer,
                            MessageType.PUSH,
-                           (key, self.sample_size))
+                           (key, self.model_handler.sample_size))
         elif protocol == AntiEntropyProtocol.PULL:
             return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
@@ -301,7 +298,7 @@ class SamplingBasedNode(GossipNode):
                            self.idx,
                            peer,
                            MessageType.PUSH_PULL,
-                           (key, self.sample_size))
+                           (key, self.model_handler.sample_size))
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
@@ -326,7 +323,7 @@ class SamplingBasedNode(GossipNode):
                            self.idx,
                            msg.sender,
                            MessageType.REPLY,
-                           (key, self.sample_size))
+                           (key, self.model_handler.sample_size))
         return None
 
 

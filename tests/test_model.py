@@ -272,6 +272,7 @@ def test_STMH():
     set_seed(987654)
     mlp = TorchMLP(2, 2, (4,))
     params = {
+        "sample_size": .1,
         "net" : mlp,
         "optimizer" : SGD,
         "l2_reg": 0.001,

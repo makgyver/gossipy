@@ -395,6 +395,7 @@ def test_SBGossipNode():
     set_seed(987654)
     mlp = TorchMLP(2, 2, (4,))
     params = {
+        "sample_size": .3,
         "net" : mlp,
         "optimizer" : SGD,
         "l2_reg": 0.001,
@@ -410,7 +411,6 @@ def test_SBGossipNode():
 
     g = SamplingBasedNode(
         idx = 0,
-        sample_size=.3,
         data = ((Xtr, ytr), (Xte, yte)),
         round_len=10,
         n_nodes=10,

@@ -63,7 +63,7 @@ class TorchModelSampling:
                 t_ids = sample[i]
                 if t_ids is not None:
                     mul = 2 if reduce == "mean" else 1
-                    plist1[i][t_ids] = (plist1[i][t_ids] + plist2[i][t_ids]) * mul
+                    plist1[i][t_ids] = (plist1[i][t_ids] + plist2[i][t_ids]) / mul
 
 
 
@@ -79,7 +79,7 @@ class TorchModelPartition:
         plist = ParameterList(net.parameters())
         for t in plist:
             if t.dim() > 3:
-                raise TypeError("Partitioning is only not supported on "\
+                raise TypeError("Partitioning is only supported for neural "\
                                  "networks with at most 3D layers.")
 
     def _partition(self,
@@ -157,11 +157,3 @@ class TorchModelPartition:
                 t_ids = self.partitions[id_part][i]
                 if t_ids is not None:
                     plist1[i][t_ids] = mul1 * plist1[i][t_ids] + mul2 * plist2[i][t_ids]
-                    
-
-                
-
-
-
-
-

@@ -24,7 +24,7 @@ __status__ = "Development"
 #
 
 
-__all__ = ["ModelHandler", "TorchModelHandler"]
+__all__ = ["ModelHandler", "TorchModelHandler", "AdaLineHandler", "PegasosHandler", "SamplingTMH", "PartitionedTMH"]
 
 
 class ModelHandler(Sizeable, EqualityMixin):
@@ -227,28 +227,34 @@ class PegasosHandler(AdaLineHandler):
             self.model.model += ((y_pred * y[i] - 1) < 0).float() * (lr * y[i] * x[i])
 
 
-class SamplingTMHMixin(ModelHandler):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, create_model_mode=CreateModelMode.MERGE_UPDATE, **kwargs)
+class SamplingTMH(TorchModelHandler):
+    def __init__(self, sample_size: float, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sample_size = sample_size
+    
+    def _merge(self, other_model_handler: SamplingTMH,
+                     sample: Dict[int, Optional[Tuple[LongTensor, ...]]]) -> None:
+        TorchModelSampling.merge(sample, self.model, other_model_handler.model)
     
     def __call__(self,
                  recv_model: Any,
                  data: Any,
                  sample: Dict[int, Optional[Tuple[LongTensor, ...]]]) -> None:
-        self._merge(recv_model, sample)
-        self._update(data)
-    
-    def _merge(self, other_model_handler: SamplingTMHMixin,
-                     sample: Dict[int, Optional[Tuple[LongTensor, ...]]]) -> None:
-        TorchModelSampling.merge(sample, self.model, other_model_handler.model)
-        #TODO: update the number of updates
-
-
-class SamplingTMH(SamplingTMHMixin, TorchModelHandler):
-    def __init__(self, *args, **kwargs):
-        if "create_model_mode" in kwargs: kwargs.pop('create_model_mode')
-        if len(args) > 5: args[5] = CreateModelMode.MERGE_UPDATE
-        super().__init__(*args, **kwargs)
+        if self.mode == CreateModelMode.UPDATE:
+            recv_model._update(data)
+            self._merge(recv_model, sample)
+        elif self.mode == CreateModelMode.MERGE_UPDATE:
+            self._merge(recv_model, sample)
+            self._update(data)
+        elif self.mode == CreateModelMode.UPDATE_MERGE:
+            self._update(data)
+            recv_model._update(data)
+            self._merge(recv_model, sample)
+        elif self.mode == CreateModelMode.PASS:
+            raise ValueError("Mode PASS not allowed for sampled models.")
+        else:
+            raise ValueError("Unknown create model mode %s." %str(self.mode))
+        
 
 
 class PartitionedTMH(TorchModelHandler):
@@ -259,13 +265,14 @@ class PartitionedTMH(TorchModelHandler):
                  criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
                  l2_reg: float=0.01,
                  learning_rate: float=0.001,
+                 create_model_mode=CreateModelMode.MERGE_UPDATE,
                  copy_model=True):
         super(PartitionedTMH, self).__init__(net,
                                              optimizer,
                                              criterion,
                                              l2_reg,
                                              learning_rate,
-                                             CreateModelMode.MERGE_UPDATE,
+                                             create_model_mode,
                                              copy_model)
         self.tm_partition = tm_partition
         self.n_updates = np.array([0 for _ in range(tm_partition.n_parts)], dtype=int)
@@ -274,8 +281,21 @@ class PartitionedTMH(TorchModelHandler):
                  recv_model: Any,
                  data: Any,
                  id_part: int) -> None:
-        self._merge(recv_model, id_part)
-        self._update(data)
+        if self.mode == CreateModelMode.UPDATE:
+            recv_model._update(data)
+            self._merge(recv_model, id_part)
+        elif self.mode == CreateModelMode.MERGE_UPDATE:
+            self._merge(recv_model, id_part)
+            self._update(data)
+        elif self.mode == CreateModelMode.UPDATE_MERGE:
+            self._update(data)
+            recv_model._update(data)
+            self._merge(recv_model, id_part)
+        elif self.mode == CreateModelMode.PASS:
+            raise ValueError("Mode PASS not allowed for partitioned models.")
+        else:
+            raise ValueError("Unknown create model mode %s." %str(self.mode))
+
     
     def _merge(self, other_model_handler: PartitionedTMH, id_part: int) -> None:
         w = (self.n_updates[id_part], other_model_handler.n_updates[id_part])
