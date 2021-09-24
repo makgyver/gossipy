@@ -1,9 +1,13 @@
-[travis-img]: https://travis-ci.org/makgyver/gossipy.svg?branch=master
-[travis-url]: https://travis-ci.org/makgyver/gossipy
+[travis-img]: https://travis-ci.com/makgyver/gossipy.svg?branch=master
+[travis-url]: https://travis-ci.com/makgyver/gossipy
 [language]: https://img.shields.io/github/languages/top/makgyver/gossipy
 [issues]: https://img.shields.io/github/issues/makgyver/gossipy
 [license]: https://img.shields.io/github/license/makgyver/gossipy
 [version]: https://img.shields.io/badge/python-3.7|3.8|3.9-blue
+
+[![Build Status][travis-img]][travis-url]
+[![Coverage Status](https://coveralls.io/repos/github/makgyver/gossipy/badge.svg?branch=master)](https://coveralls.io/github/makgyver/gossipy?branch=master)
+![version] ![issues] ![license]
 
 # :warning: UNDER DEVELOPMENT :warning:
 
