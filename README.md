@@ -1,10 +1,10 @@
-[travis-img]: https://img.shields.io/travis/com/makgyver/gossipy?style=flat-square
+[travis-img]: https://img.shields.io/travis/com/makgyver/gossipy?style=for-the-badge
 [travis-url]: https://app.travis-ci.com/github/makgyver/gossipy
 
-[language]: https://img.shields.io/github/languages/top/makgyver/gossipy?style=flat-square
-[issues]: https://img.shields.io/github/issues/makgyver/gossipy?style=flat-square
+[language]: https://img.shields.io/github/languages/top/makgyver/gossipy?style=for-the-badge
+[issues]: https://img.shields.io/github/issues/makgyver/gossipy?style=for-the-badge
 [license]: https://img.shields.io/badge/mit-blue?style=for-the-badge&logo=opensourceinitiative&color=8a1c06&logoColor=white
-[version]: https://img.shields.io/badge/python-3.7|3.8|3.9-blue?style=flat-square
+[version]: https://img.shields.io/badge/python-3.7|3.8|3.9-blue?style=for-the-badge
 
 [![python](https://img.shields.io/badge/PYTHON-blue?style=for-the-badge&logo=python&logoColor=yellow)](https://www.python.org/)
 [![vscode](https://img.shields.io/badge/VSCODE-white?style=for-the-badge&logo=visualstudiocode&logoColor=blue)](https://code.visualstudio.com/)
@@ -13,9 +13,9 @@
 ![license]
 
 [![Build Status][travis-img]][travis-url]
-[![Coverage Status](https://badgen.net/coveralls/c/github/makgyver/gossipy?style=flat-square)](https://coveralls.io/github/makgyver/gossipy?branch=main)
+[![Coverage Status](https://img.shields.io/coveralls/makgyver/gossipy?style=for-the-badge)](https://coveralls.io/github/makgyver/gossipy?branch=main)
 ![version] ![issues]
-[![GitHub latest commit](https://img.shields.io/github/last-commit/makgyver/gossipy?style=flat-square)](https://github.com/makgyver/gossipy/commit/)
+[![GitHub latest commit](https://img.shields.io/github/last-commit/makgyver/gossipy?style=for-the-badge)](https://github.com/makgyver/gossipy/commit/)
 
 
 # :warning: UNDER DEVELOPMENT :warning:
