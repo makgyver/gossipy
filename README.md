@@ -7,7 +7,7 @@
 [version]: https://img.shields.io/badge/python-3.7|3.8|3.9-blue?style=flat-square
 
 [![python](https://img.shields.io/badge/PYTHON-blue?style=for-the-badge&logo=python&logoColor=yellow)](https://www.python.org/)
-[![vscode](https://img.shields.io/badge/VSCODE-blue?style=for-the-badge&logo=visualstudiocode)](https://code.visualstudio.com/)
+[![vscode](https://img.shields.io/badge/VSCODE-white?style=for-the-badge&logo=visualstudiocode&logoColor=blue)](https://code.visualstudio.com/)
 [![macos](https://img.shields.io/badge/macOS-grey?style=for-the-badge&logo=apple)](https://code.visualstudio.com/)
 [![open-source](https://img.shields.io/badge/open%20source-blue?style=for-the-badge&logo=github&color=123456)](https://github.com/makgyver/gossipy/)
 ![license]
