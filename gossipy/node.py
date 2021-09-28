@@ -103,8 +103,11 @@ class GossipNode():
         else:
             return self.model_handler.evaluate(ext_data)
     
+    #CHECK: we need a more sensible check
     def has_test(self) -> bool:
-        return self.data[1] is not None
+        if isinstance(self.data, tuple):
+            return self.data[1] is not None
+        else: return True
 
 
 class PassThroughNode(GossipNode):
@@ -191,7 +194,7 @@ class CacheNeighNode(GossipNode):
                  n_nodes: int, #number of nodes in the network
                  model_handler: ModelHandler, #object that handles the model learning/inference
                  known_nodes: np.ndarray, #reachable nodes according to the network topology
-                 sync=True):
+                 sync: bool=True):
         super(CacheNeighNode, self).__init__(idx,
                                              data,
                                              round_len,
@@ -415,7 +418,6 @@ class TokenAccount():
         raise NotImplementedError()
 
 
-# Same as SimpleTokenAccount(0)
 class PurelyProactiveTokenAccount(TokenAccount):
     def proactive(self) -> float:
         return 1

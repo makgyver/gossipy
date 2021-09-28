@@ -178,7 +178,7 @@ class Message(Sizeable):
         else:
             raise TypeError("Cannot compute the size of the payload!")
         
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         s: str = "T%d [%d -> %d] {%s}: " %(self.timestamp,
                                            self.sender,
                                            self.receiver,

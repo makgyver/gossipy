@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from typing import Any, Tuple, Union, List
+from typing import Any, Tuple, Union, List, Dict
 from sklearn.model_selection import train_test_split
 from . import DataHandler
 
@@ -14,7 +14,7 @@ __email__ = "mak1788@gmail.com"
 __status__ = "Development"
 #
 
-__all__ = ["ClassificationDataHandler"]
+__all__ = ["ClassificationDataHandler", "RecSysDataHandler"]
 
 #TODO: regression data handler
 
@@ -68,3 +68,42 @@ class ClassificationDataHandler(DataHandler):
     
     def eval_size(self) -> int:
         return self.Xte.shape[0] if self.Xte is not None else 0
+
+
+class RecSysDataHandler(DataHandler):
+    def __init__(self,
+                 ratings: Dict[int, List[Tuple[int, float]]],
+                 n_users: int,
+                 n_items: int,
+                 test_size: float=0.2,
+                 seed: int=42):
+        self.ratings = ratings
+        self.n_users = n_users
+        self.n_items = n_items
+        self.test_id = []
+        np.random.seed(seed)
+        for u in range(len(self.ratings)):
+            self.test_id.append(max(1, int(len(self.ratings[u]) * (1 - test_size))))
+            self.ratings[u] = np.random.permutation(self.ratings[u])
+
+    def __getitem__(self, idx: int) -> List[Tuple[int, float]]:
+        return self.ratings[idx][:self.test_id[idx]]
+
+    def at(self, 
+           idx: int,
+           eval_set: bool=False) -> List[Tuple[int, float]]:
+        if eval_set:
+            return self.ratings[idx][self.test_id[idx]:]
+        else: return self[idx]
+
+    def size(self):
+        return self.n_users
+    
+    def get_train_set(self) -> Tuple[Any, Any]:
+        return {u : self[u] for u in range(self.n_users)}
+
+    def get_eval_set(self) -> Tuple[Any, Any]:
+        return {u : self.at(u, True) for u in range(self.n_users)}
+    
+    def eval_size(self) -> int:
+        return 0

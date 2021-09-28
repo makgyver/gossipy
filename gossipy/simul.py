@@ -304,7 +304,7 @@ class TokenizedGossipSimulator(GossipSimulator):
 
 def plot_evaluation(evals: List[List[Dict]],
                     title: str="No title") -> None:
-    if not evals[0][0]: return
+    if not evals or not evals[0] or not evals[0][0]: return
     fig = plt.figure()
     fig.canvas.set_window_title(title)
     ax = fig.add_subplot(111)
@@ -344,3 +344,4 @@ def repeat_simulation(gossip_simulator: GossipSimulator,
         plot_evaluation(eval_user_list, "User-wise test")
     
     return eval_list, eval_user_list
+    

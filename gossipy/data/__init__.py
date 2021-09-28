@@ -1,4 +1,6 @@
-from typing import Any, Tuple, Union
+import os
+from typing import Any, Tuple, Union, Dict, List
+import shutil
 import numpy as np
 import pandas as pd
 import torch
@@ -7,6 +9,7 @@ from sklearn.datasets import load_svmlight_file
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 from .. import LOG
+from ..utils import download_and_unzip
 
 
 # AUTHORSHIP
@@ -20,7 +23,7 @@ __status__ = "Development"
 #
 
 
-__all__ = ["DataHandler", "DataDispatcher", "load_classification_dataset"]
+__all__ = ["DataHandler", "DataDispatcher", "load_classification_dataset", "load_recsys_dataset"]
 
 
 class DataHandler():
@@ -83,6 +86,34 @@ class DataDispatcher():
         return self.data_handler.eval_size() > 0
 
 
+class RecSysDataDispatcher(DataDispatcher):
+    from .handler import RecSysDataHandler
+    def __init__(self,
+                 data_handler: RecSysDataHandler):
+        self.data_handler = data_handler
+        self.n = self.data_handler.n_users
+        self.eval_on_user = True
+    
+    def assign(self, seed=42):
+        torch.manual_seed(seed)
+        self.assignments = torch.randperm(self.data_handler.size()).tolist()
+
+
+    def __getitem__(self, idx: int) -> Any:
+        assert(0 <= idx < self.n), "Index %d out of range." %idx
+        return self.data_handler.at(self.assignments[idx]), \
+               self.data_handler.at(self.assignments[idx], True)
+    
+    def size(self) -> int:
+        return self.n
+
+    def get_eval_set(self) -> Tuple[Any, Any]:
+        return None
+    
+    def has_test(self) -> bool:
+        return False
+
+
 UCI_BASE_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/"
 
 UCI_URL_AND_CLASS = {
@@ -130,17 +161,39 @@ def load_classification_dataset(name_or_path: str,
     return X, y
 
 
-#TODO: download
-# def load_recsys_dataset(name: str,
-#                         path: str) -> Dict[int, List[Tuple[int, float]]]:
-#     ratings = {}
-#     if name == "ml100k" or name == "ml1m":
-#         with open(os.path.join(path, name + ".txt"), "r") as f:
-#             for line in f.readlines():
-#                 u, i, r = list(map(int, line.strip().split(",")))
-#                 if u not in ratings:
-#                     ratings[u] = []
-#                 ratings[u].append((i, r))
-#     else:
-#         raise ValueError("Unknown dataset %s." %name)
-#     return ratings
+def load_recsys_dataset(name: str,
+                        path: str=".") -> Tuple[Dict[int, List[Tuple[int, float]]], int, int]:
+    ratings = {}
+    if name in {"ml-100k", "ml-1m", "ml-10m", "ml-20m"}:
+        folder = download_and_unzip("https://files.grouplens.org/datasets/movielens/%s.zip" %name)
+        if name == "ml-100k":
+            filename = "u.data"
+            sep = "\t"
+        elif name == "ml-20m":
+            filename = "ratings.csv"
+            sep = ","
+        else:
+            filename = "ratings.dat"
+            sep = "::"
+
+        ucnt = 0
+        icnt = 0
+        with open(os.path.join(path, folder, filename), "r") as f:
+            umap = {}
+            imap = {}
+            for line in f.readlines():
+                u, i, r = list(line.strip().split(sep))[0:3]
+                u, i, r = int(u), int(i), float(r)
+                if u not in umap:
+                    umap[u] = ucnt
+                    ratings[umap[u]] = []
+                    ucnt += 1
+                if i not in imap:
+                    imap[i] = icnt
+                    icnt += 1
+                ratings[umap[u]].append((imap[i], r))
+
+        shutil.rmtree(folder)
+    else:
+        raise ValueError("Unknown dataset %s." %name)
+    return ratings, ucnt, icnt

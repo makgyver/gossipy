@@ -24,7 +24,13 @@ __status__ = "Development"
 #
 
 
-__all__ = ["ModelHandler", "TorchModelHandler", "AdaLineHandler", "PegasosHandler", "SamplingTMH", "PartitionedTMH"]
+__all__ = ["ModelHandler",
+           "TorchModelHandler",
+           "AdaLineHandler",
+           "PegasosHandler",
+           "SamplingTMH",
+           "PartitionedTMH",
+           "MFModelHandler"]
 
 
 class ModelHandler(Sizeable, EqualityMixin):
@@ -265,7 +271,7 @@ class PartitionedTMH(TorchModelHandler):
                  criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
                  l2_reg: float=0.01,
                  learning_rate: float=0.001,
-                 create_model_mode=CreateModelMode.MERGE_UPDATE,
+                 create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
                  copy_model=True):
         super(PartitionedTMH, self).__init__(net,
                                              optimizer,
@@ -321,3 +327,54 @@ class PartitionedTMH(TorchModelHandler):
                 for i, par in enumerate(plist):
                     if t_ids[i] is not None:
                         par.grad[t_ids[i]] /= self.n_updates[p]
+
+
+class MFModelHandler(ModelHandler):
+    def __init__(self,
+                 dim: int,
+                 n_items: int,
+                 lam_reg: float=0.1,
+                 learning_rate: float=0.001,
+                 create_model_mode: CreateModelMode=CreateModelMode.UPDATE):
+        super(MFModelHandler, self).__init__(create_model_mode)
+        self.reg = lam_reg
+        self.k = dim
+        self.lr = learning_rate
+        self.n_items = n_items
+        self.n_updates = 1
+
+    def init(self, r_min: int=1, r_max: int=5) -> None:
+        mul = np.sqrt((r_max - r_min) / self.k)
+        X = np.random.rand(1, self.k) * mul
+        Y = np.random.rand(self.n_items, self.k) * mul
+        b = r_min / 2.0
+        c = np.ones(self.n_items) * r_min / 2.0
+        self.model = ((X, b), (Y, c))
+
+    def _update(self, data: torch.Tensor) -> None:
+        (X, b), (Y, c) = self.model
+        for i, r in data:
+            i = int(i)
+            err = (r - np.dot(X, Y[i].T) - b - c[i])[0]
+            Y[i] = (1. - self.reg * self.lr) * Y[i] + self.lr * err * X
+            X = (1. - self.reg * self.lr) * X + self.lr * err * Y[i]
+            b += self.lr * err
+            c[i] += self.lr * err
+        self.model = ((X, b), (Y, c))
+        self.n_updates += 1
+
+    def _merge(self, other_model_handler: MFModelHandler) -> None:
+        _, (Y1, c1) = other_model_handler.model
+        (X, b), (Y, c) = self.model
+        den = self.n_updates + other_model_handler.n_updates
+        Y = (Y * self.n_updates + Y1 * other_model_handler.n_updates) / (2.0 * den)
+        c = (c * self.n_updates + c1 * other_model_handler.n_updates) / (2.0 * den)
+        self.model = (X, b), (Y, c)
+
+    def evaluate(self, ratings) -> Dict[str, float]:
+        (X, b), (Y, c) = self.model
+        R = (np.dot(X, Y.T) + b + c)[0]
+        return {"rmse" : np.sqrt(np.mean([(r - R[int(i)])**2 for i, r in ratings]))}
+    
+    def get_size(self) -> int:
+        return self.k * (self.n_items + 1)

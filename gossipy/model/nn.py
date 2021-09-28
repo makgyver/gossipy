@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import torch
-from torch.nn import Module, Linear, Sequential
-from torch.nn.init import xavier_uniform_
+from torch.nn import Module, Linear, Sequential, Embedding
+from torch.nn.init import xavier_uniform_, uniform_, constant_
 from torch.nn.modules.activation import ReLU, Sigmoid
 from typing import Tuple
 from . import TorchModel
@@ -34,7 +34,7 @@ class TorchPerceptron(TorchModel):
     def init_weights(self) -> None:
         xavier_uniform_(self.model._modules['linear'].weight)
     
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return "TorchPerceptron(size=%d)\n%s" %(self.get_size(), str(self.model))
 
 
@@ -63,7 +63,7 @@ class TorchMLP(TorchModel):
                 xavier_uniform_(m.weight)
         self.model.apply(_init_weights)
     
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return "TorchMLP(size=%d)\n%s" %(self.get_size(), str(self.model))
 
 
@@ -82,12 +82,12 @@ class AdaLine(TorchModel):
     def init_weights(self) -> None:
         pass
     
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return "AdaLine(size=%d)" %(self.get_size())
 
 
 class Pegasos(AdaLine):
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return "Pegasos(size=%d)" %(self.get_size())
 
 
@@ -102,6 +102,6 @@ class LogisticRegression(TorchModel):
     def init_weights(self) -> None:
         pass
     
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return "LogisticRegression(in_size=%d, out_size=%d)" %(self.model.in_features,
                                                                self.model.out_features)

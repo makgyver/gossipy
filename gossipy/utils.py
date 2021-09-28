@@ -1,7 +1,12 @@
 import sys
+from urllib.request import urlopen
+from io import BytesIO
+from zipfile import ZipFile
 from numpy.random import randint
 import torch
 from torch.nn import Module
+
+from . import LOG
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"
@@ -14,7 +19,7 @@ __status__ = "Development"
 #
 
 
-__all__ = ["print_flush", "choice_not_n", "torch_models_eq"]
+__all__ = ["print_flush", "choice_not_n", "torch_models_eq", "download_and_unzip"]
 
 def print_flush(text: str) -> None:
     print(text)
@@ -37,3 +42,12 @@ def torch_models_eq(m1: Module,
         if not k1 == k2 or not torch.equal(i1, i2):
             return False
     return True
+
+
+def download_and_unzip(url: str, extract_to: str='.'):
+    LOG.info("Downloading %s into %s" %(url, extract_to))
+    http_response = urlopen(url)
+    zipfile = ZipFile(BytesIO(http_response.read()))
+    zipfile.extractall(path=extract_to)
+    return zipfile.namelist()[0]
+    
