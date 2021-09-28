@@ -1,5 +1,3 @@
-ignore:
-  - *.md
 language: python
 python:
   - "3.7"
