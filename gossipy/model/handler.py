@@ -429,14 +429,13 @@ class KMeansHandler(ModelHandler):
         #         self._add_centroid(other_model_handler.model[i])
         #         i += 1
         # elif not other_model_handler._has_empty():
-        if other_model_handler.n_updates >= self.n_updates:
-            if self.matching == "naive":
-                self.model = (self.model + other_model_handler.model) / 2
-            elif self.matching == "hungarian":
-                cm_torch = torch.cdist(self.model, other_model_handler.model)
-                cost_matrix = cm_torch.cpu().detach().numpy()
-                matching_idx = hungarian(cost_matrix)[0]
-                self.model = (self.model + other_model_handler.model[matching_idx]) / 2
+        if self.matching == "naive":
+            self.model = (self.model + other_model_handler.model) / 2
+        elif self.matching == "hungarian":
+            cm_torch = torch.cdist(self.model, other_model_handler.model)
+            cost_matrix = cm_torch.cpu().detach().numpy()
+            matching_idx = hungarian(cost_matrix)[0]
+            self.model = (self.model + other_model_handler.model[matching_idx]) / 2
     
     def evaluate(self, data: Tuple[torch.FloatTensor, torch.LongTensor]) -> Dict[str, float]:
         X, y = data
