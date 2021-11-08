@@ -22,7 +22,7 @@ set_seed(42)
 X, y = load_classification_dataset("spambase", as_tensor=True)
 y = 2*y - 1 #convert 0/1 labels to -1/1
 data_handler = ClassificationDataHandler(X, y, test_size=.1)
-topology = nx.to_numpy_matrix(random_tree(data_handler.size()))
+topology = None#nx.to_numpy_matrix(random_tree(data_handler.size()))
 
 simulator = GossipSimulator(
     data_dispatcher=DataDispatcher(data_handler, eval_on_user=False),
@@ -42,7 +42,7 @@ simulator = GossipSimulator(
 
 res = repeat_simulation(
     gossip_simulator=simulator,
-    n_rounds=200,
-    repetitions=1,
+    n_rounds=100,
+    repetitions=1, #set values > 1
     verbose=True
 )

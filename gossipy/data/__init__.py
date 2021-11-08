@@ -9,7 +9,7 @@ from sklearn.datasets import load_svmlight_file
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 from .. import LOG
-from ..utils import download_and_unzip
+from ..utils import download_and_unzip, download_and_untar
 
 
 # AUTHORSHIP
@@ -121,7 +121,8 @@ UCI_URL_AND_CLASS = {
     "sonar" : (UCI_BASE_URL + "undocumented/connectionist-bench/sonar/sonar.all-data", 60),
     "ionosphere" : (UCI_BASE_URL + "ionosphere/ionosphere.data", 34),
     "abalone" : (UCI_BASE_URL + "abalone/abalone.data", 0),
-    "banknote" : (UCI_BASE_URL + "00267/data_banknote_authentication.txt", 4)
+    "banknote" : (UCI_BASE_URL + "00267/data_banknote_authentication.txt", 4),
+    #"dexter" : (UCI_BASE_URL + "dexter/DEXTER/", -1)
 }
 
 
@@ -141,6 +142,16 @@ def load_classification_dataset(name_or_path: str,
     elif name_or_path == "wine":
         dataset = datasets.load_wine()
         X, y = dataset.data, dataset.target
+    elif name_or_path == "reuters":
+        url = "http://download.joachims.org/svm_light/examples/example1.tar.gz"
+        folder = download_and_untar(url)
+        X_tr, y_tr = load_svmlight_file(folder + "/train.dat")
+        X_te, y_te = load_svmlight_file(folder + "/test.dat")
+        X_te = np.pad(X_te.toarray(), [(0, 0), (0, 17)], mode='constant', constant_values=0)
+        X = np.vstack([X_tr.toarray(), X_te])
+        y = np.concatenate([y_tr, y_te])
+        y = LabelEncoder().fit_transform(y)
+        shutil.rmtree(folder)
     elif name_or_path in {"sonar", "ionosphere", "abalone", "banknote", "spambase"}:
         url, label_id = UCI_URL_AND_CLASS[name_or_path]
         LOG.info("Downloading dataset %s from '%s'." %(name_or_path, url))
@@ -161,6 +172,7 @@ def load_classification_dataset(name_or_path: str,
     return X, y
 
 
+# TODO: add other recsys datasets
 def load_recsys_dataset(name: str,
                         path: str=".") -> Tuple[Dict[int, List[Tuple[int, float]]], int, int]:
     ratings = {}

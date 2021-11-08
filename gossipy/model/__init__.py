@@ -13,7 +13,6 @@ __email__ = "mak1788@gmail.com"
 __status__ = "Development"
 #
 
-
 __all__ = ["TorchModel"]
 
 

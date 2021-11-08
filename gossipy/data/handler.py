@@ -14,9 +14,13 @@ __email__ = "mak1788@gmail.com"
 __status__ = "Development"
 #
 
-__all__ = ["ClassificationDataHandler", "RecSysDataHandler"]
+__all__ = [
+    "ClassificationDataHandler",
+    "ClusteringDataHandler",
+    "RegressionDataHandler",
+    "RecSysDataHandler"
+]
 
-#TODO: regression data handler
 
 class ClassificationDataHandler(DataHandler):
     def __init__(self,
@@ -68,6 +72,32 @@ class ClassificationDataHandler(DataHandler):
     
     def eval_size(self) -> int:
         return self.Xte.shape[0] if self.Xte is not None else 0
+
+
+# Same as ClassificationDataHandler but without a test set
+class ClusteringDataHandler(ClassificationDataHandler):
+    def __init__(self,
+                 X: Union[np.ndarray, torch.Tensor],
+                 y: Union[np.ndarray, torch.Tensor],
+                 seed: int=42):
+        super(ClusteringDataHandler, self).__init__(X, y, 0, seed)
+
+    def get_eval_set(self) -> Tuple[Any, Any]:
+        return self.get_train_set()
+    
+    def eval_size(self) -> int:
+        return self.size()
+
+# Same as ClassificationDataHandler but with float labels
+# Alternative: creating a unique DataHandler class for both classification and regression
+class RegressionDataHandler(ClassificationDataHandler):
+    def __getitem__(self, idx: Union[int, List[int]]) -> Tuple[np.ndarray, float]:
+        return self.Xtr[idx, :], self.ytr[idx]
+    
+    def at(self, 
+           idx: Union[int, List[int]],
+           eval_set=False) -> Tuple[np.ndarray, float]:
+        super().at(idx, eval_set)
 
 
 class RecSysDataHandler(DataHandler):

@@ -1,17 +1,19 @@
 from __future__ import annotations
 import copy
 
-from gossipy.model.nn import AdaLine, Pegasos
 import torch
 from torch import LongTensor
 from torch.nn import ParameterList, Parameter
 import numpy as np
 from typing import Any, Callable, Tuple, Dict, Optional
 from sklearn.metrics import accuracy_score, roc_auc_score, recall_score, f1_score, precision_score
-from .. import LOG, Sizeable, CreateModelMode, EqualityMixin
-from . import TorchModel
-from .sampling import TorchModelPartition, TorchModelSampling
+from sklearn.metrics.cluster import normalized_mutual_info_score as nmi
+from scipy.optimize import linear_sum_assignment as hungarian
+from gossipy import LOG, Sizeable, CreateModelMode, EqualityMixin
+from gossipy.model import TorchModel
+from gossipy.model.sampling import TorchModelPartition, TorchModelSampling
 from gossipy import CacheItem, CacheKey
+from gossipy.model.nn import AdaLine, Pegasos
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"
@@ -24,13 +26,16 @@ __status__ = "Development"
 #
 
 
-__all__ = ["ModelHandler",
-           "TorchModelHandler",
-           "AdaLineHandler",
-           "PegasosHandler",
-           "SamplingTMH",
-           "PartitionedTMH",
-           "MFModelHandler"]
+__all__ = [
+    "ModelHandler",
+    "TorchModelHandler",
+    "AdaLineHandler",
+    "PegasosHandler",
+    "SamplingTMH",
+    "PartitionedTMH",
+    "MFModelHandler",
+    "KMeansHandler"
+]
 
 
 class ModelHandler(Sizeable, EqualityMixin):
@@ -378,3 +383,65 @@ class MFModelHandler(ModelHandler):
     
     def get_size(self) -> int:
         return self.k * (self.n_items + 1)
+
+
+class KMeansHandler(ModelHandler):
+    def __init__(self,
+                 k: int,
+                 dim: int,
+                 alpha: float=0.1,
+                 matching: str="naive", #"hungarian"
+                 create_model_mode: CreateModelMode=CreateModelMode.UPDATE):
+        assert matching in {"naive", "hungarian"}, "Invalid matching method."
+        super(KMeansHandler, self).__init__(create_model_mode)
+        self.k = k
+        self.dim = dim
+        self.matching = matching
+        self.alpha = alpha
+        #self._init_count = 0
+    
+    def init(self):
+        self.model = torch.rand(size=(self.k, self.dim))
+    
+    # def _has_empty(self) -> bool:
+    #     return self._init_count < self.k
+    
+    # def _add_centroid(self, x: torch.FloatTensor):
+    #     self.model[self._init_count] += x.flatten()
+    #     self._init_count += 1
+    
+    def _perform_clust(self, x: torch.FloatTensor) -> int:
+        dists = torch.cdist(x, self.model, p=2)
+        return torch.argmin(dists, dim=1)
+
+    def _update(self, data: torch.FloatTensor) -> None:
+        x, _ = data
+        # if self._has_empty():
+        #     self._add_centroid(x)
+        # else:
+        idx = self._perform_clust(x)
+        self.model[idx] = self.model[idx] * (1 - self.alpha) + self.alpha * x
+
+    def _merge(self, other_model_handler: KMeansHandler) -> None:
+        # if self._has_empty():
+        #     i = 0
+        #     while self._has_empty() and i < other_model_handler._init_count:
+        #         self._add_centroid(other_model_handler.model[i])
+        #         i += 1
+        # elif not other_model_handler._has_empty():
+        if self.matching == "naive":
+            self.model = (self.model + other_model_handler.model) / 2
+        elif self.matching == "hungarian":
+            cm_torch = torch.cdist(self.model, other_model_handler.model)
+            cost_matrix = cm_torch.cpu().detach().numpy()
+            matching_idx = hungarian(cost_matrix)[0]
+            self.model = (self.model + other_model_handler.model[matching_idx]) / 2
+    
+    def evaluate(self, data: Tuple[torch.FloatTensor, torch.LongTensor]) -> Dict[str, float]:
+        X, y = data
+        y_pred = self._perform_clust(X).cpu().detach().numpy()
+        y_true = y.cpu().detach().numpy()
+        return {"nmi": nmi(y_true, y_pred)}
+    
+    def get_size(self) -> int:
+        return self.k * self.dim

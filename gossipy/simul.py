@@ -107,7 +107,7 @@ class GossipSimulator():
                     msg = node.send(t, peer, self.protocol)
                     n_msg += 1
                     tot_size += msg.get_size()
-                    if msg: 
+                    if msg:
                         if random() >= self.drop_prob:
                             d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
                             msg_queues[t + d].append(msg)
@@ -302,11 +302,12 @@ class TokenizedGossipSimulator(GossipSimulator):
         return evals, evals_user
 
 
+# add argument for y_label
 def plot_evaluation(evals: List[List[Dict]],
                     title: str="No title") -> None:
     if not evals or not evals[0] or not evals[0][0]: return
     fig = plt.figure()
-    fig.canvas.set_window_title(title)
+    fig.canvas.manager.set_window_title(title)
     ax = fig.add_subplot(111)
     for k in evals[0][0]:
         evs = [[d[k] for d in l] for l in evals]

@@ -1,4 +1,5 @@
 import sys
+import tarfile
 from urllib.request import urlopen
 from io import BytesIO
 from zipfile import ZipFile
@@ -44,10 +45,16 @@ def torch_models_eq(m1: Module,
     return True
 
 
-def download_and_unzip(url: str, extract_to: str='.'):
+def download_and_unzip(url: str, extract_to: str='.') -> str:
     LOG.info("Downloading %s into %s" %(url, extract_to))
     http_response = urlopen(url)
     zipfile = ZipFile(BytesIO(http_response.read()))
     zipfile.extractall(path=extract_to)
     return zipfile.namelist()[0]
-    
+
+def download_and_untar(url: str, extract_to: str='.') -> str:
+    LOG.info("Downloading %s into %s" %(url, extract_to))
+    ftpstream = urlopen(url)
+    thetarfile = tarfile.open(fileobj=ftpstream, mode="r|gz")
+    thetarfile.extractall(path=extract_to)
+    return thetarfile.getnames()[0]
