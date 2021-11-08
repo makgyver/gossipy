@@ -421,6 +421,7 @@ class KMeansHandler(ModelHandler):
         # else:
         idx = self._perform_clust(x)
         self.model[idx] = self.model[idx] * (1 - self.alpha) + self.alpha * x
+        self.n_updates += 1
 
     def _merge(self, other_model_handler: KMeansHandler) -> None:
         # if self._has_empty():
