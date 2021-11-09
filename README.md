@@ -30,6 +30,8 @@ Python module for simulating gossip learning.
 - [ ] Logger (partially implemented)
 - [ ] Models cache [Ormandi 2013, Giaretta 2019] (partially implemented)
 - [ ] Perfect matching [Ormandi 2013]
+- [ ] More realistic online behaviour (currently is a worst case scenario)
+- [ ] Message transmission time (not sure if it can be modelled as a simple delay)
 
 ### Extras
 
@@ -37,6 +39,8 @@ Python module for simulating gossip learning.
 
 ## References
 * **[Ormandi 2013]** Ormándi, Róbert, István Hegedüs, and Márk Jelasity. 'Gossip Learning with Linear Models on Fully Distributed Data'. Concurrency and Computation: Practice and Experience 25, no. 4 (February 2013): 556–571. https://doi.org/10.1002/cpe.2858.
+
+* **[Berta 2014]** Arpad Berta, Istvan Hegedus, and Robert Ormandi. 'Lightning Fast Asynchronous Distributed K-Means Clustering', 22th European Symposium on Artificial Neural Networks, (ESANN) 2014, Bruges, Belgium, April 23-25, 2014.
 
 * **[Danner 2018]** G. Danner and M. Jelasity, 'Token Account Algorithms: The Best of the Proactive and Reactive Worlds'. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), 2018, pp. 885-895. https://doi.org/10.1109/ICDCS.2018.00090.
 
