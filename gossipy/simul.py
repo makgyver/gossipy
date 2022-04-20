@@ -3,6 +3,7 @@ import numpy as np
 from numpy.random import shuffle, random, randint, choice
 from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from tqdm import tqdm
+from rich.progress import track
 import matplotlib.pyplot as plt
 import dill
 
@@ -89,7 +90,8 @@ class GossipSimulator():
     def start(self, n_rounds: int=100) -> Tuple[List[float], List[float]]:
         assert self.initialized, "The simulator is not inizialized. Please, call the method 'init_nodes'."
         node_ids = np.arange(self.n_nodes)
-        pbar = tqdm(range(n_rounds * self.delta))
+        #pbar = tqdm(range(n_rounds * self.delta))
+        pbar = track(range(n_rounds * self.delta), description="Simulating...")
         evals = []
         evals_user = []
         n_msg = 0
@@ -209,7 +211,8 @@ class TokenizedGossipSimulator(GossipSimulator):
     
     def start(self, n_rounds: int=100) -> Tuple[List[float], List[float]]:
         node_ids = np.arange(self.n_nodes)
-        pbar = tqdm(range(n_rounds * self.delta))
+        #pbar = tqdm(range(n_rounds * self.delta))
+        pbar = track(range(n_rounds * self.delta), description="Simulating...")
         evals = []
         evals_user = []
         n_msg = 0

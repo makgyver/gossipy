@@ -32,6 +32,7 @@ Python module for simulating gossip learning.
 - [ ] Perfect matching [Ormandi 2013]
 - [ ] More realistic online behaviour (currently is a worst case scenario)
 - [ ] Message transmission time (not sure if it can be modelled as a simple delay)
+- [ ] PENS [Onoszko 2021]
 
 ### Extras
 
@@ -49,3 +50,5 @@ Python module for simulating gossip learning.
 * **[Hegedus 2020]** Hegedűs, István, Gábor Danner, Peggy Cellier and Márk Jelasity. 'Decentralized Recommendation Based on Matrix Factorization: A Comparison of Gossip and Federated Learning'. In 2020 Joint European Conference on Machine Learning and Knowledge Discovery in Databases, 2020, pp. 317-332. https://doi.org/10.1007/978-3-030-43823-4_27.
 
 * **[Hegedus 2021]** Hegedűs, István, Gábor Danner, and Márk Jelasity. 'Decentralized Learning Works: An Empirical Comparison of Gossip Learning and Federated Learning'. Journal of Parallel and Distributed Computing 148 (February 2021): 109–124. https://doi.org/10.1016/j.jpdc.2020.10.006.
+
+* **[Onoszko 2021]** Noa Onoszko, Gustav Karlsson Olof Mogren, and Edvin Listo Zec. 'Decentralized federated learning of deep neural networks on non-iid data'. International Workshop on Federated Learning for User Privacy and Data Confidentiality in Conjunction with ICML 2021 (FL-ICML'21). https://fl-icml.github.io/2021/papers/FL-ICML21_paper_3.pdf

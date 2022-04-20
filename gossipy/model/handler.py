@@ -233,7 +233,7 @@ class PegasosHandler(AdaLineHandler):
         for i in range(len(y)):
             self.n_updates += 1
             lr = 1. / (self.n_updates * self.learning_rate)
-            y_pred = self.model(x[i])
+            y_pred = self.model(x[i:i+1])
             self.model.model *= (1. - lr * self.learning_rate)
             self.model.model += ((y_pred * y[i] - 1) < 0).float() * (lr * y[i] * x[i])
 

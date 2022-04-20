@@ -1,5 +1,6 @@
 from typing import Any, Tuple
 import logging
+from rich.logging import RichHandler
 from enum import Enum
 import numpy as np
 import torch
@@ -38,10 +39,12 @@ class DuplicateFilter(object):
         return rv
 
 logging.basicConfig(level=logging.INFO,
-                    format="[%(asctime)s]  %(message)s",
-                    datefmt='%d%m%y-%H:%M:%S')
+                    #format="[%(asctime)s]  %(message)s",
+                    format="%(message)s",
+                    datefmt='%d%m%y-%H:%M:%S',
+                    handlers=[RichHandler()])
 
-LOG = logging.getLogger("gossipy")
+LOG = logging.getLogger("rich")
 LOG.addFilter(DuplicateFilter())
 
 
