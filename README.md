@@ -36,7 +36,7 @@ Python module for simulating gossip learning.
 - [ ] PENS [[Onoszko 2021]](#8)
 - [ ] DFL [[Liu 2022]](#10)
 - [ ] Segmented GL [[Hu 2019]](#5)
-- [ ] CMFL [[Che 2021]] (#9)
+- [ ] CMFL [[Che 2021]](#9)
 
 ### Extras
 
@@ -64,7 +64,8 @@ Hegedűs, István, Gábor Danner, Peggy Cellier and Márk Jelasity. 'Decentraliz
 <a id="7">[Hegedus 2021]</a>
 Hegedűs, István, Gábor Danner, and Márk Jelasity. 'Decentralized Learning Works: An Empirical Comparison of Gossip Learning and Federated Learning'. Journal of Parallel and Distributed Computing 148 (February 2021): 109–124. https://doi.org/10.1016/j.jpdc.2020.10.006.
 
-<a id="8">[Onoszko 2021]</a>Noa Onoszko, Gustav Karlsson Olof Mogren, and Edvin Listo Zec. 'Decentralized federated learning of deep neural networks on non-iid data'. International Workshop on Federated Learning for User Privacy and Data Confidentiality in Conjunction with ICML 2021 (FL-ICML'21). https://fl-icml.github.io/2021/papers/FL-ICML21_paper_3.pdf
+<a id="8">[Onoszko 2021]</a>
+Noa Onoszko, Gustav Karlsson Olof Mogren, and Edvin Listo Zec. 'Decentralized federated learning of deep neural networks on non-iid data'. International Workshop on Federated Learning for User Privacy and Data Confidentiality in Conjunction with ICML 2021 (FL-ICML'21). https://fl-icml.github.io/2021/papers/FL-ICML21_paper_3.pdf
 
 <a id="9">[Che 2021]</a>
 Chunjiang Che, Xiaoli Li, Chuan Chen, Xiaoyu He, and Zibin Zheng. 'A Decentralized Federated Learning Framework via Committee Mechanism with Convergence Guarantee'. https://arxiv.org/pdf/2108.00365.pdf
