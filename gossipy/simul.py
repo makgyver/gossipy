@@ -62,21 +62,30 @@ class GossipSimulator():
         self.topology = topology
         self.round_synced = round_synced
         self.initialized = False
+        self.nodes = {}
         
 
     def init_nodes(self, seed:int=98765) -> None:
         self.initialized = True
         self.data_dispatcher.assign(seed)
         self.nodes = {i: self.gossip_node_class(i,
-                                           self.data_dispatcher[i],
-                                           self.delta,
-                                           self.n_nodes,
-                                           self.model_handler_class(**self.model_handler_params),
-                                           self.topology[i] if self.topology is not None else None,
-                                           self.round_synced)
-                                           for i in range(self.n_nodes)}
+                                                self.data_dispatcher[i],
+                                                self.delta,
+                                                self.n_nodes,
+                                                self.model_handler_class(**self.model_handler_params),
+                                                self.topology[i] if self.topology is not None else None,
+                                                self.round_synced)
+                                                for i in range(self.n_nodes)}
         for _, node in self.nodes.items():
             node.init_model()
+    
+    def add_nodes(self, nodes: List[GossipNode]) -> None:
+        assert not self.initialized, "'init_nodes' must be called before adding new nodes."
+        for node in nodes:
+            node.idx = self.n_nodes
+            node.init_model()
+            self.nodes[node.idx] = node
+            self.n_nodes += 1
 
     def _collect_results(self, results: List[Dict[str, float]]) -> Dict[str, float]:
         if not results: return {}
@@ -336,7 +345,7 @@ def repeat_simulation(gossip_simulator: GossipSimulator,
     try:
         for i in range(repetitions):
             LOG.info("Simulation %d/%d" %(i+1, repetitions))
-            gossip_simulator.init_nodes(98765*i)
+            gossip_simulator.init_nodes(seed*i)
             evaluation, evaluation_user = gossip_simulator.start(n_rounds=n_rounds)
             eval_list.append(evaluation)
             eval_user_list.append(evaluation_user)

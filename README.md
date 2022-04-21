@@ -28,15 +28,19 @@ Python module for simulating gossip learning.
 ### Features
 
 - [ ] Logger (partially implemented)
+- [ ] Multi-threading/processing
 - [ ] Models cache [Ormandi 2013, Giaretta 2019] (partially implemented)
 - [ ] Perfect matching [Ormandi 2013]
-- [ ] More realistic online behaviour (currently is a worst case scenario)
+- [ ] More realistic online behaviour (currently it is a worst case scenario)
 - [ ] Message transmission time (not sure if it can be modelled as a simple delay)
 - [ ] PENS [Onoszko 2021]
+- [ ] DFL [Liu 2022]
+- [ ] Segmented GL [Hu 2019]
 
 ### Extras
 
 - [ ] Documentation
+- [ ] Add 'Weights and Biases' support
 
 ## References
 * **[Ormandi 2013]** Ormándi, Róbert, István Hegedüs, and Márk Jelasity. 'Gossip Learning with Linear Models on Fully Distributed Data'. Concurrency and Computation: Practice and Experience 25, no. 4 (February 2013): 556–571. https://doi.org/10.1002/cpe.2858.
@@ -52,3 +56,7 @@ Python module for simulating gossip learning.
 * **[Hegedus 2021]** Hegedűs, István, Gábor Danner, and Márk Jelasity. 'Decentralized Learning Works: An Empirical Comparison of Gossip Learning and Federated Learning'. Journal of Parallel and Distributed Computing 148 (February 2021): 109–124. https://doi.org/10.1016/j.jpdc.2020.10.006.
 
 * **[Onoszko 2021]** Noa Onoszko, Gustav Karlsson Olof Mogren, and Edvin Listo Zec. 'Decentralized federated learning of deep neural networks on non-iid data'. International Workshop on Federated Learning for User Privacy and Data Confidentiality in Conjunction with ICML 2021 (FL-ICML'21). https://fl-icml.github.io/2021/papers/FL-ICML21_paper_3.pdf
+
+* **[Hu 20219]** Chenghao Hu, Jingyan Jiang and Zhi Wang. 'Decentralized Federated Learning: A Segmented Gossip Approach'. https://arxiv.org/pdf/1908.07782.pdf
+
+* **[Liu 2022]** Wei Liu, Li Chen and Wenyi Zhang. 'Decentralized Federated Learning: Balancing Communication and Computing Costs'. https://arxiv.org/pdf/2107.12048.pdf
