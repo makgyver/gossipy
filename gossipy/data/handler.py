@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from typing import Any, Tuple, Union, List, Dict
+from typing import Any, Tuple, Union, List, Dict, Optional
 from sklearn.model_selection import train_test_split
 from . import DataHandler
 
@@ -26,12 +26,14 @@ class ClassificationDataHandler(DataHandler):
     def __init__(self,
                  X: Union[np.ndarray, torch.Tensor],
                  y: Union[np.ndarray, torch.Tensor],
+                 X_te: Optional[Union[np.ndarray, torch.Tensor]]=None,
+                 y_te: Optional[Union[np.ndarray, torch.Tensor]]=None,
                  test_size: float=0.2,
                  seed: int=42):
         assert(0 <= test_size < 1)
         assert(isinstance(X, (torch.Tensor, np.ndarray)))
 
-        if test_size > 0:
+        if test_size > 0 and (X_te is None or y_te is None):
             if isinstance(X, torch.Tensor):
                 n: int = X.shape[0]
                 te: int = round(n * test_size)
@@ -47,7 +49,7 @@ class ClassificationDataHandler(DataHandler):
                                                                           shuffle=True)
         else:
             self.Xtr, self.ytr = X, y
-            self.Xte = self.yte = None
+            self.Xte, self.yte = X_te, y_te
 
     def __getitem__(self, idx: Union[int, List[int]]) -> Tuple[np.ndarray, int]:
         return self.Xtr[idx, :], self.ytr[idx]

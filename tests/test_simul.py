@@ -34,7 +34,7 @@ def test_GossipSimulator():
                             1, 1, 1,
                             0, 0,
                             1, 1])
-    cdh = ClassificationDataHandler(Xtr, ytr, 0.4, 42)
+    cdh = ClassificationDataHandler(Xtr, ytr, test_size=0.4, seed=42)
     data_dispatcher = DataDispatcher(cdh, 2, True)
     net = TorchMLP(2, 2, (2,))
     mhpar = {"net" : net,
@@ -129,7 +129,7 @@ class TestStringMethods(unittest.TestCase):
                                 1, 1, 1,
                                 0, 0,
                                 1, 1])
-        cdh = ClassificationDataHandler(Xtr, ytr, 0.4, 42)
+        cdh = ClassificationDataHandler(Xtr, ytr, test_size=0.4, seed=42)
         data_dispatcher = DataDispatcher(cdh, 2, True)
         net = TorchMLP(2, 2, (2,))
         gossip = GossipSimulator(data_dispatcher=data_dispatcher,
@@ -170,7 +170,7 @@ def test_TokenizedGossipSimulator():
                             1, 1, 1,
                             0, 0,
                             1, 1])
-    cdh = ClassificationDataHandler(Xtr, ytr, 0.4, 42)
+    cdh = ClassificationDataHandler(Xtr, ytr, test_size=0.4, seed=42)
     data_dispatcher = DataDispatcher(cdh, 2, True)
     net = TorchMLP(2, 2, (2,))
     gossip = TokenizedGossipSimulator(data_dispatcher=data_dispatcher,

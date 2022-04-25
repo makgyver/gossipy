@@ -5,7 +5,7 @@ import torch
 from torch import LongTensor
 from torch.nn import ParameterList, Parameter
 import numpy as np
-from typing import Any, Callable, Tuple, Dict, Optional
+from typing import Any, Callable, Tuple, Dict, Optional, Union, Iterable
 from sklearn.metrics import accuracy_score, roc_auc_score, recall_score, f1_score, precision_score
 from sklearn.metrics.cluster import normalized_mutual_info_score as nmi
 from scipy.optimize import linear_sum_assignment as hungarian
@@ -139,15 +139,27 @@ class TorchModelHandler(ModelHandler):
             self.optimizer.step()
             self.n_updates += 1
 
-    def _merge(self, other_model_handler: TorchModelHandler) -> None:
+    def _merge(self, other_model_handler: Union[TorchModelHandler, Iterable[TorchModelHandler]]) -> None:
         dict_params1 = self.model.state_dict()
-        dict_params2 = other_model_handler.model.state_dict()
 
+        if isinstance(other_model_handler, TorchModelHandler):
+            dicts_params2 = [other_model_handler.model.state_dict()]
+            n_up = other_model_handler.n_updates
+        else:
+            dicts_params2 = [omh.model.state_dict() for omh in other_model_handler]
+            n_up = max([omh.n_updates for omh in other_model_handler])
+
+        # Perform the average overall model parameters
+        # CHECK: whether to allow the merging of the other models before the averaging 
+        div = len(dicts_params2) + 1
         for key in dict_params1:
-            dict_params2[key] = (dict_params1[key] + dict_params2[key]) / 2.
+            for dict_params2 in dicts_params2:
+                dict_params1[key] += dict_params2[key]
+            dict_params1[key] /= div
 
-        self.model.load_state_dict(dict_params2)
-        self.n_updates = max(self.n_updates, other_model_handler.n_updates)
+        self.model.load_state_dict(dict_params1)
+        # Gets the maximum number of updates from the merged models
+        self.n_updates = max(self.n_updates, n_up) 
 
     def evaluate(self,
                  data: Tuple[torch.Tensor, torch.Tensor]) -> Dict[str, int]:

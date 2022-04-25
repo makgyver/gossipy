@@ -8,7 +8,7 @@ from typing import Any, Optional, Union, Dict, Tuple
 from gossipy import CacheKey
 from .utils import choice_not_n
 from .model.handler import ModelHandler, PartitionedTMH, SamplingTMH
-from . import AntiEntropyProtocol, CreateModelMode, MessageType, Message
+from . import AntiEntropyProtocol, CreateModelMode, LOG, MessageType, Message
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"
@@ -54,7 +54,7 @@ class GossipNode():
 
     def update_neighbors(self, neighbors: np.ndarray) -> None:
         self.known_nodes = list(np.where(neighbors > 0)[-1])
-        
+
     def init_model(self, *args, **kwargs) -> None:
         self.model_handler.init()
 
@@ -187,7 +187,7 @@ class PassThroughNode(GossipNode):
                            (key, self.n_neighs))
         return None
 
-
+# TOCHECK: something seems wrong with the implementation of this type of node
 class CacheNeighNode(GossipNode):
     def __init__(self,
                  idx: int, #node's id
@@ -402,6 +402,63 @@ class PartitioningBasedNode(GossipNode):
                            MessageType.REPLY,
                            (key, pid))
         return None
+
+
+
+class PENSNode(CacheNeighNode):
+    def __init__(self,
+                 idx: int, #node's id
+                 data: Union[Tuple[Tensor, Optional[Tensor]],
+                             Tuple[ndarray, Optional[ndarray]]], #node's data
+                 round_len: int, #round length
+                 n_nodes: int, #number of nodes in the network
+                 model_handler: ModelHandler, #object that handles the model learning/inference
+                 known_nodes: np.ndarray, #reachable nodes according to the network topology
+                 n_sampled: int=10, #value from the paper
+                 m_top: int=2, #value from the paper
+                 sync: bool=True):
+        super(PENSNode, self).__init__(idx,
+                                       data,
+                                       round_len,
+                                       n_nodes,
+                                       model_handler,
+                                       known_nodes,
+                                       sync)
+        assert self.model_handler.mode != CreateModelMode.MERGE_UPDATE, \
+               "PENSNode can only be used with MERGE_UPDATE mode."
+        self.cache = {}
+        self.n_sampled = n_sampled
+        self.m_top = m_top
+                        
+    def send(self,
+             t: int,
+             peer: int,
+             protocol: AntiEntropyProtocol) -> Union[Message, None]:
+
+        if protocol != AntiEntropyProtocol.PUSH:
+            LOG.warning("PENSNode only supports PUSH protocol.")
+
+        key = CacheKey(self.idx, self.model_handler.n_updates)
+        self.model_handler.push_cache(key, self.model_handler.copy())
+        return Message(t, self.idx, peer, MessageType.PUSH, (key,))
+        
+
+    def receive(self, t: int, msg: Message) -> Union[Message, None]:
+        msg_type: MessageType
+        recv_model: Any 
+        sender, msg_type, recv_model = msg.sender, msg.type, msg.value[0]
+        if msg_type != MessageType.PUSH:
+            LOG.warning("PENSNode only supports PUSH protocol.")
+
+        loss = self.model_handler._CACHE[recv_model].evaluate(self.data)
+        self.cache[sender] = (recv_model, loss)
+
+        if len(self.cache) > self.n_sampled:
+            top_m = sorted(self.cache, key=lambda key: self.cache[key][1])[:self.m_top]
+
+            recv_models = [self.model_handler.pop_cache(k) for k in top_m]
+            self.model_handler(recv_models, self.data[0])
+            self.cache = {} # reset the cache
 
 
 class TokenAccount():

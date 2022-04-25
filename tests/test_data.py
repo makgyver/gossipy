@@ -36,14 +36,14 @@ def test_DataHandler():
 def test_ClassificationDataHandler():
     X = torch.FloatTensor([[1,2], [3,4]])
     y = torch.LongTensor([[0], [1]])
-    cdh = ClassificationDataHandler(X, y, 0.5, 42)
+    cdh = ClassificationDataHandler(X, y, test_size=0.5, seed=42)
 
     assert torch.all(cdh.Xtr == torch.FloatTensor([[1,2]]))
     assert torch.all(cdh.Xte == torch.FloatTensor([[3,4]]))
     assert torch.all(cdh.ytr == torch.LongTensor([0]))
     assert torch.all(cdh.yte == torch.LongTensor([1]))
 
-    cdh = ClassificationDataHandler(X, y, 0, 42)
+    cdh = ClassificationDataHandler(X, y, test_size=0, seed=42)
     assert torch.all(cdh.Xtr == X)
     assert torch.all(cdh.ytr == y)
     X_, y_ = cdh.get_train_set()
@@ -52,7 +52,7 @@ def test_ClassificationDataHandler():
 
     X = np.array([[1,2], [3,4]])
     y = np.array([0, 1])
-    cdh = ClassificationDataHandler(X, y, 0.5, 42)
+    cdh = ClassificationDataHandler(X, y, test_size=0.5, seed=42)
 
     assert np.all(cdh.Xtr == np.array([[1,2]]))
     assert np.all(cdh.Xte == np.array([[3,4]]))
@@ -83,7 +83,7 @@ def test_ClassificationDataHandler():
 def test_DataDispatcher():
     X = torch.FloatTensor([[1,2], [3,4], [5,6], [7,8]])
     y = torch.LongTensor([[0], [1], [0], [1]])
-    cdh = ClassificationDataHandler(X, y, 0.5, 42)
+    cdh = ClassificationDataHandler(X, y, test_size=0.5, seed=42)
 
     dd = DataDispatcher(cdh, 2, True)
     dd.assign()
