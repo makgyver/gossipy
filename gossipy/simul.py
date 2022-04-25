@@ -35,10 +35,10 @@ class GossipSimulator():
                  model_handler_class: ModelHandler,
                  model_handler_params: Dict[str, Any],
                  topology: Optional[np.ndarray],
-                 drop_prob: float=0., # [0,1]
-                 online_prob: float=1., # [0,1]
-                 delay: Optional[Tuple[int, int]]=None,
-                 sampling_eval: float=0., #[0, 1]
+                 drop_prob: float=0., # [0,1] - probability of a message being dropped
+                 online_prob: float=1., # [0,1] - probability of a node to be online
+                 delay: Optional[Tuple[int, int]]=None, # (a > 0, b >= a) - range delay (min, max), None = no delay
+                 sampling_eval: float=0., # [0, 1] - percentage of nodes to evaluate
                  round_synced: bool=True):
         
         assert 0 <= drop_prob <= 1, "drop_prob must be in the range [0,1]."
@@ -50,7 +50,6 @@ class GossipSimulator():
         self.n_nodes = data_dispatcher.size()
         self.delta = delta #round_len
         self.protocol = protocol
-        self.topology = topology
         self.drop_prob = drop_prob
         self.online_prob = online_prob
         self.delay = delay

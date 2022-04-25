@@ -52,6 +52,9 @@ class GossipNode():
         self.delay = randint(0, round_len) if sync else int(normal(round_len, round_len/10))
         self.known_nodes = list(np.where(known_nodes > 0)[-1]) if known_nodes is not None else None
 
+    def update_neighbors(self, neighbors: np.ndarray) -> None:
+        self.known_nodes = list(np.where(neighbors > 0)[-1])
+        
     def init_model(self, *args, **kwargs) -> None:
         self.model_handler.init()
 
