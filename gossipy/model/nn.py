@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import torch
-from torch.nn import Module, Linear, Sequential, Embedding
-from torch.nn.init import xavier_uniform_, uniform_, constant_
+from torch.nn import Module, Linear, Sequential
+from torch.nn.init import xavier_uniform_
 from torch.nn.modules.activation import ReLU, Sigmoid
 from typing import Tuple
 from . import TorchModel

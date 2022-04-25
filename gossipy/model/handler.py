@@ -114,6 +114,7 @@ class TorchModelHandler(ModelHandler):
                  criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
                  l2_reg: float=0.01,
                  learning_rate: float=0.001,
+                 local_epochs: int=1,
                  create_model_mode: CreateModelMode=CreateModelMode.UPDATE,
                  copy_model=True):
         super(TorchModelHandler, self).__init__(create_model_mode)
@@ -122,6 +123,7 @@ class TorchModelHandler(ModelHandler):
                                    lr=learning_rate,
                                    weight_decay=l2_reg)
         self.criterion = criterion
+        self.local_epochs = local_epochs
 
     def init(self) -> None:
         self.model.init_weights()
@@ -129,12 +131,13 @@ class TorchModelHandler(ModelHandler):
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
         x, y = data
         self.model.train()
-        y_pred = self.model(x)
-        loss = self.criterion(y_pred, y)
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
-        self.n_updates += 1
+        for _ in range(self.local_epochs):
+            y_pred = self.model(x)
+            loss = self.criterion(y_pred, y)
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+            self.n_updates += 1
 
     def _merge(self, other_model_handler: TorchModelHandler) -> None:
         dict_params1 = self.model.state_dict()
@@ -194,7 +197,7 @@ class AdaLineHandler(ModelHandler):
         x, y = data
         self.n_updates += len(y)
         for i in range(len(y)):
-            self.model.model += self.learning_rate * (y[i] - self.model(x[i])) * x[i]
+            self.model.model += self.learning_rate * (y[i] - self.model(x[i:i+1])) * x[i]
     
     def _merge(self, other_model_handler: PegasosHandler) -> None:
         self.model.model = Parameter(0.5 * (self.model.model + other_model_handler.model.model),
@@ -276,6 +279,7 @@ class PartitionedTMH(TorchModelHandler):
                  criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
                  l2_reg: float=0.01,
                  learning_rate: float=0.001,
+                 local_epochs: int=1,
                  create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
                  copy_model=True):
         super(PartitionedTMH, self).__init__(net,
@@ -283,6 +287,7 @@ class PartitionedTMH(TorchModelHandler):
                                              criterion,
                                              l2_reg,
                                              learning_rate,
+                                             local_epochs,
                                              create_model_mode,
                                              copy_model)
         self.tm_partition = tm_partition
@@ -315,15 +320,16 @@ class PartitionedTMH(TorchModelHandler):
                                       other_model_handler.n_updates[id_part])
     
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
-        self.n_updates += 1
         x, y = data
         self.model.train()
-        y_pred = self.model(x)
-        loss = self.criterion(y_pred, y)
-        self.optimizer.zero_grad()
-        loss.backward()
-        self._adjust_gradient()
-        self.optimizer.step()
+        for _ in range(self.local_epochs):
+            self.n_updates += 1
+            y_pred = self.model(x)
+            loss = self.criterion(y_pred, y)
+            self.optimizer.zero_grad()
+            loss.backward()
+            self._adjust_gradient()
+            self.optimizer.step()
     
     def _adjust_gradient(self) -> None:
         plist = ParameterList(self.model.parameters())

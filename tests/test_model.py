@@ -156,7 +156,7 @@ def test_AdaLine():
     ada.init_weights()
     assert torch.all(ada.model == torch.zeros_like(ada.model))
 
-    assert torch.all(ada(torch.FloatTensor([1,1,1,1])) == torch.zeros_like(ada.model))
+    assert torch.all(ada(torch.FloatTensor([[1,1,1,1]])) == torch.zeros_like(ada.model))
 
     assert str(ada) == "AdaLine(size=4)"
 

@@ -148,7 +148,7 @@ class TestStringMethods(unittest.TestCase):
                                 online_prob=1,
                                 round_synced=True)
         gossip.init_nodes()
-        with self.assertLogs(logger='gossipy', level='INFO') as cm:
+        with self.assertLogs(logger='rich', level='INFO') as cm:
             gossip.start(10)
             assert cm.output[1] != "INFO:gossipy:# Failed messages: 0"
 
