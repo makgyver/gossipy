@@ -81,14 +81,10 @@ class AdaLine(TorchModel):
 
     def init_weights(self) -> None:
         pass
-    
-    def __repr__(self) -> str:
-        return "AdaLine(size=%d)" %(self.get_size())
 
 
 class Pegasos(AdaLine):
-    def __repr__(self) -> str:
-        return "Pegasos(size=%d)" %(self.get_size())
+    pass
 
 
 class LogisticRegression(TorchModel):

@@ -124,31 +124,32 @@ class TorchModelHandler(ModelHandler):
                                    lr=learning_rate,
                                    weight_decay=l2_reg)
         self.criterion = criterion
+        assert (batch_size == 0 and local_epochs > 0) or (batch_size > 0)
         self.local_epochs = local_epochs
         self.batch_size = batch_size
-        self.current_batch = 0
 
     def init(self) -> None:
         self.model.init_weights()
 
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
         x, y = data
-        self.model.train()
-        epochs = max(1, self.local_epochs)
-        batches = x.size(0) if epochs == self.local_epochs else (self.current_batch+1) * self.batch_size
-        for _ in range(epochs):
-            for i in range(self.current_batch * self.batch_size, batches, self.batch_size):
-                y_pred = self.model(x[i : i + self.batch_size])
-                loss = self.criterion(y_pred, y[i : i + self.batch_size])
-                self.optimizer.zero_grad()
-                loss.backward()
-                self.optimizer.step()
-                self.n_updates += 1
-        
-        if epochs == self.local_epochs:
-            self.current_batch = 0
+        batch_size = x.size(0) if not self.batch_size else self.batch_size
+        if self.local_epochs > 0:
+            for _ in range(self.local_epochs):
+                for i in range(0, x.size(0), batch_size):
+                    self._local_step(x[i : i + batch_size], y[i : i + batch_size])
         else:
-            self.current_batch += 1
+            perm = torch.randperm(x.size(0))
+            self._local_step(x[perm][:batch_size], y[perm][:batch_size])
+    
+    def _local_step(self, x:torch.Tensor, y:torch.Tensor) -> None:
+        self.model.train()
+        y_pred = self.model(x)
+        loss = self.criterion(y_pred, y)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        self.n_updates += 1
 
     def _merge(self, other_model_handler: Union[TorchModelHandler, Iterable[TorchModelHandler]]) -> None:
         dict_params1 = self.model.state_dict()
@@ -344,19 +345,16 @@ class PartitionedTMH(TorchModelHandler):
         self.n_updates[id_part] = max(self.n_updates[id_part],
                                       other_model_handler.n_updates[id_part])
     
-    # TODO: handle batch
-    def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
-        x, y = data
+    def _local_step(self, x:torch.Tensor, y:torch.Tensor) -> None:
         self.model.train()
-        for _ in range(self.local_epochs):
-            self.n_updates += 1
-            y_pred = self.model(x)
-            loss = self.criterion(y_pred, y)
-            self.optimizer.zero_grad()
-            loss.backward()
-            self._adjust_gradient()
-            self.optimizer.step()
-    
+        self.n_updates += 1
+        y_pred = self.model(x)
+        loss = self.criterion(y_pred, y)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self._adjust_gradient()
+        self.optimizer.step()
+        
     def _adjust_gradient(self) -> None:
         plist = ParameterList(self.model.parameters())
         with torch.no_grad():

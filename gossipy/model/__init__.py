@@ -36,7 +36,7 @@ class TorchModel(torch.nn.Module, Sizeable):
         return self._get_n_params()
     
     def __repr__(self) -> str:
-        return "TorchModel(size=%d)" %self.get_size()
+        return "%s(size=%d)" %(self.__class__.__name__, self.get_size())
     
     def get_params_list(self):
         return ParameterList(self.parameters())
