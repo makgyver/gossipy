@@ -58,12 +58,14 @@ def download_and_unzip(url: str, extract_to: str='.') -> str:
     zipfile.extractall(path=extract_to)
     return zipfile.namelist()[0]
 
+
 def download_and_untar(url: str, extract_to: str='.') -> str:
     LOG.info("Downloading %s into %s" %(url, extract_to))
     ftpstream = urlopen(url)
     thetarfile = tarfile.open(fileobj=ftpstream, mode="r|gz")
     thetarfile.extractall(path=extract_to)
-    return thetarfile.getnames()[0]
+    return thetarfile.getnames()
+
 
 def get_CIFAR10(path: str="./data",
                 as_tensor: bool=True) -> Union[Tuple[Tuple[np.ndarray, list], Tuple[np.ndarray, list]],
@@ -86,3 +88,17 @@ def get_CIFAR10(path: str="./data",
         test_set = test_set.data, test_set.targets
 
     return train_set, test_set
+
+def get_FEMNIST(path: str="./data"):
+    url = 'https://raw.githubusercontent.com/tao-shen/FEMNIST_pytorch/master/femnist.tar.gz'
+    te_name, tr_name = download_and_untar(url, path)
+    Xtr, ytr, ids_tr = torch.load(os.path.join(path, tr_name))
+    Xte, yte, ids_te = torch.load(os.path.join(path, te_name))
+    tr_assignment = []
+    te_assignment = []
+    sum_tr = sum_te = 0
+    for i in range(len(ids_tr)):
+        ntr, nte = ids_tr[i], ids_te[i]
+        tr_assignment.append(list(range(sum_tr, sum_tr + ntr)))
+        te_assignment.append(list(range(sum_te, sum_te + nte)))
+    return (Xtr, ytr, tr_assignment), (Xte, yte, te_assignment)

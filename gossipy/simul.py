@@ -153,6 +153,8 @@ class GossipSimulator():
                     else:
                         ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
                     evals_user.append(self._collect_results(ev))
+                    if evals_user[-1]:
+                        LOG.debug("[t=%d] Users' evaluation: %s", t+1, evals_user[-1])
                     
                     if self.data_dispatcher.has_test():
                         if self.sampling_eval > 0:
@@ -162,6 +164,8 @@ class GossipSimulator():
                             ev = [n.evaluate(self.data_dispatcher.get_eval_set())
                                 for _, n in self.nodes.items()]
                         evals.append(self._collect_results(ev))
+                        if evals[-1]:
+                            LOG.debug("[t=%d] Evaluation: %s", t+1, evals[-1])
 
         except KeyboardInterrupt:
             LOG.warning("Simulation interrupted by user.")

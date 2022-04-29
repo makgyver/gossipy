@@ -1,5 +1,5 @@
 import os
-from typing import Any, Tuple, Union, Dict, List
+from typing import Any, Tuple, Union, Dict, List, Optional
 import shutil
 import numpy as np
 import pandas as pd
@@ -53,9 +53,22 @@ class DataDispatcher():
         self.data_handler = data_handler
         self.n = n
         self.eval_on_user = eval_on_user
+        self.tr_assignments = None
+        self.te_assignments = None
         #self.assign()
     
-    def assign(self, seed=42):
+    def set_assignments(self, tr_assignments: List[int],
+                              te_assignments: Optional[List[int]]) -> None:
+        assert len(tr_assignments) == self.n
+        assert len(te_assignments) == self.n or not te_assignments
+        self.tr_assignments = tr_assignments
+        if te_assignments:
+            self.te_assignments = te_assignments
+        else:
+            self.te_assignments = [[] for _ in range(self.n)]
+
+
+    def assign(self, seed: int=42) -> None:
         self.tr_assignments = [[] for _ in range(self.n)]
         self.te_assignments = [[] for _ in range(self.n)]
 
@@ -144,7 +157,7 @@ def load_classification_dataset(name_or_path: str,
         X, y = dataset.data, dataset.target
     elif name_or_path == "reuters":
         url = "http://download.joachims.org/svm_light/examples/example1.tar.gz"
-        folder = download_and_untar(url)
+        folder = download_and_untar(url)[0]
         X_tr, y_tr = load_svmlight_file(folder + "/train.dat")
         X_te, y_te = load_svmlight_file(folder + "/test.dat")
         X_te = np.pad(X_te.toarray(), [(0, 0), (0, 17)], mode='constant', constant_values=0)
