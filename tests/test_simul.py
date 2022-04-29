@@ -47,6 +47,7 @@ def test_GossipSimulator():
                              delta=5,
                              protocol=AntiEntropyProtocol.PULL,
                              gossip_node_class=GossipNode,
+                             gossip_node_params={},
                              model_handler_class=TorchModelHandler,
                              model_handler_params=mhpar,
                              topology=None,
@@ -135,7 +136,9 @@ class TestStringMethods(unittest.TestCase):
         gossip = GossipSimulator(data_dispatcher=data_dispatcher,
                                 delta=5,
                                 protocol=AntiEntropyProtocol.PULL,
-                                gossip_node_class=GossipNode,model_handler_class=TorchModelHandler,
+                                gossip_node_class=GossipNode,
+                                gossip_node_params={},
+                                model_handler_class=TorchModelHandler,
                                 model_handler_params={
                                     "net" : net,
                                     "optimizer" : SGD,
@@ -180,6 +183,7 @@ def test_TokenizedGossipSimulator():
                              delta=10,
                              protocol=AntiEntropyProtocol.PUSH,
                              gossip_node_class=GossipNode,
+                             gossip_node_params={},
                              model_handler_class=TorchModelHandler,
                              model_handler_params={
                                  "net" : net,

@@ -115,6 +115,7 @@ class TorchModelHandler(ModelHandler):
                  l2_reg: float=0.01,
                  learning_rate: float=0.001,
                  local_epochs: int=1,
+                 batch_size: int=32,
                  create_model_mode: CreateModelMode=CreateModelMode.UPDATE,
                  copy_model=True):
         super(TorchModelHandler, self).__init__(create_model_mode)
@@ -124,6 +125,8 @@ class TorchModelHandler(ModelHandler):
                                    weight_decay=l2_reg)
         self.criterion = criterion
         self.local_epochs = local_epochs
+        self.batch_size = batch_size
+        self.current_batch = 0
 
     def init(self) -> None:
         self.model.init_weights()
@@ -131,13 +134,21 @@ class TorchModelHandler(ModelHandler):
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
         x, y = data
         self.model.train()
-        for _ in range(self.local_epochs):
-            y_pred = self.model(x)
-            loss = self.criterion(y_pred, y)
-            self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
-            self.n_updates += 1
+        epochs = max(1, self.local_epochs)
+        batches = x.size(0) if epochs == self.local_epochs else (self.current_batch+1) * self.batch_size
+        for _ in range(epochs):
+            for i in range(self.current_batch * self.batch_size, batches, self.batch_size):
+                y_pred = self.model(x[i : i + self.batch_size])
+                loss = self.criterion(y_pred, y[i : i + self.batch_size])
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+                self.n_updates += 1
+        
+        if epochs == self.local_epochs:
+            self.current_batch = 0
+        else:
+            self.current_batch += 1
 
     def _merge(self, other_model_handler: Union[TorchModelHandler, Iterable[TorchModelHandler]]) -> None:
         dict_params1 = self.model.state_dict()
@@ -292,6 +303,7 @@ class PartitionedTMH(TorchModelHandler):
                  l2_reg: float=0.01,
                  learning_rate: float=0.001,
                  local_epochs: int=1,
+                 batch_size: int=32,
                  create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
                  copy_model=True):
         super(PartitionedTMH, self).__init__(net,
@@ -300,6 +312,7 @@ class PartitionedTMH(TorchModelHandler):
                                              l2_reg,
                                              learning_rate,
                                              local_epochs,
+                                             batch_size,
                                              create_model_mode,
                                              copy_model)
         self.tm_partition = tm_partition
@@ -331,6 +344,7 @@ class PartitionedTMH(TorchModelHandler):
         self.n_updates[id_part] = max(self.n_updates[id_part],
                                       other_model_handler.n_updates[id_part])
     
+    # TODO: handle batch
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
         x, y = data
         self.model.train()

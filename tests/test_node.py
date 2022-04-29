@@ -87,18 +87,18 @@ def test_GossipNode():
         g.send(0, 0, protocol=10)
     
     res = g.evaluate()
-    assert res["accuracy"] == 0.
-    assert res["precision"] == 0.
-    assert res["f1_score"] == 0.
+    assert res["accuracy"] == 0.5
+    assert res["precision"] == 0.25
+    assert res["f1_score"] == 1/3.
     assert res["auc"] == 0.
-    assert res["recall"] == 0.
+    assert res["recall"] == 0.5
 
     res = g.evaluate((Xte, yte))
-    assert res["accuracy"] == 0.
-    assert res["precision"] == 0.
-    assert res["f1_score"] == 0.
+    assert res["accuracy"] == 0.5
+    assert res["precision"] == 0.25
+    assert res["f1_score"] == 1/3.
     assert res["auc"] == 0.
-    assert res["recall"] == 0.
+    assert res["recall"] == 0.5
 
     g = GossipNode(
         idx = 0,
@@ -365,14 +365,14 @@ def test_PBGossipNode():
     assert res["accuracy"] == 0.5
     assert res["precision"] == 0.25
     assert res["f1_score"] == 1/3
-    assert res["auc"] == 0.
+    assert res["auc"] == 1.
     assert res["recall"] == 0.5
 
     res = g.evaluate((Xte, yte))
     assert res["accuracy"] == 0.5
     assert res["precision"] == 0.25
     assert res["f1_score"] == 1/3
-    assert res["auc"] == 0.
+    assert res["auc"] == 1.
     assert res["recall"] == 0.5
 
     g = PartitioningBasedNode(

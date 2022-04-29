@@ -29,6 +29,7 @@ simulator = GossipSimulator(
     delta=100,
     protocol=AntiEntropyProtocol.PUSH,
     gossip_node_class=GossipNode,
+    gossip_node_params={},
     model_handler_class=PegasosHandler,
     model_handler_params={
         "net" : Pegasos(data_handler.size(1)),

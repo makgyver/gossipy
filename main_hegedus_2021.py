@@ -38,6 +38,7 @@ sim = GossipSimulator(
     delta=100,
     protocol=AntiEntropyProtocol.PUSH, 
     gossip_node_class=SamplingBasedNode,
+    gossip_node_params={},
     model_handler_class=SamplingTMH,
     #gossip_node_class=PartitioningBasedNode,
     #model_handler_class=PartitionedTMH,

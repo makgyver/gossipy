@@ -55,8 +55,10 @@ class GossipNode():
     def update_neighbors(self, neighbors: np.ndarray) -> None:
         self.known_nodes = list(np.where(neighbors > 0)[-1])
 
-    def init_model(self, *args, **kwargs) -> None:
+    def init_model(self, local_train: bool=True, *args, **kwargs) -> None:
         self.model_handler.init()
+        if local_train:
+            self.model_handler._update(self.data[0])
 
     def get_peer(self) -> int:
         if self.known_nodes is not None:
@@ -405,7 +407,7 @@ class PartitioningBasedNode(GossipNode):
 
 
 
-class PENSNode(CacheNeighNode):
+class PENSNode(GossipNode):
     def __init__(self,
                  idx: int, #node's id
                  data: Union[Tuple[Tensor, Optional[Tensor]],
@@ -424,11 +426,16 @@ class PENSNode(CacheNeighNode):
                                        model_handler,
                                        known_nodes,
                                        sync)
-        assert self.model_handler.mode != CreateModelMode.MERGE_UPDATE, \
+        assert self.model_handler.mode == CreateModelMode.MERGE_UPDATE, \
                "PENSNode can only be used with MERGE_UPDATE mode."
         self.cache = {}
         self.n_sampled = n_sampled
         self.m_top = m_top
+        if self.known_nodes:
+            self.neigh_counter = {i: 0 for i in self.known_nodes}
+        else:
+            self.neigh_counter = {i: 0 for i in range(self.n_nodes)}
+            del self.neigh_counter[self.idx] # remove itself from the dict
                         
     def send(self,
              t: int,
@@ -450,15 +457,16 @@ class PENSNode(CacheNeighNode):
         if msg_type != MessageType.PUSH:
             LOG.warning("PENSNode only supports PUSH protocol.")
 
-        loss = self.model_handler._CACHE[recv_model].evaluate(self.data)
-        self.cache[sender] = (recv_model, loss)
+        loss = self.model_handler._CACHE[recv_model].value.evaluate(self.data[0])
+        self.cache[sender] = (recv_model, -loss["accuracy"])
 
-        if len(self.cache) > self.n_sampled:
+        if len(self.cache) >= self.n_sampled:
             top_m = sorted(self.cache, key=lambda key: self.cache[key][1])[:self.m_top]
-
-            recv_models = [self.model_handler.pop_cache(k) for k in top_m]
+            recv_models = [self.model_handler.pop_cache(self.cache[k][0]) for k in top_m]
             self.model_handler(recv_models, self.data[0])
             self.cache = {} # reset the cache
+            for i in top_m:
+                self.neigh_counter[i] += 1
 
 
 class TokenAccount():

@@ -51,6 +51,7 @@ class ClassificationDataHandler(DataHandler):
             self.Xtr, self.ytr = X, y
             self.Xte, self.yte = X_te, y_te
 
+    # CHECKME: typing
     def __getitem__(self, idx: Union[int, List[int]]) -> Tuple[np.ndarray, int]:
         return self.Xtr[idx, :], self.ytr[idx]
     

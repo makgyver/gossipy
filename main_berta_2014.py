@@ -49,6 +49,7 @@ simulator = GossipSimulator(
     delta=1000,
     protocol=AntiEntropyProtocol.PUSH,
     gossip_node_class=GossipNode,
+    gossip_node_params={},
     model_handler_class=KMeansHandler,
     model_handler_params={
         "k" : 2,

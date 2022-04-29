@@ -2,7 +2,6 @@ from __future__ import annotations
 import numpy as np
 from numpy.random import shuffle, random, randint, choice
 from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
-from tqdm import tqdm
 from rich.progress import track
 import matplotlib.pyplot as plt
 import dill
@@ -25,6 +24,8 @@ __status__ = "Development"
 
 __all__ = ["GossipSimulator", "TokenizedGossipSimulator", "plot_evaluation", "repeat_simulation"]
 
+# TODO: implementing a simulation report class that summarize the statistics 
+#       of the simulation, e.g., # sent message, failed message, size...
 
 class GossipSimulator():
     def __init__(self,
@@ -32,6 +33,7 @@ class GossipSimulator():
                  delta: int,
                  protocol: AntiEntropyProtocol,
                  gossip_node_class: GossipNode,
+                 gossip_node_params: Dict[str, Any],
                  model_handler_class: ModelHandler,
                  model_handler_params: Dict[str, Any],
                  topology: Optional[np.ndarray],
@@ -55,6 +57,7 @@ class GossipSimulator():
         self.delay = delay
         self.sampling_eval = sampling_eval
         self.gossip_node_class = gossip_node_class
+        self.gossip_node_params = gossip_node_params
         self.model_handler_class = model_handler_class
         self.model_handler_params = model_handler_params
         self.topology = topology
@@ -66,13 +69,14 @@ class GossipSimulator():
     def init_nodes(self, seed:int=98765) -> None:
         self.initialized = True
         self.data_dispatcher.assign(seed)
-        self.nodes = {i: self.gossip_node_class(i,
-                                                self.data_dispatcher[i],
-                                                self.delta,
-                                                self.n_nodes,
-                                                self.model_handler_class(**self.model_handler_params),
-                                                self.topology[i] if self.topology is not None else None,
-                                                self.round_synced)
+        self.nodes = {i: self.gossip_node_class(idx=i,
+                                                data=self.data_dispatcher[i],
+                                                round_len=self.delta,
+                                                n_nodes=self.n_nodes,
+                                                model_handler=self.model_handler_class(**self.model_handler_params),
+                                                known_nodes=self.topology[i] if self.topology is not None else None,
+                                                sync=self.round_synced,
+                                                **self.gossip_node_params)
                                                 for i in range(self.n_nodes)}
         for _, node in self.nodes.items():
             node.init_model()
@@ -97,7 +101,7 @@ class GossipSimulator():
     def start(self, n_rounds: int=100) -> Tuple[List[float], List[float]]:
         assert self.initialized, "The simulator is not inizialized. Please, call the method 'init_nodes'."
         node_ids = np.arange(self.n_nodes)
-        #pbar = tqdm(range(n_rounds * self.delta))
+        
         pbar = track(range(n_rounds * self.delta), description="Simulating...")
         evals = []
         evals_user = []
@@ -144,7 +148,7 @@ class GossipSimulator():
 
                 if (t+1) % self.delta == 0:
                     if self.sampling_eval > 0:
-                        sample = choice(list(self.nodes.keys()), int(self.n_nodes * self.sampling_eval))
+                        sample = choice(list(self.nodes.keys()), max(int(self.n_nodes * self.sampling_eval), 1))
                         ev = [self.nodes[i].evaluate() for i in sample if self.nodes[i].has_test()]
                     else:
                         ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
@@ -192,6 +196,7 @@ class TokenizedGossipSimulator(GossipSimulator):
                  delta: int,
                  protocol: AntiEntropyProtocol,
                  gossip_node_class: GossipNode,
+                 gossip_node_params: Dict[str, Any],
                  model_handler_class: ModelHandler,
                  model_handler_params: Dict[str, Any],
                  topology: Optional[np.ndarray],
@@ -204,6 +209,7 @@ class TokenizedGossipSimulator(GossipSimulator):
                                                        delta,
                                                        protocol,
                                                        gossip_node_class,
+                                                       gossip_node_params,
                                                        model_handler_class,
                                                        model_handler_params,
                                                        topology,
@@ -223,7 +229,6 @@ class TokenizedGossipSimulator(GossipSimulator):
     
     def start(self, n_rounds: int=100) -> Tuple[List[float], List[float]]:
         node_ids = np.arange(self.n_nodes)
-        #pbar = tqdm(range(n_rounds * self.delta))
         pbar = track(range(n_rounds * self.delta), description="Simulating...")
         evals = []
         evals_user = []
@@ -239,7 +244,6 @@ class TokenizedGossipSimulator(GossipSimulator):
                     shuffle(node_ids)
                     if t > 0:
                         avg_tokens.append(np.mean([a.n_tokens for a in self.accounts.values()]))
-                        #print_flush(avg_tokens[-1])
                 
                 for i in node_ids:
                     node = self.nodes[i]
@@ -297,7 +301,7 @@ class TokenizedGossipSimulator(GossipSimulator):
 
                 if (t+1) % self.delta == 0:
                     if self.sampling_eval > 0:
-                        sample = choice(list(self.nodes.keys()), int(self.n_nodes * self.sampling_eval))
+                        sample = choice(list(self.nodes.keys()), max(int(self.n_nodes * self.sampling_eval), 1))
                         ev = [self.nodes[i].evaluate() for i in sample if self.nodes[i].has_test()]
                     else:
                         ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
@@ -334,8 +338,9 @@ def plot_evaluation(evals: List[List[Dict]],
         plt.fill_between(range(1, len(mu)+1), mu-std, mu+std, alpha=0.2)
         plt.title(title)
         plt.xlabel("cycle")
-        plt.ylabel("value")
+        plt.ylabel("performance")
         plt.plot(range(1, len(mu)+1), mu, label=k)
+        LOG.info(f"{k}: {mu[-1]:.2f}")
     ax.legend(loc="lower right")
     plt.show()
 

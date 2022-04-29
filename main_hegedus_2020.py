@@ -19,6 +19,7 @@ sim = GossipSimulator(
     delta=100,
     protocol=AntiEntropyProtocol.PUSH, 
     gossip_node_class=GossipNode,
+    gossip_node_params={},
     model_handler_class=MFModelHandler,
     model_handler_params={
         "dim" : 5,
