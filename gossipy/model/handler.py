@@ -161,7 +161,7 @@ class TorchModelHandler(ModelHandler):
             dicts_params2 = [omh.model.state_dict() for omh in other_model_handler]
             n_up = max([omh.n_updates for omh in other_model_handler])
 
-        # Perform the average overall model parameters
+        # Perform the average overall models including its weights
         # CHECK: whether to allow the merging of the other models before the averaging 
         div = len(dicts_params2) + 1
         for key in dict_params1:

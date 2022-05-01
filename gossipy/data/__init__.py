@@ -85,7 +85,7 @@ class DataDispatcher():
 
 
     def __getitem__(self, idx: int) -> Any:
-        assert(0 <= idx < self.n), "Index %d out of range." %idx
+        assert 0 <= idx < self.n, "Index %d out of range." %idx
         return self.data_handler.at(self.tr_assignments[idx]), \
                self.data_handler.at(self.te_assignments[idx], True)
     

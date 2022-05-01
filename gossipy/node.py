@@ -418,6 +418,7 @@ class PENSNode(GossipNode):
                  known_nodes: np.ndarray, #reachable nodes according to the network topology
                  n_sampled: int=10, #value from the paper
                  m_top: int=2, #value from the paper
+                 step1_rounds=200,
                  sync: bool=True):
         super(PENSNode, self).__init__(idx,
                                        data,
@@ -433,10 +434,37 @@ class PENSNode(GossipNode):
         self.m_top = m_top
         if self.known_nodes:
             self.neigh_counter = {i: 0 for i in self.known_nodes}
+            self.selected = {i: 0 for i in self.known_nodes}
         else:
             self.neigh_counter = {i: 0 for i in range(self.n_nodes)}
+            self.selected = {i: 0 for i in self.known_nodes}
             del self.neigh_counter[self.idx] # remove itself from the dict
-                        
+        self.step1_rounds = step1_rounds
+        self.step = 1
+        self.best_nodes = []
+    
+    def _select_neighbors(self) -> None:
+        self.best_nodes = []
+        for i, cnt in self.neigh_counter:
+            if cnt > self.selected[i] * (self.m_top / self.n_sampled):
+                self.best_nodes.append(i)
+        if not self.best_nodes:
+            self.best_nodes = self.known_nodes
+    
+    def timed_out(self, t: int) -> int:
+        if self.step == 1 and t // self.round_len >= self.step1_rounds:
+            self.step = 2
+            self._select_neighbors()
+        peer = super().timed_out(t)
+        if self.step == 1:
+            self.selected[peer] += 1
+        return peer
+    
+    def get_peer(self) -> int:
+        if self.step == 1 or not self.best_nodes:
+            return super().get_peer()
+        return random.choice(self.best_nodes)
+
     def send(self,
              t: int,
              peer: int,
@@ -457,8 +485,8 @@ class PENSNode(GossipNode):
         if msg_type != MessageType.PUSH:
             LOG.warning("PENSNode only supports PUSH protocol.")
 
-        loss = self.model_handler._CACHE[recv_model].value.evaluate(self.data[0])
-        self.cache[sender] = (recv_model, -loss["accuracy"])
+        evaluation = self.model_handler._CACHE[recv_model].value.evaluate(self.data[0])
+        self.cache[sender] = (recv_model, -evaluation["accuracy"]) # keep the last model for the peer 'sender'
 
         if len(self.cache) >= self.n_sampled:
             top_m = sorted(self.cache, key=lambda key: self.cache[key][1])[:self.m_top]
