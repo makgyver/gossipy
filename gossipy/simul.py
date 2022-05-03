@@ -164,8 +164,9 @@ class GossipSimulator():
                             ev = [n.evaluate(self.data_dispatcher.get_eval_set())
                                 for _, n in self.nodes.items()]
                         evals.append(self._collect_results(ev))
-                        if evals[-1]:
-                            LOG.debug("[t=%d] Evaluation: %s", t+1, evals[-1])
+                        # tempoary
+                        print(evals[-1])
+                        #
 
         except KeyboardInterrupt:
             LOG.warning("Simulation interrupted by user.")
@@ -318,7 +319,11 @@ class TokenizedGossipSimulator(GossipSimulator):
                         else:
                             ev = [n.evaluate(self.data_dispatcher.get_eval_set())
                                 for _, n in self.nodes.items()]
-                        evals.append(self._collect_results(ev))
+                        res = self._collect_results(ev)
+                        # tempoary
+                        LOG.debug(np.mean([d["accuracy"] for d in evals[-1]], axis=0))
+                        #
+                        evals.append(res)
         except KeyboardInterrupt:
             LOG.warning("Simulation interrupted by user.")
 

@@ -89,6 +89,28 @@ def get_CIFAR10(path: str="./data",
 
     return train_set, test_set
 
+
+def get_FashionMNIST(path: str="./data",
+                     as_tensor: bool=True) -> Union[Tuple[Tuple[np.ndarray, list], Tuple[np.ndarray, list]],
+                                                          Tuple[Tuple[Tensor, Tensor], Tuple[Tensor, Tensor]]]:
+    
+    download = not Path(os.path.join(path, "/FashionMNIST/raw/")).is_dir()
+    train_set = torchvision.datasets.FashionMNIST(root=path,
+                                                  train=True,
+                                                  download=download)
+    test_set = torchvision.datasets.FashionMNIST(root=path,
+                                                 train=False,
+                                                 download=download)
+    if as_tensor:
+        train_set = train_set.data / 255., train_set.targets
+        test_set = test_set.data / 255., test_set.targets
+    else:
+        train_set = train_set.data.numpy() / 255., train_set.targets.numpy()
+        test_set = test_set.data.numpy() / 255., test_set.targets.numpy()
+
+    return train_set, test_set
+
+
 def get_FEMNIST(path: str="./data"):
     url = 'https://raw.githubusercontent.com/tao-shen/FEMNIST_pytorch/master/femnist.tar.gz'
     te_name, tr_name = download_and_untar(url, path)

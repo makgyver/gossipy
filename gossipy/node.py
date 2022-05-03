@@ -437,7 +437,7 @@ class PENSNode(GossipNode):
             self.selected = {i: 0 for i in self.known_nodes}
         else:
             self.neigh_counter = {i: 0 for i in range(self.n_nodes)}
-            self.selected = {i: 0 for i in self.known_nodes}
+            self.selected = {i: 0 for i in range(self.n_nodes)}
             del self.neigh_counter[self.idx] # remove itself from the dict
         self.step1_rounds = step1_rounds
         self.step = 1
@@ -445,7 +445,7 @@ class PENSNode(GossipNode):
     
     def _select_neighbors(self) -> None:
         self.best_nodes = []
-        for i, cnt in self.neigh_counter:
+        for i, cnt in self.neigh_counter.items():
             if cnt > self.selected[i] * (self.m_top / self.n_sampled):
                 self.best_nodes.append(i)
         if not self.best_nodes:
@@ -497,6 +497,7 @@ class PENSNode(GossipNode):
                 self.neigh_counter[i] += 1
 
 
+# TODO: move to a separate file
 class TokenAccount():
     def __init__(self):
         self.n_tokens = 0
