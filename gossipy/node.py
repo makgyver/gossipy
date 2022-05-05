@@ -441,18 +441,16 @@ class PENSNode(GossipNode):
             del self.neigh_counter[self.idx] # remove itself from the dict
         self.step1_rounds = step1_rounds
         self.step = 1
-        self.best_nodes = []
+        self.best_nodes = None
     
     def _select_neighbors(self) -> None:
         self.best_nodes = []
         for i, cnt in self.neigh_counter.items():
             if cnt > self.selected[i] * (self.m_top / self.n_sampled):
                 self.best_nodes.append(i)
-        if not self.best_nodes:
-            self.best_nodes = self.known_nodes
     
     def timed_out(self, t: int) -> int:
-        if self.step == 1 and t // self.round_len >= self.step1_rounds:
+        if self.step == 1 and (t // self.round_len) >= self.step1_rounds:
             self.step = 2
             self._select_neighbors()
         peer = super().timed_out(t)
@@ -486,6 +484,7 @@ class PENSNode(GossipNode):
             LOG.warning("PENSNode only supports PUSH protocol.")
 
         evaluation = self.model_handler._CACHE[recv_model].value.evaluate(self.data[0])
+        # TODO: move performance metric as a parameter of the node
         self.cache[sender] = (recv_model, -evaluation["accuracy"]) # keep the last model for the peer 'sender'
 
         if len(self.cache) >= self.n_sampled:
