@@ -136,11 +136,14 @@ class TorchModelHandler(ModelHandler):
         batch_size = x.size(0) if not self.batch_size else self.batch_size
         if self.local_epochs > 0:
             for _ in range(self.local_epochs):
+                perm = torch.randperm(x.size(0))
+                x, y = x[perm], y[perm]
                 for i in range(0, x.size(0), batch_size):
                     self._local_step(x[i : i + batch_size], y[i : i + batch_size])
         else:
             perm = torch.randperm(x.size(0))
             self._local_step(x[perm][:batch_size], y[perm][:batch_size])
+        self.n_updates += 1
     
     def _local_step(self, x:torch.Tensor, y:torch.Tensor) -> None:
         self.model.train()
@@ -149,7 +152,6 @@ class TorchModelHandler(ModelHandler):
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
-        self.n_updates += 1
 
     def _merge(self, other_model_handler: Union[TorchModelHandler, Iterable[TorchModelHandler]]) -> None:
         dict_params1 = self.model.state_dict()

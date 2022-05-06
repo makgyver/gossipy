@@ -98,7 +98,8 @@ class GossipSimulator():
             res[k] = np.mean(res[k])
         return res
 
-    def start(self, n_rounds: int=100) -> Tuple[List[float], List[float]]:
+    # TODO: handle verbose
+    def start(self, n_rounds: int=100, verbose:int=0) -> Tuple[List[float], List[float]]:
         assert self.initialized, "The simulator is not inizialized. Please, call the method 'init_nodes'."
         node_ids = np.arange(self.n_nodes)
         
@@ -164,9 +165,6 @@ class GossipSimulator():
                             ev = [n.evaluate(self.data_dispatcher.get_eval_set())
                                 for _, n in self.nodes.items()]
                         evals.append(self._collect_results(ev))
-                        # tempoary
-                        print(evals[-1])
-                        #
 
         except KeyboardInterrupt:
             LOG.warning("Simulation interrupted by user.")

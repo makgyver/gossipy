@@ -483,17 +483,21 @@ class PENSNode(GossipNode):
         if msg_type != MessageType.PUSH:
             LOG.warning("PENSNode only supports PUSH protocol.")
 
-        evaluation = self.model_handler._CACHE[recv_model].value.evaluate(self.data[0])
-        # TODO: move performance metric as a parameter of the node
-        self.cache[sender] = (recv_model, -evaluation["accuracy"]) # keep the last model for the peer 'sender'
+        if self.step == 1:
+            evaluation = self.model_handler._CACHE[recv_model].value.evaluate(self.data[0])
+            # TODO: move performance metric as a parameter of the node
+            self.cache[sender] = (recv_model, -evaluation["accuracy"]) # keep the last model for the peer 'sender'
 
-        if len(self.cache) >= self.n_sampled:
-            top_m = sorted(self.cache, key=lambda key: self.cache[key][1])[:self.m_top]
-            recv_models = [self.model_handler.pop_cache(self.cache[k][0]) for k in top_m]
-            self.model_handler(recv_models, self.data[0])
-            self.cache = {} # reset the cache
-            for i in top_m:
-                self.neigh_counter[i] += 1
+            if len(self.cache) >= self.n_sampled:
+                top_m = sorted(self.cache, key=lambda key: self.cache[key][1])[:self.m_top]
+                recv_models = [self.model_handler.pop_cache(self.cache[k][0]) for k in top_m]
+                self.model_handler(recv_models, self.data[0])
+                self.cache = {} # reset the cache
+                for i in top_m:
+                    self.neigh_counter[i] += 1
+        else:
+            recv_model = self.model_handler.pop_cache(recv_model)
+            self.model_handler(recv_model, self.data[0])
 
 
 # TODO: move to a separate file
