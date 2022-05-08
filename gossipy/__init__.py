@@ -33,7 +33,11 @@ __all__ = ["LOG",
            "CacheKey",
            "CacheItem",
            "Sizeable",
-           "EqualityMixin"]
+           "EqualityMixin",
+           "Cache",
+           "Delay",
+           "UniformDelay",
+           "LinearDelay"]
 
 
 class DuplicateFilter(object):
@@ -347,27 +351,98 @@ class Message(Sizeable):
 
 
 class Delay():
-    def get(self, msg: Message):
-        raise NotImplementedError()
 
-class NoDelay(Delay):
-    def get(self, msg: Message):
-        return 0
+    def __init__(self, delay: int=0):
+        """A class representing a constant delay.
+
+        Parameters
+        ----------
+        delay : int
+            The constant delay in time units.
+        """
+        assert delay >= 0
+        self.delay: int = delay
+    
+    def get(self, msg: Message) -> int:
+        """Returns the delay for the specified message.
+
+        The delay is fixed regardless of the specific message.
+
+        Parameters
+        ----------
+        msg : Message
+            The message for which the delay is computed.
+        
+        Returns
+        -------
+        int
+            The delay in time units.
+        """
+        return self.delay
+
 
 class UniformDelay(Delay):
     def __init__(self, min_delay: int, max_delay: int):
+        """A class representing a uniform delay.
+    
+        Parameters
+        ----------
+        min_delay : int
+            The minimum delay in time units.
+        max_delay : int
+            The maximum delay in time units.
+        """
         assert min_delay <= max_delay and min_delay >= 0
         self.min_delay: int = min_delay
         self.max_delay: int = max_delay
     
-    def get(self, msg: Message):
+    def get(self, msg: Message) -> int:
+        """Returns the delay for the specified message.
+
+        The delay is uniformly distributed between the minimum and maximum delay
+        regardless of the specific message.
+
+        Parameters
+        ----------
+        msg : Message
+            The message for which the delay is computed.
+        
+        Returns
+        -------
+        int
+            The delay in time units.
+        """
         return np.random.randint(self.min_delay, self.max_delay+1)
 
 class LinearDelay(Delay):
     def __init__(self, weight: float, constant: int):
+        """A class representing a linear delay.
+
+        Parameters
+        ----------
+        weight : float
+            The weight of the delay.
+        constant : int
+            The constant delay in time units.
+        """
         assert weight >= 0 and constant >= 0
         self.weight: float = weight
         self.constant: int = constant
     
-    def get(self, msg: Message):
+    def get(self, msg: Message) -> int:
+        """Returns the delay for the specified message.
+
+        | The delay is linear with respect to the message's size and it is computed as follows:
+        | delay = floor(weight * size(msg)) + constant.
+
+        Parameters
+        ----------
+        msg : Message
+            The message for which the delay is computed.
+        
+        Returns
+        -------
+        int
+            The delay in time units.
+        """
         return int(self.weight * msg.get_size()) + self.constant

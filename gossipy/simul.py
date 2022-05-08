@@ -6,7 +6,7 @@ from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from rich.progress import track
 import dill
 
-from . import CACHE, AntiEntropyProtocol, LOG, CacheKey, Delay, NoDelay
+from . import CACHE, AntiEntropyProtocol, LOG, CacheKey, Delay
 from .data import DataDispatcher
 from .node import GossipNode
 from .flow_control import TokenAccount
@@ -194,7 +194,7 @@ class GossipSimulator(SimulationEventSender):
                  topology: Optional[np.ndarray],
                  drop_prob: float=0., # [0,1] - probability of a message being dropped
                  online_prob: float=1., # [0,1] - probability of a node to be online
-                 delay: Delay=NoDelay(),
+                 delay: Delay=Delay(0),
                  sampling_eval: float=0., # [0, 1] - percentage of nodes to evaluate
                  round_synced: bool=True):
         
@@ -347,7 +347,7 @@ class TokenizedGossipSimulator(GossipSimulator):
                  topology: Optional[np.ndarray],
                  drop_prob: float=0., # [0,1]
                  online_prob: float=1., # [0,1]
-                 delay: Optional[Tuple[int, int]]=None,
+                 delay: Delay=Delay(0),
                  sampling_eval: float=0., #[0, 1]
                  round_synced: bool=True):
         super(TokenizedGossipSimulator, self).__init__(data_dispatcher,
