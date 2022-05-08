@@ -377,11 +377,6 @@ class TokenizedGossipSimulator(GossipSimulator):
     def start(self, n_rounds: int=100) -> Tuple[List[float], List[float]]:
         node_ids = np.arange(self.n_nodes)
         pbar = track(range(n_rounds * self.delta), description="Simulating...")
-        evals = []
-        evals_user = []
-        n_msg = 0
-        n_msg_failed = 0
-        tot_size = 0
         msg_queues = DefaultDict(list)
         rep_queues = DefaultDict(list)
         avg_tokens = [0]
@@ -398,28 +393,27 @@ class TokenizedGossipSimulator(GossipSimulator):
                         if random() < self.accounts[i].proactive():
                             peer = node.get_peer()
                             msg = node.send(t, peer, self.protocol)
-                            n_msg += 1
-                            tot_size += msg.get_size()
+                            self.notify_message(False, msg.get_size())
                             if msg: 
                                 if random() >= self.drop_prob:
                                     d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
                                     msg_queues[t + d].append(msg)
                                 else:
-                                    n_msg_failed += 1
+                                    self.notify_message(True)
                         else:
                             self.accounts[i].add(1)
 
                 for msg in msg_queues[t]:
                     if random() < self.online_prob:
                         if msg.value and isinstance(msg.value[0], CacheKey):
-                            sender_mh = CACHE[msg.value[0]].value
+                            sender_mh = CACHE[msg.value[0]]
                         reply = self.nodes[msg.receiver].receive(t, msg)
                         if reply:
                             if random() > self.drop_prob:
                                 d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
                                 rep_queues[t + d].append(reply)
                             else:
-                                n_msg_failed += 1
+                                self.notify_message(True)
 
                         if not reply:
                             utility = self.utility_fun(self.nodes[msg.receiver].model_handler, 
@@ -430,20 +424,18 @@ class TokenizedGossipSimulator(GossipSimulator):
                                 for _ in range(reaction):
                                     peer = node.get_peer()
                                     msg = node.send(t, peer, self.protocol)
-                                    n_msg += 1
-                                    tot_size += msg.get_size()
+                                    self.notify_message(False, msg.get_size())
                                     if msg: 
                                         if random() >= self.drop_prob:
                                             d = randint(self.delay[0], self.delay[1]+1) if self.delay else 1
                                             msg_queues[t + d].append(msg)
                                         else:
-                                            n_msg_failed += 1
+                                            self.notify_message(True)
                 del msg_queues[t]
 
                 for reply in rep_queues[t]:
-                    tot_size += reply.get_size()
+                    self.notify_message(False, reply.get_size())
                     self.nodes[reply.receiver].receive(t, reply)
-                    n_msg += 1
                 del rep_queues[t]
 
                 if (t+1) % self.delta == 0:
@@ -452,7 +444,8 @@ class TokenizedGossipSimulator(GossipSimulator):
                         ev = [self.nodes[i].evaluate() for i in sample if self.nodes[i].has_test()]
                     else:
                         ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
-                    evals_user.append(self._collect_results(ev))
+                    if ev:
+                        self.notify_evaluation(t, True, ev)
                     
                     if self.data_dispatcher.has_test():
                         if self.sampling_eval > 0:
@@ -461,14 +454,15 @@ class TokenizedGossipSimulator(GossipSimulator):
                         else:
                             ev = [n.evaluate(self.data_dispatcher.get_eval_set())
                                 for _, n in self.nodes.items()]
-                        evals.append(self._collect_results(ev))
+                        if ev:
+                            self.notify_evaluation(t, False, ev)
+
         except KeyboardInterrupt:
             LOG.warning("Simulation interrupted by user.")
 
-        LOG.info("# Sent messages: %d" %n_msg)
-        LOG.info("# Failed messages: %d" %n_msg_failed)
-        LOG.info("Total size: %d" %tot_size)
-        return evals, evals_user
+        pbar.close()
+        self.notify_end()
+        return
 
 
 def repeat_simulation(gossip_simulator: GossipSimulator,

@@ -10,6 +10,7 @@ from gossipy.model.nn import LogisticRegression
 from gossipy.data import load_classification_dataset, DataDispatcher
 from gossipy.data.handler import ClassificationDataHandler
 from gossipy.simul import GossipSimulator, TokenizedGossipSimulator, repeat_simulation
+from gossipy.flow_control import RandomizedTokenAccount
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"
@@ -31,22 +32,22 @@ net = LogisticRegression(data_handler.Xtr.shape[1], 2)
 
 #TODO: check experiment on tokenized gossip
 
-#sim = TokenizedGossipSimulator(
-simulator = GossipSimulator(
+simulator = TokenizedGossipSimulator(
+#simulator = GossipSimulator(
     data_dispatcher=dispatcher,
-    #token_account_class=RandomizedTokenAccount, #Coincides with the paper's setting
-    #token_account_params={"C": 20, "A": 10},
-    #utility_fun=lambda mh1, mh2: 1, #The utility function is always = 1 (i.e., utility is not used)
+    token_account_class=RandomizedTokenAccount, #Coincides with the paper's setting
+    token_account_params={"C": 20, "A": 10},
+    utility_fun=lambda mh1, mh2: 1, #The utility function is always = 1 (i.e., utility is not used)
     delta=100,
     protocol=AntiEntropyProtocol.PUSH, 
-    gossip_node_class=SamplingBasedNode,
+    #gossip_node_class=SamplingBasedNode,
+    gossip_node_class=PartitioningBasedNode,
     gossip_node_params={},
-    model_handler_class=SamplingTMH,
-    #gossip_node_class=PartitioningBasedNode,
-    #model_handler_class=PartitionedTMH,
+    #model_handler_class=SamplingTMH,
+    model_handler_class=PartitionedTMH,
     model_handler_params={
-        "sample_size" : .25,
-        #"tm_partition": TorchModelPartition(net, 4),
+        #"sample_size" : .25,
+        "tm_partition": TorchModelPartition(net, 4),
         "net" : net,
         "optimizer" : torch.optim.SGD,
         "l2_reg": .001,
