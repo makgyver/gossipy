@@ -1,4 +1,4 @@
-from typing import Any, Tuple
+from typing import Any, Dict, Tuple
 import logging
 from rich.logging import RichHandler
 from enum import Enum
@@ -16,6 +16,7 @@ __status__ = "Development"
 #
 
 __all__ = ["LOG",
+            "CACHE",
            #"node",
            #"simul",
            #"utils",
@@ -141,8 +142,7 @@ class CacheKey(Sizeable):
         return self.key
     
     def get_size(self) -> int:
-        from gossipy.model.handler import ModelHandler
-        val = ModelHandler._CACHE[self].value
+        val = CACHE[self]
         if isinstance(val, (float, int, bool)): return 1
         elif isinstance(val, Sizeable): return val.get_size()
         else: 
@@ -220,6 +220,46 @@ class CacheItem(Sizeable):
         else:
             LOG.warning("Impossible to compute the size of %s. Set to 0." %self.value)
             return 0
+
+
+class Cache():
+    _cache: Dict[CacheKey, CacheItem] = {}
+
+    def push(self, key: CacheKey, value: Any):
+        if key not in self._cache:
+            self._cache[key] = CacheItem(value)
+        else:
+            self._cache[key].add_ref()
+    
+    def pop(self, key: CacheKey):
+        if key not in self._cache:
+            return None
+        obj = self._cache[key].del_ref()
+        if not self._cache[key].is_referenced():
+            del self._cache[key]
+        return obj
+    
+    def clear(self):
+        self._cache.clear()
+    
+    def __getitem__(self, key: CacheKey):
+        if key not in self._cache:
+            return None
+        return self._cache[key].value
+
+    def load(self, cache_dict: Dict[CacheKey, Any]):
+        self._cache = cache_dict
+    
+    def get_cache(self) -> Dict[CacheKey, Any]:
+        return self._cache
+
+
+CACHE = Cache()
+"""The models cache. 
+
+All models that are exchanged between nodes are temporarely stored in the cache.
+If a model is needed by another node, it is retrieved from the cache and only one copy remains active in memory.
+If a model is not referenced anymore, it is removed from the cache."""
 
 
 class Message(Sizeable):

@@ -9,7 +9,7 @@ from typing import Any, Callable, Tuple, Dict, Optional, Union, Iterable
 from sklearn.metrics import accuracy_score, roc_auc_score, recall_score, f1_score, precision_score
 from sklearn.metrics.cluster import normalized_mutual_info_score as nmi
 from scipy.optimize import linear_sum_assignment as hungarian
-from gossipy import LOG, Sizeable, CreateModelMode, EqualityMixin
+from gossipy import CACHE, LOG, Sizeable, CreateModelMode, EqualityMixin
 from gossipy.model import TorchModel
 from gossipy.model.sampling import TorchModelPartition, TorchModelSampling
 from gossipy import CacheItem, CacheKey
@@ -85,26 +85,10 @@ class ModelHandler(Sizeable, EqualityMixin):
     def get_size(self) -> int:
         return self.model.get_size() if self.model is not None else 0
     
-    # CLASS METHODS - CACHING
-    _CACHE : Dict[CacheKey, CacheItem] = {}
-    @staticmethod
-    def push_cache(key: CacheKey, value: Any):
-        if key not in ModelHandler._CACHE:
-            ModelHandler._CACHE[key] = CacheItem(value)
-        else:
-            ModelHandler._CACHE[key].add_ref()
-            #if value != cls.cache[key]:
-            #    LOG.warning("Cache warning: pushed an already existing key with a non matching value.")
-            #    LOG.warning("               %s != %s" %(value, cls.cache[key]))
-    
-    @staticmethod
-    def pop_cache(key: CacheKey):
-        if key not in ModelHandler._CACHE:
-            return None
-        obj = ModelHandler._CACHE[key].del_ref()
-        if not ModelHandler._CACHE[key].is_referenced():
-            del ModelHandler._CACHE[key]
-        return obj
+    def caching(self, owner: int) -> CacheKey:
+        key = CacheKey(owner, self.n_updates)
+        CACHE.push(key, self.copy())
+        return key
 
 
 class TorchModelHandler(ModelHandler):
@@ -364,6 +348,11 @@ class PartitionedTMH(TorchModelHandler):
                 for i, par in enumerate(plist):
                     if t_ids[i] is not None:
                         par.grad[t_ids[i]] /= self.n_updates[p]
+
+    def caching(self, owner: int) -> CacheKey:
+        key = CacheKey(owner, str(self.n_updates))
+        CACHE.push(key, self.copy())
+        return key
 
 
 class MFModelHandler(ModelHandler):

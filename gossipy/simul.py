@@ -6,7 +6,7 @@ from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from rich.progress import track
 import dill
 
-from . import AntiEntropyProtocol, LOG, CacheKey
+from . import CACHE, AntiEntropyProtocol, LOG, CacheKey
 from .data import DataDispatcher
 from .node import GossipNode
 from .flow_control import TokenAccount
@@ -318,7 +318,7 @@ class GossipSimulator(SimulationEventSender):
     def save(self, filename) -> None:
         dump = {
             "simul": self,
-            "cache": ModelHandler._CACHE
+            "cache": CACHE.get_cache()
         }
         with open(filename, 'wb') as f:
             dill.dump(dump, f)
@@ -327,7 +327,7 @@ class GossipSimulator(SimulationEventSender):
     def load(cls, filename) -> GossipSimulator:
         with open(filename, 'rb') as f:
             loaded = dill.load(f)
-            ModelHandler._CACHE = loaded["cache"]
+            CACHE.load(loaded["cache"])
             return loaded["simul"]
     
     def __repr__(self) -> str:
@@ -412,7 +412,7 @@ class TokenizedGossipSimulator(GossipSimulator):
                 for msg in msg_queues[t]:
                     if random() < self.online_prob:
                         if msg.value and isinstance(msg.value[0], CacheKey):
-                            sender_mh = ModelHandler._CACHE[msg.value[0]].value
+                            sender_mh = CACHE[msg.value[0]].value
                         reply = self.nodes[msg.receiver].receive(t, msg)
                         if reply:
                             if random() > self.drop_prob:

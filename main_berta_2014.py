@@ -8,7 +8,7 @@ from gossipy.node import GossipNode
 from gossipy.model.handler import KMeansHandler
 from gossipy.data import load_classification_dataset, DataDispatcher
 from gossipy.data.handler import ClusteringDataHandler
-from gossipy.simul import GossipSimulator, plot_evaluation, repeat_simulation
+from gossipy.simul import GossipSimulator, repeat_simulation
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"
