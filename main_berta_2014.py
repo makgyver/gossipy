@@ -68,7 +68,7 @@ simulator = GossipSimulator(
 
 res = repeat_simulation(
     gossip_simulator=simulator,
-    n_rounds=100, #500
+    n_rounds=500,
     repetitions=1,
     verbose=True
 )
