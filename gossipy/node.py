@@ -1,7 +1,7 @@
-from gossipy.model.sampling import TorchModelPartition, TorchModelSampling
+from gossipy.model.sampling import TorchModelSampling
 import random
 import numpy as np
-from numpy.random import randint, normal, rand, binomial
+from numpy.random import randint, normal, rand
 from numpy import ndarray
 from torch import Tensor
 from typing import Any, Optional, Union, Dict, Tuple
@@ -25,12 +25,7 @@ __all__ = ["GossipNode",
            "CacheNeighNode",
            "SamplingBasedNode",
            "PartitioningBasedNode",
-           "TokenAccount",
-           "PurelyProactiveTokenAccount",
-           "PurelyReactiveTokenAccount",
-           "SimpleTokenAccount",
-           "GeneralizedTokenAccount",
-           "RandomizedTokenAccount"]
+           "PENSNode"]
 
 
 class GossipNode():
@@ -42,7 +37,36 @@ class GossipNode():
                  n_nodes: int, #number of nodes in the network
                  model_handler: ModelHandler, #object that handles the model learning/inference
                  known_nodes: Optional[np.ndarray]=None, #reachable nodes according to the network topology
-                 sync=True):
+                 sync: bool=True):
+        r"""Class that represents a generic node in a gossip network. 
+
+        A node is identified by its index and it is initialized with a fixed delay :math:`\Delta` that
+        represents the idle time. The node can be either synchronous or asynchronous. In the former case,
+        the node will time out exactly :math:`\Delta` time steps into the round. Thus it is assumed that 
+        :math:`0 < \Delta <` `round_len`. In the latter case, the node will time out to every 
+        :math:`\Delta` time steps. 
+
+        Parameters
+        ----------
+        idx : int
+            The node's index.
+        data : tuple[Tensor, Optional[Tensor]] or tuple[ndarray, Optional[ndarray]]
+            The node's data in the format :math:`(X_\text{train}, y_\text{train}), (X_\text{test}, y_\text{test})`
+            where :math:`y_\text{train}` and :math:`y_\text{test}` can be `None` in the case of unsupervised learning.
+            Similarly, :math:`X_\text{test}` and :math:`y_\text{test}` can be `None` in the case the node does not have
+            a test set. 
+        round_len : int
+            The number of time units in a round.
+        n_nodes : int
+            The number of nodes in the network.
+        model_handler : ModelHandler
+            The object that handles the model learning/inference.
+        known_nodes : np.ndarray, default=None
+            The reachable nodes according to the network topology. If `None`, the node will be initialized with all.
+        sync : bool, default=True
+            Whether the node is synchronous with the round's length. In this case, the node will regularly time out 
+            at the same point in the round. If `False`, the node will time out with a fixed delay. 
+        """
         self.idx = idx
         self.data = data
         self.round_len = round_len
@@ -56,22 +80,69 @@ class GossipNode():
         self.known_nodes = list(np.where(neighbors > 0)[-1])
 
     def init_model(self, local_train: bool=True, *args, **kwargs) -> None:
+        """Initializes the local model.
+
+        Parameters
+        ----------
+        local_train : bool, default=True
+            Whether the local model should be trained for with the local data after the initialization.
+        """
         self.model_handler.init()
         if local_train:
             self.model_handler._update(self.data[0])
 
     def get_peer(self) -> int:
+        """Picks a random peer from the reachable nodes.
+
+        Returns
+        -------
+        int
+            The index of the randomly selected peer.
+        """
         if self.known_nodes is not None:
             return random.choice(self.known_nodes)
         return choice_not_n(0, self.n_nodes, self.idx)
 
-    def timed_out(self, t: int) -> int:
+    def timed_out(self, t: int) -> bool:
+        """Checks whether the node has timed out.
+        
+        Parameters
+        ----------
+        t : int
+            The current timestamp.
+        
+        Returns
+        -------
+        bool
+            Whether the node has timed out.
+        """
         return ((t % self.round_len) == self.delay) if self.sync else ((t % self.delay) == 0)
 
     def send(self,
              t: int,
              peer: int,
-             protocol: AntiEntropyProtocol) -> Union[Message, None]:
+             protocol: AntiEntropyProtocol) -> Message:
+        """Sends a message to the peer.
+
+        Parameters
+        ----------
+        t : int
+            The current timestamp.
+        peer : int
+            The index of the peer node.
+        protocol : AntiEntropyProtocol
+            The protocol used to send the message.
+
+        Returns
+        -------
+        Message
+            The sent message.
+        
+        Raises
+        ------
+        ValueError
+            If the protocol is not supported.
+        """
         if protocol == AntiEntropyProtocol.PUSH:
             key = CacheKey(self.idx, self.model_handler.n_updates)
             self.model_handler.push_cache(key, self.model_handler.copy())
@@ -86,6 +157,24 @@ class GossipNode():
             raise ValueError("Unknown protocol %s." %protocol)
 
     def receive(self, t: int, msg: Message) -> Union[Message, None]:
+        """Receives a message from the peer.
+
+        After the message is received, the local model is updated and merged according to the `mode`
+        of the model handler. In case of a pull/push-pull message, the local model is sent back to the
+        peer.
+
+        Parameters
+        ----------
+        t : int
+            The current timestamp.
+        msg : Message
+            The received message.
+        
+        Returns
+        -------
+        Message or `None`
+            The message to be sent back to the peer. If `None`, there is no message to be sent back.
+        """
         msg_type: MessageType
         recv_model: Any 
         msg_type, recv_model = msg.type, msg.value[0] if msg.value else None
@@ -103,6 +192,19 @@ class GossipNode():
         return None
 
     def evaluate(self, ext_data: Optional[Any]=None) -> Dict[str, float]:
+        """Evaluates the local model.
+
+        Parameters
+        ----------
+        ext_data : Any, default=None
+            The data to be used for evaluation. If `None`, the local test data will be used.
+        
+        Returns
+        -------
+        dict[str, float]
+            The evaluation results. The keys are the names of the metrics and the values are
+            the corresponding values.
+        """
         if ext_data is None:
             return self.model_handler.evaluate(self.data[1])
         else:
@@ -110,6 +212,13 @@ class GossipNode():
     
     #CHECK: we need a more sensible check
     def has_test(self) -> bool:
+        """Checks whether the node has a test set.
+
+        Returns
+        -------
+        bool
+            Whether the node has a test set.
+        """
         if isinstance(self.data, tuple):
             return self.data[1] is not None
         else: return True
@@ -500,84 +609,3 @@ class PENSNode(GossipNode):
             self.model_handler(recv_model, self.data[0])
 
 
-# TODO: move to a separate file
-class TokenAccount():
-    def __init__(self):
-        self.n_tokens = 0
-    
-    def add(self, n: int=1) -> None:
-        self.n_tokens += n
-
-    def sub(self, n: int=1) -> None:
-        self.n_tokens = max(0, self.n_tokens - n)
-    
-    def proactive(self) -> float:
-        raise NotImplementedError()
-
-    def reactive(self, utility: int) -> int:
-        raise NotImplementedError()
-
-
-class PurelyProactiveTokenAccount(TokenAccount):
-    def proactive(self) -> float:
-        return 1
-
-    def reactive(self, utility: int) -> int:
-        return 0
-
-
-class PurelyReactiveTokenAccount(TokenAccount):
-    def __init__(self, k: int=1):
-        super(PurelyReactiveTokenAccount, self).__init__()
-        self.k = k
-
-    def proactive(self) -> float:
-        return 0
-
-    def reactive(self, utility: int) -> int:
-        return int(utility * self.k)
-
-
-class SimpleTokenAccount(TokenAccount):
-    def __init__(self, C: int=1):
-        super(SimpleTokenAccount, self).__init__()
-        assert C >= 1, "The capacity C must be strictly positive."
-        self.capacity = C
-    
-    def proactive(self) -> float:
-        return int(self.n_tokens >= self.capacity)
-
-    def reactive(self, utility: int) -> int:
-        return int(self.n_tokens > 0)
-
-
-class GeneralizedTokenAccount(SimpleTokenAccount):
-    def __init__(self, C: int, A: int): #1
-        super(GeneralizedTokenAccount, self).__init__(C)
-        assert C >= 1, "The capacity C must be positive."
-        assert A >= 1, "The reactivity A must be positive."
-        assert A <= C, "The capacity C must be greater or equal than the reactivity A."
-        self.reactivity = A
-
-    def reactive(self, utility: int) -> int:
-        num = self.reactivity + self.n_tokens - 1
-        return int(num / self.reactivity if utility > 0 else num / (2 * self.reactivity))
-
-
-class RandomizedTokenAccount(GeneralizedTokenAccount):
-    def __init__(self, C: int, A: int):
-        super(RandomizedTokenAccount, self).__init__(C, A)
-    
-    def proactive(self) -> float:
-        if self.n_tokens < self.reactivity - 1:
-            return 0
-        elif self.reactivity - 1 <= self.n_tokens <= self.capacity:
-            return (self.n_tokens - self.reactivity + 1) / (self.capacity - self.reactivity + 1)
-        else:
-            return 1
-
-    def reactive(self, utility: int) -> int:
-        if utility > 0:
-            r = self.n_tokens / self.reactivity
-            return int(r) + binomial(1, r - int(r)) #randRound
-        return 0

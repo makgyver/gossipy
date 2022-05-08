@@ -15,22 +15,28 @@ __email__ = "mak1788@gmail.com"
 __status__ = "Development"
 #
 
-__all__ = ["node",
-           "simul",
-           "utils",
-           "data",
-           "model",
+__all__ = ["LOG",
+           #"node",
+           #"simul",
+           #"utils",
+           #"data",
+           #"model",
+           #"flow_control",
            "set_seed",
            "DuplicateFilter",
            "CreateModelMode",
            "AntiEntropyProtocol",
            "MessageType",
+           "Message",
            "CacheKey",
-           "CacheItem"]
+           "CacheItem",
+           "Sizeable",
+           "EqualityMixin"]
 
 
 class DuplicateFilter(object):
     def __init__(self):
+        """Removes duplicate log messages."""
         self.msgs = set()
 
     def filter(self, record):
@@ -44,36 +50,61 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%d%m%y-%H:%M:%S',
                     handlers=[RichHandler()])
 
+
 LOG = logging.getLogger("rich")
+"""The logging handler that filters out duplicate messages."""
+
 LOG.addFilter(DuplicateFilter())
 
 
 def set_seed(seed=0) -> None:
+    """Sets the seed for the random number generator."""
     np.random.seed(seed)
     torch.manual_seed(seed)
 
 
 class CreateModelMode(Enum):
+    """The mode for creating/updating the gossip model."""
+
     UPDATE = 1
+    """Update the model with the local data."""
     MERGE_UPDATE = 2
+    """Merge the models and then make an update."""
     UPDATE_MERGE = 3
+    """Update the models with the local data and then merge the models."""
     PASS = 4
+    """Do nothing."""
 
 
 class AntiEntropyProtocol(Enum):
-    PUSH = 1,
-    PULL = 2,
+    """The overall protocol of the gossip algorithm."""
+
+    PUSH = 1
+    """Push the local model to the gossip node(s)."""
+    PULL = 2
+    """Pull the gossip model from the gossip node(s)."""
     PUSH_PULL = 3
+    """Push the local model to the gossip node(s) and then pull the gossip model from the gossip node(s)."""
 
 
 class MessageType(Enum):
-    PUSH = 1,
-    PULL = 2,
-    REPLY = 3,
+    """The type of a message."""
+
+    PUSH = 1
+    """The message contains the model (and possibly additional information)"""
+    PULL = 2
+    """Asks for the model to the receiver."""
+    REPLY = 3
+    """The message is a response to a PULL message."""
     PUSH_PULL = 4
+    """The message contains the model (and possibly additional information) and also asks for the model."""
 
 
 class EqualityMixin(object):
+    def __init__(self):
+        """Mixin for equality comparison."""
+        pass
+
     def __eq__(self, other: Any) -> bool:
         return (isinstance(other, self.__class__) and self.__dict__ == other.__dict__)
 
@@ -82,15 +113,31 @@ class EqualityMixin(object):
 
 
 class Sizeable():
+    def __init__(self):
+        """The interface for objects that can be sized.
+        
+        Each class that implements this interface must define the method `get_size()`.
+        """
+        pass
+    
     def get_size(self) -> int:
+        """Returns the size of the object."""
         raise NotImplementedError()
 
 
 class CacheKey(Sizeable):
     def __init__(self, *args):
+        """The key for a cache item."""
         self.key = tuple(args)
     
     def get(self):
+        """Returns the value of the cache item.
+
+        Returns
+        -------
+        Any
+            The value of the cache item.
+        """
         return self.key
     
     def get_size(self) -> int:
@@ -119,17 +166,41 @@ class CacheKey(Sizeable):
 
 class CacheItem(Sizeable):
     def __init__(self, value: Any):
+        """The class of an item in the cache.
+
+        The constructor initializes the cache item with the specified value and with a single reference.
+
+        Parameters
+        ----------
+        value : Any
+            The value of the item.
+        """
         self.value = value
         self.refs = 1
     
-    def add_ref(self):
+    def add_ref(self) -> None:
+        """Adds a reference to the item."""
         self.refs += 1
     
-    def del_ref(self):
+    def del_ref(self) -> Any:
+        """Deletes a reference to the item.
+        
+        Returns
+        -------
+        Any
+            The value of the unreferenced item.
+        """
         self.refs -= 1
         return self.value
     
-    def is_referenced(self):
+    def is_referenced(self) -> bool:
+        """Returns True if the item is referenced, False otherwise.
+        
+        Returns
+        -------
+        bool
+            `True` if the item is referenced, `False` otherwise.
+        """
         return self.refs > 0
     
     def get_size(self) -> int:
@@ -158,6 +229,21 @@ class Message(Sizeable):
                  receiver: int,
                  type: MessageType,
                  value: Tuple[Any, ...]):
+        """A class representing a message.
+
+        Parameters
+        ----------
+        timestamp : int
+            The message's timestamp with the respect to the simulation time.
+        sender : int
+            The sender node id.
+        receiver : int
+            The receiver node id.
+        type : MessageType
+            The message type.
+        value : tuple[Any, ...]
+            The message's payload. The typical payload is a single item tuple containing the model (handler).
+        """
         self.timestamp = timestamp
         self.sender = sender
         self.receiver = receiver
@@ -165,6 +251,22 @@ class Message(Sizeable):
         self.value = value
     
     def get_size(self) -> int:
+        """Computes and returns the estimated size of the message.
+
+        The size is expressed in number of "atomic" values stored in the message.
+        Atomic values are integers, floats, and booleans. Currently strings are not supported.
+
+        Returns
+        -------
+        int
+            The estimated size of the message.
+
+        Raises
+        ------
+        TypeError
+            If the message's payload contains values that are not atomic.
+        """
+
         if self.value is None: return 1
         if isinstance(self.value, (tuple, list)):
             sz: int = 0

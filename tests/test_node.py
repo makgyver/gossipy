@@ -13,7 +13,8 @@ import pytest
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
 
-from gossipy.node import CacheNeighNode, GeneralizedTokenAccount, GossipNode, PassThroughNode, PartitioningBasedNode, PurelyProactiveTokenAccount, PurelyReactiveTokenAccount, RandomizedTokenAccount, SamplingBasedNode, SimpleTokenAccount, TokenAccount
+from gossipy.node import CacheNeighNode, GossipNode, PassThroughNode, PartitioningBasedNode, SamplingBasedNode
+from gossipy.flow_control import PurelyProactiveTokenAccount, PurelyReactiveTokenAccount, RandomizedTokenAccount, SimpleTokenAccount, TokenAccount, GeneralizedTokenAccount
 from gossipy.model.handler import PartitionedTMH, PegasosHandler, SamplingTMH, TorchModelHandler
 from gossipy.model.nn import Pegasos, TorchMLP
 from gossipy import AntiEntropyProtocol, CreateModelMode, MessageType, set_seed

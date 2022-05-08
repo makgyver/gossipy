@@ -52,7 +52,9 @@ class ClassificationDataHandler(DataHandler):
             self.Xte, self.yte = X_te, y_te
 
     # CHECKME: typing
-    def __getitem__(self, idx: Union[int, List[int]]) -> Tuple[np.ndarray, int]:
+    def __getitem__(self, idx: Union[int, List[int]])-> \
+                    Union[Tuple[np.ndarray, Union[int, List[int]]], \
+                          Tuple[torch.Tensor, Union[int, List[int]]]]:
         return self.Xtr[idx, :], self.ytr[idx]
     
     def at(self, 

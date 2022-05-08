@@ -1,15 +1,17 @@
 from __future__ import annotations
+from abc import ABC, abstractmethod
 import numpy as np
 from numpy.random import shuffle, random, randint, choice
 from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from rich.progress import track
-import matplotlib.pyplot as plt
 import dill
 
 from . import AntiEntropyProtocol, LOG, CacheKey
 from .data import DataDispatcher
-from .node import GossipNode, TokenAccount
+from .node import GossipNode
+from .flow_control import TokenAccount
 from .model.handler import ModelHandler
+from .utils import plot_evaluation
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"
@@ -22,12 +24,122 @@ __status__ = "Development"
 #
 
 
-__all__ = ["GossipSimulator", "TokenizedGossipSimulator", "plot_evaluation", "repeat_simulation"]
+__all__ = ["GossipSimulator",
+           "TokenizedGossipSimulator",
+           "repeat_simulation"]
 
 # TODO: implementing a simulation report class that summarize the statistics 
 #       of the simulation, e.g., # sent message, failed message, size...
 
-class GossipSimulator():
+
+class SimulationEventReceiver(ABC):
+    """
+    The event receiver interface declares all the update methods, used by the event sender.
+    """
+
+    @abstractmethod
+    def update_message(self, failed: bool) -> None:
+        """
+        Receive an update about a sent message or a failed message.
+
+        Parameters
+        ----------
+        falied : bool
+            Whether the message was sent or not.
+        """
+        pass
+
+    def update_evaluation(self, round: int, evaluation: Dict[str, float]) -> None:
+        """Receive an update about an evaluation.
+
+        Parameters
+        ----------
+        round : int
+            The round number.
+        evaluation : Dict[str, float]
+            The evaluation.
+        """
+        pass
+
+
+class SimulationEventSender(ABC):
+    """
+    The event sender interface declares a set of methods for managing receviers.
+    """
+
+    _receivers: List[SimulationEventReceiver] = []
+
+    def add_receiver(self, receiver: SimulationEventReceiver) -> None:
+        """Attach an event receiver to the event sender.
+
+        Parameters
+        ----------
+        receiver : SimulationEventReceiver
+            The receiver to attach.
+        """
+        if receiver not in self._receivers:
+            self._receivers.append(receiver)
+
+
+    def remove_receiver(self, receiver: SimulationEventReceiver) -> None:
+        """Detach an event receiver from the event sender.
+
+        Parameters
+        ----------
+        receiver : SimulationEventReceiver
+            The receiver to detach.
+        """
+        try:
+            idx = self._receivers.index(receiver)
+            self._receivers.pop(idx)
+        except ValueError:
+            pass
+
+
+    def notify_message(self, falied: bool) -> None:
+        """
+        Notify all receivers about a sent message or a failed message.
+
+        Parameters
+        ----------
+        falied : bool
+            Whether the message was sent or not.
+        """
+        for er in self._receivers:
+            er.update_message(falied)
+
+
+    def notify_evaluation(self, round: int, evaluation: Dict[str, float]) -> None:
+        """Notify all receivers about an evaluation.   
+        
+        Parameters
+        ----------
+        round : int
+            The round number.
+        evaluation : Dict[str, float]
+            The evaluation.
+        """
+        for er in self._receivers:
+            er.update_evaluation(round, evaluation)
+
+
+class SimulationReport(SimulationEventReceiver):
+    def __init__(self):
+        self.sent_messages: int = 0
+        self.failed_messages: int = 0
+        self.evaluations: List[Dict[str, float]] = []
+    
+    def update_message(self, failed: bool) -> None:
+        if failed:
+            self.failed_messages += 1
+        else:
+            self.sent_messages += 1
+    
+    def update_evaluation(self, round: int, evaluation: Dict[str, float]) -> None:
+        self.evaluations.append(evaluation)
+
+
+class GossipSimulator(SimulationEventSender):
     def __init__(self,
                  data_dispatcher: DataDispatcher,
                  delta: int,
@@ -188,6 +300,9 @@ class GossipSimulator():
             loaded = dill.load(f)
             ModelHandler._CACHE = loaded["cache"]
             return loaded["simul"]
+    
+    def __repr__(self) -> str:
+        pass
 
 
 class TokenizedGossipSimulator(GossipSimulator):
@@ -327,25 +442,7 @@ class TokenizedGossipSimulator(GossipSimulator):
         return evals, evals_user
 
 
-# add argument for y_label
-def plot_evaluation(evals: List[List[Dict]],
-                    title: str="No title") -> None:
-    if not evals or not evals[0] or not evals[0][0]: return
-    fig = plt.figure()
-    fig.canvas.manager.set_window_title(title)
-    ax = fig.add_subplot(111)
-    for k in evals[0][0]:
-        evs = [[d[k] for d in l] for l in evals]
-        mu: float = np.mean(evs, axis=0)
-        std: float = np.std(evs, axis=0)
-        plt.fill_between(range(1, len(mu)+1), mu-std, mu+std, alpha=0.2)
-        plt.title(title)
-        plt.xlabel("cycle")
-        plt.ylabel("performance")
-        plt.plot(range(1, len(mu)+1), mu, label=k)
-        LOG.info(f"{k}: {mu[-1]:.2f}")
-    ax.legend(loc="lower right")
-    plt.show()
+
 
 
 def repeat_simulation(gossip_simulator: GossipSimulator,
