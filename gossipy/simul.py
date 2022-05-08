@@ -4,6 +4,7 @@ import numpy as np
 from numpy.random import shuffle, random, randint, choice
 from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from rich.progress import track
+from rich.table import Table
 import dill
 
 from . import CACHE, AntiEntropyProtocol, LOG, CacheKey
@@ -168,7 +169,6 @@ class SimulationReport(SimulationEventReceiver):
             self.global_evaluations.append((round, ev))
     
     def update_end(self) -> None:
-        #TODO: log the report
         LOG.info("# Sent messages: %d" %self.sent_messages)
         LOG.info("# Failed messages: %d" %self.failed_messages)
         LOG.info("Total size: %d" %self.total_size)

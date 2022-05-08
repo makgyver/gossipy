@@ -30,7 +30,6 @@ dispatcher = DataDispatcher(data_handler, n=100, eval_on_user=False)
 topology = to_numpy_matrix(random_regular_graph(20, 100, seed=42))
 net = LogisticRegression(data_handler.Xtr.shape[1], 2)
 
-#TODO: check experiment on tokenized gossip
 
 simulator = TokenizedGossipSimulator(
 #simulator = GossipSimulator(

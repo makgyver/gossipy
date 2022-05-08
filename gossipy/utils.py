@@ -136,9 +136,6 @@ def download_and_untar(url: str, extract_to: str='.') -> List[str]:
     return thetarfile.getnames()
 
 
-
-
-
 def plot_evaluation(evals: List[List[Dict]],
                     title: str="Untitled plot") -> None:
     """Plots the evaluation results.
