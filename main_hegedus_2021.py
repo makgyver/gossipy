@@ -1,15 +1,15 @@
-from gossipy.model.sampling import TorchModelPartition
 import torch
 from torch.nn.modules.loss import CrossEntropyLoss
 from networkx import to_numpy_matrix
 from networkx.generators.random_graphs import random_regular_graph
 from gossipy import set_seed, AntiEntropyProtocol, CreateModelMode
-from gossipy.node import GossipNode, PartitioningBasedNode, RandomizedTokenAccount, SamplingBasedNode
+from gossipy.node import GossipNode, PartitioningBasedNode, SamplingBasedNode
 from gossipy.model.handler import PartitionedTMH, SamplingTMH, TorchModelHandler
+from gossipy.model.sampling import TorchModelPartition
 from gossipy.model.nn import LogisticRegression
 from gossipy.data import load_classification_dataset, DataDispatcher
 from gossipy.data.handler import ClassificationDataHandler
-from gossipy.simul import GossipSimulator, TokenizedGossipSimulator, plot_evaluation
+from gossipy.simul import GossipSimulator, TokenizedGossipSimulator, repeat_simulation
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"
@@ -30,7 +30,7 @@ topology = to_numpy_matrix(random_regular_graph(20, 100, seed=42))
 net = LogisticRegression(data_handler.Xtr.shape[1], 2)
 
 #sim = TokenizedGossipSimulator(
-sim = GossipSimulator(
+simulator = GossipSimulator(
     data_dispatcher=dispatcher,
     #token_account_class=RandomizedTokenAccount, #Coincides with the paper's setting
     #token_account_params={"C": 20, "A": 10},
@@ -59,8 +59,10 @@ sim = GossipSimulator(
     sampling_eval=.1,
     round_synced=True
 )
-sim.init_nodes()
-evaluation, evaluation_user = sim.start(n_rounds=1000)
 
-plot_evaluation([evaluation])
-plot_evaluation([evaluation_user])
+res = repeat_simulation(
+    gossip_simulator=simulator,
+    n_rounds=1000, #500
+    repetitions=1,
+    verbose=True
+)

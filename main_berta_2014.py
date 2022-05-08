@@ -66,12 +66,9 @@ simulator = GossipSimulator(
     round_synced=True
 )
 
-simulator.init_nodes()
-evaluation, evaluation_user = simulator.start(n_rounds=100)
-
-print(simulator.nodes[0].model_handler.model)
-
-plot_evaluation([evaluation])
-plot_evaluation([evaluation_user])
-
-
+res = repeat_simulation(
+    gossip_simulator=simulator,
+    n_rounds=100, #500
+    repetitions=1,
+    verbose=True
+)

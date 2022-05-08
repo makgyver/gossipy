@@ -5,7 +5,7 @@ from gossipy.node import GossipNode
 from gossipy.model.handler import MFModelHandler
 from gossipy.data import RecSysDataDispatcher, load_recsys_dataset
 from gossipy.data.handler import  RecSysDataHandler
-from gossipy.simul import GossipSimulator, plot_evaluation
+from gossipy.simul import GossipSimulator, repeat_simulation
 
 
 set_seed(98765)
@@ -14,7 +14,7 @@ data_handler = RecSysDataHandler(ratings, nu, ni, .1, seed=42)
 dispatcher = RecSysDataDispatcher(data_handler)
 topology = to_numpy_matrix(random_regular_graph(20, nu, seed=42))
 
-sim = GossipSimulator(
+simulator = GossipSimulator(
     data_dispatcher=dispatcher,
     delta=100,
     protocol=AntiEntropyProtocol.PUSH, 
@@ -32,8 +32,10 @@ sim = GossipSimulator(
     #sampling_eval=.1,
     round_synced=True
 )
-sim.init_nodes()
-evaluation, evaluation_user = sim.start(n_rounds=500)
 
-plot_evaluation([evaluation])
-plot_evaluation([evaluation_user])
+res = repeat_simulation(
+    gossip_simulator=simulator,
+    n_rounds=100, #500
+    repetitions=1,
+    verbose=True
+)

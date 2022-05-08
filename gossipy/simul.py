@@ -38,7 +38,7 @@ class SimulationEventReceiver(ABC):
     """
 
     @abstractmethod
-    def update_message(self, failed: bool) -> None:
+    def update_message(self, failed: bool, msg_size: Optional[int]=None) -> None:
         """
         Receive an update about a sent message or a failed message.
 
@@ -46,19 +46,27 @@ class SimulationEventReceiver(ABC):
         ----------
         falied : bool
             Whether the message was sent or not.
+        msg_size : int or None, default=None
+            The size of the message.
         """
         pass
 
-    def update_evaluation(self, round: int, evaluation: Dict[str, float]) -> None:
+    def update_evaluation(self, round: int, on_user: bool, evaluation: List[Dict[str, float]]) -> None:
         """Receive an update about an evaluation.
 
         Parameters
         ----------
         round : int
             The round number.
-        evaluation : Dict[str, float]
-            The evaluation.
+        on_user : bool
+            Whether the evaluation set is store on the clients/users or on the server.
+        evaluation : list of dict[str, float]
+            The evaluation metrics computed on each client.
         """
+        pass
+
+    def update_end(self) -> None:
+        """Receive an update about the end of the simulation."""
         pass
 
 
@@ -96,7 +104,7 @@ class SimulationEventSender(ABC):
             pass
 
 
-    def notify_message(self, falied: bool) -> None:
+    def notify_message(self, falied: bool, msg_size: Optional[int]=None) -> None:
         """
         Notify all receivers about a sent message or a failed message.
 
@@ -104,39 +112,75 @@ class SimulationEventSender(ABC):
         ----------
         falied : bool
             Whether the message was sent or not.
+        msg_size : int or None, default=None
+            The size of the message.
         """
         for er in self._receivers:
-            er.update_message(falied)
+            er.update_message(falied, msg_size)
 
 
-    def notify_evaluation(self, round: int, evaluation: Dict[str, float]) -> None:
+    def notify_evaluation(self, round: int, on_user:bool, evaluation: List[Dict[str, float]]) -> None:
         """Notify all receivers about an evaluation.   
         
         Parameters
         ----------
         round : int
             The round number.
-        evaluation : Dict[str, float]
-            The evaluation.
+        on_user : bool
+            Whether the evaluation set is store on the clients/users or on the server.
+        evaluation : list of dict[str, float]
+            The evaluation metrics computed on each client.
         """
         for er in self._receivers:
-            er.update_evaluation(round, evaluation)
+            er.update_evaluation(round, on_user, evaluation)
+    
+    def notify_end(self) -> None:
+        """Notify all receivers about the end of the simulation."""
+        for er in self._receivers:
+            er.update_end()
 
 
 class SimulationReport(SimulationEventReceiver):
     def __init__(self):
-        self.sent_messages: int = 0
-        self.failed_messages: int = 0
-        self.evaluations: List[Dict[str, float]] = []
+        self.clear()
     
-    def update_message(self, failed: bool) -> None:
+    def clear(self) -> None:
+        """Clear the report."""
+        self.sent_messages: int = 0
+        self.total_size: int = 0
+        self.failed_messages: int = 0
+        self.global_evaluations: List[Tuple[int, Dict[str, float]]] = []
+        self.local_evaluations: List[Tuple[int, Dict[str, float]]] = []
+    
+    def update_message(self, failed: bool, msg_size: Optional[int]=None) -> None:
         if failed:
             self.failed_messages += 1
         else:
+            assert msg_size is not None, "msg_size is not set"
             self.sent_messages += 1
+            self.total_size += msg_size
     
-    def update_evaluation(self, round: int, evaluation: Dict[str, float]) -> None:
-        self.evaluations.append(evaluation)
+    def update_evaluation(self, round: int, on_user: bool, evaluation: List[Dict[str, float]]) -> None:
+        ev = self._collect_results(evaluation)
+        if on_user:
+            self.local_evaluations.append((round, ev))
+        else:
+            self.global_evaluations.append((round, ev))
+    
+    def update_end(self) -> None:
+        #TODO: log the report
+        LOG.info("# Sent messages: %d" %self.sent_messages)
+        LOG.info("# Failed messages: %d" %self.failed_messages)
+        LOG.info("Total size: %d" %self.total_size)
+
+    def _collect_results(self, results: List[Dict[str, float]]) -> Dict[str, float]:
+        if not results: return {}
+        res = {k: [] for k in results[0]}
+        for k in res:
+            for r in results:
+                res[k].append(r[k])
+            res[k] = np.mean(res[k])
+        return res
 
 
 class GossipSimulator(SimulationEventSender):
@@ -193,34 +237,21 @@ class GossipSimulator(SimulationEventSender):
         for _, node in self.nodes.items():
             node.init_model()
     
-    def add_nodes(self, nodes: List[GossipNode]) -> None:
-        assert not self.initialized, "'init_nodes' must be called before adding new nodes."
-        for node in nodes:
-            node.idx = self.n_nodes
-            node.init_model()
-            self.nodes[node.idx] = node
-            self.n_nodes += 1
+    # def add_nodes(self, nodes: List[GossipNode]) -> None:
+    #     assert not self.initialized, "'init_nodes' must be called before adding new nodes."
+    #     for node in nodes:
+    #         node.idx = self.n_nodes
+    #         node.init_model()
+    #         self.nodes[node.idx] = node
+    #         self.n_nodes += 1
 
-    def _collect_results(self, results: List[Dict[str, float]]) -> Dict[str, float]:
-        if not results: return {}
-        res = {k: [] for k in results[0]}
-        for k in res:
-            for r in results:
-                res[k].append(r[k])
-            res[k] = np.mean(res[k])
-        return res
 
     # TODO: handle verbose
-    def start(self, n_rounds: int=100, verbose:int=0) -> Tuple[List[float], List[float]]:
+    def start(self, n_rounds: int=100, verbose:int=0) -> None:
         assert self.initialized, "The simulator is not inizialized. Please, call the method 'init_nodes'."
         node_ids = np.arange(self.n_nodes)
         
         pbar = track(range(n_rounds * self.delta), description="Simulating...")
-        evals = []
-        evals_user = []
-        n_msg = 0
-        n_msg_failed = 0
-        tot_size = 0
         msg_queues = DefaultDict(list)
         rep_queues = DefaultDict(list)
 
@@ -233,14 +264,13 @@ class GossipSimulator(SimulationEventSender):
                     if node.timed_out(t):
                         peer = node.get_peer()
                         msg = node.send(t, peer, self.protocol)
-                        n_msg += 1
-                        tot_size += msg.get_size()
+                        self.notify_message(False, msg.get_size())
                         if msg:
                             if random() >= self.drop_prob:
                                 d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
                                 msg_queues[t + d].append(msg)
                             else:
-                                n_msg_failed += 1
+                                self.notify_message(True)
                 
                 for msg in msg_queues[t]:
                     if random() < self.online_prob:
@@ -250,13 +280,13 @@ class GossipSimulator(SimulationEventSender):
                                 d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
                                 rep_queues[t + d].append(reply)
                             else:
-                                n_msg_failed += 1
+                                self.notify_message(True)
                 del msg_queues[t]
 
                 for reply in rep_queues[t]:
-                    tot_size += reply.get_size()
+                    self.notify_message(False, reply.get_size())
                     self.nodes[reply.receiver].receive(t, reply)
-                    n_msg += 1
+                    
                 del rep_queues[t]
 
                 if (t+1) % self.delta == 0:
@@ -265,9 +295,8 @@ class GossipSimulator(SimulationEventSender):
                         ev = [self.nodes[i].evaluate() for i in sample if self.nodes[i].has_test()]
                     else:
                         ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
-                    evals_user.append(self._collect_results(ev))
-                    if evals_user[-1]:
-                        LOG.debug("[t=%d] Users' evaluation: %s", t+1, evals_user[-1])
+                    if ev:
+                        self.notify_evaluation(t, True, ev)
                     
                     if self.data_dispatcher.has_test():
                         if self.sampling_eval > 0:
@@ -276,15 +305,15 @@ class GossipSimulator(SimulationEventSender):
                         else:
                             ev = [n.evaluate(self.data_dispatcher.get_eval_set())
                                 for _, n in self.nodes.items()]
-                        evals.append(self._collect_results(ev))
+                        if ev:
+                            self.notify_evaluation(t, False, ev)
 
         except KeyboardInterrupt:
             LOG.warning("Simulation interrupted by user.")
-
-        LOG.info("# Sent messages: %d" %n_msg)
-        LOG.info("# Failed messages: %d" %n_msg_failed)
-        LOG.info("Total size: %d" %tot_size)
-        return evals, evals_user
+        
+        pbar.close()
+        self.notify_end()
+        return
     
     def save(self, filename) -> None:
         dump = {
@@ -442,24 +471,24 @@ class TokenizedGossipSimulator(GossipSimulator):
         return evals, evals_user
 
 
-
-
-
 def repeat_simulation(gossip_simulator: GossipSimulator,
                       n_rounds: Optional[int]=1000,
                       repetitions: Optional[int]=10,
                       seed: int = 98765,
                       verbose: Optional[bool]=True) -> Tuple[List[List[float]], List[List[float]]]:
     
+    report = SimulationReport()
+    gossip_simulator.add_receiver(report)
     eval_list: List[List[float]] = []
     eval_user_list: List[List[float]] = []
     try:
         for i in range(repetitions):
             LOG.info("Simulation %d/%d" %(i+1, repetitions))
             gossip_simulator.init_nodes(seed*i)
-            evaluation, evaluation_user = gossip_simulator.start(n_rounds=n_rounds)
-            eval_list.append(evaluation)
-            eval_user_list.append(evaluation_user)
+            gossip_simulator.start(n_rounds=n_rounds)
+            eval_list.append([ev for _, ev in report.global_evaluations])
+            eval_user_list.append([ev for _, ev in report.local_evaluations])
+            report.clear()
     except KeyboardInterrupt:
         LOG.info("Execution interrupted during the %d/%d simulation." %(i+1, repetitions))
 
