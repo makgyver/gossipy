@@ -2,7 +2,7 @@ import torch
 from torch.nn.modules.loss import CrossEntropyLoss
 from networkx import to_numpy_matrix
 from networkx.generators.random_graphs import random_regular_graph
-from gossipy import set_seed, AntiEntropyProtocol, CreateModelMode
+from gossipy import UniformDelay, set_seed, AntiEntropyProtocol, CreateModelMode
 from gossipy.node import GossipNode, PartitioningBasedNode, SamplingBasedNode
 from gossipy.model.handler import PartitionedTMH, SamplingTMH, TorchModelHandler
 from gossipy.model.sampling import TorchModelPartition
@@ -55,7 +55,7 @@ simulator = TokenizedGossipSimulator(
         "create_model_mode" : CreateModelMode.UPDATE #CreateModelMode.MERGE_UPDATE
     },
     topology=topology,
-    delay=(0, 10),
+    delay=UniformDelay(0, 10),
     online_prob=.2, #Approximates the average online rate of the STUNner's smartphone traces
     #drop_prob=.1, #Simulates the possibility of message dropping
     sampling_eval=.1,

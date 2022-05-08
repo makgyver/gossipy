@@ -4,10 +4,9 @@ import numpy as np
 from numpy.random import shuffle, random, randint, choice
 from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from rich.progress import track
-from rich.table import Table
 import dill
 
-from . import CACHE, AntiEntropyProtocol, LOG, CacheKey
+from . import CACHE, AntiEntropyProtocol, LOG, CacheKey, Delay, NoDelay
 from .data import DataDispatcher
 from .node import GossipNode
 from .flow_control import TokenAccount
@@ -195,14 +194,13 @@ class GossipSimulator(SimulationEventSender):
                  topology: Optional[np.ndarray],
                  drop_prob: float=0., # [0,1] - probability of a message being dropped
                  online_prob: float=1., # [0,1] - probability of a node to be online
-                 delay: Optional[Tuple[int, int]]=None, # (a > 0, b >= a) - range delay (min, max), None = no delay
+                 delay: Delay=NoDelay(),
                  sampling_eval: float=0., # [0, 1] - percentage of nodes to evaluate
                  round_synced: bool=True):
         
         assert 0 <= drop_prob <= 1, "drop_prob must be in the range [0,1]."
         assert 0 <= online_prob <= 1, "online_prob must be in the range [0,1]."
         assert 0 <= sampling_eval <= 1, "sampling_eval must be in the range [0,1]."
-        assert (not delay) or (0 <= delay[0] <= delay[1]), "delay value is not correct."
 
         self.data_dispatcher = data_dispatcher
         self.n_nodes = data_dispatcher.size()
@@ -267,7 +265,7 @@ class GossipSimulator(SimulationEventSender):
                         self.notify_message(False, msg.get_size())
                         if msg:
                             if random() >= self.drop_prob:
-                                d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
+                                d = self.delay.get(msg)
                                 msg_queues[t + d].append(msg)
                             else:
                                 self.notify_message(True)
@@ -277,7 +275,7 @@ class GossipSimulator(SimulationEventSender):
                         reply = self.nodes[msg.receiver].receive(t, msg)
                         if reply:
                             if random() > self.drop_prob:
-                                d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
+                                d = self.delay.get(reply)
                                 rep_queues[t + d].append(reply)
                             else:
                                 self.notify_message(True)
@@ -396,7 +394,7 @@ class TokenizedGossipSimulator(GossipSimulator):
                             self.notify_message(False, msg.get_size())
                             if msg: 
                                 if random() >= self.drop_prob:
-                                    d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
+                                    d = self.delay.get(msg)
                                     msg_queues[t + d].append(msg)
                                 else:
                                     self.notify_message(True)
@@ -410,7 +408,7 @@ class TokenizedGossipSimulator(GossipSimulator):
                         reply = self.nodes[msg.receiver].receive(t, msg)
                         if reply:
                             if random() > self.drop_prob:
-                                d = randint(self.delay[0], self.delay[1]+1) if self.delay else 0
+                                d = self.delay.get(reply)
                                 rep_queues[t + d].append(reply)
                             else:
                                 self.notify_message(True)
@@ -427,7 +425,7 @@ class TokenizedGossipSimulator(GossipSimulator):
                                     self.notify_message(False, msg.get_size())
                                     if msg: 
                                         if random() >= self.drop_prob:
-                                            d = randint(self.delay[0], self.delay[1]+1) if self.delay else 1
+                                            d = self.delay.get(msg)
                                             msg_queues[t + d].append(msg)
                                         else:
                                             self.notify_message(True)

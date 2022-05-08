@@ -1,6 +1,6 @@
 from networkx import to_numpy_matrix
 from networkx.generators.random_graphs import random_regular_graph
-from gossipy import set_seed, AntiEntropyProtocol, CreateModelMode
+from gossipy import UniformDelay, set_seed, AntiEntropyProtocol, CreateModelMode
 from gossipy.node import GossipNode
 from gossipy.model.handler import MFModelHandler
 from gossipy.data import RecSysDataDispatcher, load_recsys_dataset
@@ -28,7 +28,7 @@ simulator = GossipSimulator(
         "learning_rate" : .001,
         "create_model_mode" : CreateModelMode.MERGE_UPDATE},
     topology=topology,
-    delay=(0, 10),
+    delay=UniformDelay(0, 10),
     #sampling_eval=.1,
     round_synced=True
 )

@@ -4,6 +4,7 @@ from rich.logging import RichHandler
 from enum import Enum
 import numpy as np
 import torch
+import random
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"
@@ -59,7 +60,14 @@ LOG.addFilter(DuplicateFilter())
 
 
 def set_seed(seed=0) -> None:
-    """Sets the seed for the random number generator."""
+    """Sets the seed for the random number generator.
+    
+    Parameters
+    ----------
+    seed : int, default=0
+        The seed to set.
+    """
+    random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
 
@@ -129,7 +137,7 @@ class Sizeable():
 class CacheKey(Sizeable):
     def __init__(self, *args):
         """The key for a cache item."""
-        self.key = tuple(args)
+        self.key: Tuple[Any, ...] = tuple(args)
     
     def get(self):
         """Returns the value of the cache item.
@@ -175,8 +183,8 @@ class CacheItem(Sizeable):
         value : Any
             The value of the item.
         """
-        self.value = value
-        self.refs = 1
+        self.value: Any = value
+        self.refs: int = 1
     
     def add_ref(self) -> None:
         """Adds a reference to the item."""
@@ -220,6 +228,9 @@ class CacheItem(Sizeable):
         else:
             LOG.warning("Impossible to compute the size of %s. Set to 0." %self.value)
             return 0
+    
+    def __repr__(self):
+        return self.value.__repr__()
 
 
 class Cache():
@@ -252,6 +263,9 @@ class Cache():
     
     def get_cache(self) -> Dict[CacheKey, Any]:
         return self._cache
+    
+    def __repr__(self):
+        return str(self._cache)
 
 
 CACHE = Cache()
@@ -284,11 +298,11 @@ class Message(Sizeable):
         value : tuple[Any, ...]
             The message's payload. The typical payload is a single item tuple containing the model (handler).
         """
-        self.timestamp = timestamp
-        self.sender = sender
-        self.receiver = receiver
-        self.type = type
-        self.value = value
+        self.timestamp: int = timestamp
+        self.sender: int = sender
+        self.receiver: int = receiver
+        self.type: MessageType = type
+        self.value: Tuple[Any, ...] = value
     
     def get_size(self) -> int:
         """Computes and returns the estimated size of the message.
@@ -330,3 +344,30 @@ class Message(Sizeable):
                                            self.type.name)
         s += "ACK" if self.value is None else str(self.value)
         return s
+
+
+class Delay():
+    def get(self, msg: Message):
+        raise NotImplementedError()
+
+class NoDelay(Delay):
+    def get(self, msg: Message):
+        return 0
+
+class UniformDelay(Delay):
+    def __init__(self, min_delay: int, max_delay: int):
+        assert min_delay <= max_delay and min_delay >= 0
+        self.min_delay: int = min_delay
+        self.max_delay: int = max_delay
+    
+    def get(self, msg: Message):
+        return np.random.randint(self.min_delay, self.max_delay+1)
+
+class LinearDelay(Delay):
+    def __init__(self, weight: float, constant: int):
+        assert weight >= 0 and constant >= 0
+        self.weight: float = weight
+        self.constant: int = constant
+    
+    def get(self, msg: Message):
+        return int(self.weight * msg.get_size()) + self.constant
