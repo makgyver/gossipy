@@ -6,7 +6,7 @@ from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from rich.progress import track
 import dill
 
-from . import CACHE, AntiEntropyProtocol, LOG, CacheKey, Delay
+from . import CACHE, AntiEntropyProtocol, LOG, CacheKey, Delay, set_seed
 from .data import DataDispatcher
 from .node import GossipNode
 from .flow_control import TokenAccount
@@ -244,8 +244,7 @@ class GossipSimulator(SimulationEventSender):
     #         self.n_nodes += 1
 
 
-    # TODO: handle verbose
-    def start(self, n_rounds: int=100, verbose:int=0) -> None:
+    def start(self, n_rounds: int=100) -> None:
         assert self.initialized, "The simulator is not inizialized. Please, call the method 'init_nodes'."
         node_ids = np.arange(self.n_nodes)
         
@@ -377,13 +376,13 @@ class TokenizedGossipSimulator(GossipSimulator):
         pbar = track(range(n_rounds * self.delta), description="Simulating...")
         msg_queues = DefaultDict(list)
         rep_queues = DefaultDict(list)
-        avg_tokens = [0]
+        #avg_tokens = [0]
         try:
             for t in pbar:
                 if t % self.delta == 0: 
                     shuffle(node_ids)
-                    if t > 0:
-                        avg_tokens.append(np.mean([a.n_tokens for a in self.accounts.values()]))
+                    #if t > 0:
+                    #    avg_tokens.append(np.mean([a.n_tokens for a in self.accounts.values()]))
                 
                 for i in node_ids:
                     node = self.nodes[i]
@@ -414,8 +413,7 @@ class TokenizedGossipSimulator(GossipSimulator):
                                 self.notify_message(True)
 
                         if not reply:
-                            utility = self.utility_fun(self.nodes[msg.receiver].model_handler, 
-                                                    sender_mh)#msg.value[0])
+                            utility = self.utility_fun(self.nodes[msg.receiver].model_handler, sender_mh)#msg.value[0])
                             reaction = self.accounts[msg.receiver].reactive(utility)
                             if reaction:
                                 self.accounts[msg.receiver].sub(reaction)
@@ -474,15 +472,15 @@ def repeat_simulation(gossip_simulator: GossipSimulator,
     eval_list: List[List[float]] = []
     eval_user_list: List[List[float]] = []
     try:
-        for i in range(repetitions):
-            LOG.info("Simulation %d/%d" %(i+1, repetitions))
+        for i in range(1, repetitions+1):
+            LOG.info("Simulation %d/%d" %(i, repetitions))
             gossip_simulator.init_nodes(seed*i)
             gossip_simulator.start(n_rounds=n_rounds)
             eval_list.append([ev for _, ev in report.global_evaluations])
             eval_user_list.append([ev for _, ev in report.local_evaluations])
             report.clear()
     except KeyboardInterrupt:
-        LOG.info("Execution interrupted during the %d/%d simulation." %(i+1, repetitions))
+        LOG.info("Execution interrupted during the %d/%d simulation." %(i, repetitions))
 
     if verbose and eval_list:
         plot_evaluation(eval_list, "Overall test")

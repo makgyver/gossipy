@@ -415,25 +415,29 @@ class UniformDelay(Delay):
         return np.random.randint(self.min_delay, self.max_delay+1)
 
 class LinearDelay(Delay):
-    def __init__(self, weight: float, constant: int):
+    def __init__(self, timexunit: float, overhead: int):
         """A class representing a linear delay.
+
+        | The linear delay is computed as a fixed overhead plus a quantity proportional to the message's size.
+        | :class:`LinearDelay` can mimic the behavior both the standard :class:`Delay`, i.e.,
+        | LinearDelay(0, x) is equivalent to Delay(x).
 
         Parameters
         ----------
-        weight : float
-            The weight of the delay.
-        constant : int
-            The constant delay in time units.
+        timexunit : float
+            The time unit delay per size unit.
+        overhead : int
+            The overhead delay (in time units) to apply to each message.
         """
-        assert weight >= 0 and constant >= 0
-        self.weight: float = weight
-        self.constant: int = constant
+        assert timexunit >= 0 and overhead >= 0
+        self.timexunit: float = timexunit
+        self.overhead: int = overhead
     
     def get(self, msg: Message) -> int:
         """Returns the delay for the specified message.
 
         | The delay is linear with respect to the message's size and it is computed as follows:
-        | delay = floor(weight * size(msg)) + constant.
+        | delay = floor(timexunit * size(msg)) + overhead.
 
         Parameters
         ----------
@@ -445,4 +449,4 @@ class LinearDelay(Delay):
         int
             The delay in time units.
         """
-        return int(self.weight * msg.get_size()) + self.constant
+        return int(self.timexunit * msg.get_size()) + self.overhead
