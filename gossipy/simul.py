@@ -6,7 +6,7 @@ from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from rich.progress import track
 import dill
 
-from . import CACHE, AntiEntropyProtocol, LOG, CacheKey, Delay, set_seed
+from . import CACHE, AntiEntropyProtocol, LOG, CacheKey, Delay, Message, set_seed
 from .data import DataDispatcher
 from .node import GossipNode
 from .flow_control import TokenAccount
@@ -24,12 +24,12 @@ __status__ = "Development"
 #
 
 
-__all__ = ["GossipSimulator",
+__all__ = ["SimulationEventReceiver",
+           "SimulationEventSender",
+           "SimulationReport",
+           "GossipSimulator",
            "TokenizedGossipSimulator",
            "repeat_simulation"]
-
-# TODO: implementing a simulation report class that summarize the statistics 
-#       of the simulation, e.g., # sent message, failed message, size...
 
 
 class SimulationEventReceiver(ABC):
@@ -38,17 +38,17 @@ class SimulationEventReceiver(ABC):
     """
 
     @abstractmethod
-    def update_message(self, failed: bool, msg_size: Optional[int]=None) -> None:
-        """
-        Receive an update about a sent message or a failed message.
+    def update_message(self, failed: bool, msg: Optional[Message]=None) -> None:
+        """Receive an update about a sent or a failed message.
 
         Parameters
         ----------
         falied : bool
-            Whether the message was sent or not.
-        msg_size : int or None, default=None
-            The size of the message.
+            Whether the message was sent (False) or not (True).
+        msg_size : Message or None, default=None
+            The message.
         """
+
         pass
 
     def update_evaluation(self, round: int, on_user: bool, evaluation: List[Dict[str, float]]) -> None:
@@ -63,10 +63,12 @@ class SimulationEventReceiver(ABC):
         evaluation : list of dict[str, float]
             The evaluation metrics computed on each client.
         """
+
         pass
 
     def update_end(self) -> None:
         """Receive an update about the end of the simulation."""
+
         pass
 
 
@@ -104,7 +106,7 @@ class SimulationEventSender(ABC):
             pass
 
 
-    def notify_message(self, falied: bool, msg_size: Optional[int]=None) -> None:
+    def notify_message(self, falied: bool, msg: Optional[Message]=None) -> None:
         """
         Notify all receivers about a sent message or a failed message.
 
@@ -112,11 +114,11 @@ class SimulationEventSender(ABC):
         ----------
         falied : bool
             Whether the message was sent or not.
-        msg_size : int or None, default=None
-            The size of the message.
+        msg_size : Message or None, default=None
+            The message.
         """
         for er in self._receivers:
-            er.update_message(falied, msg_size)
+            er.update_message(falied, msg)
 
 
     def notify_evaluation(self, round: int, on_user:bool, evaluation: List[Dict[str, float]]) -> None:
@@ -142,6 +144,26 @@ class SimulationEventSender(ABC):
 
 class SimulationReport(SimulationEventReceiver):
     def __init__(self):
+        """Class that implements a basic simulation report.
+
+        The report traces the number of sent messages, the number of failed messages, the total size of the messages, 
+        and the evaluation metrics (both global and local).
+
+        The report is updated according to the design pattern Observer (actually Event Receiver). Thus, 
+        the report must be created and attached to the simulation.
+
+        Examples
+        --------
+        >>> from gossipy.simul import SimulationReport
+        >>> from gossipy.simul import GossipSimulator
+        >>> simulator = GossipSimulator(...)
+        >>> report = SimulationReport()
+        >>> simulator.add_receiver(report)
+        >>> simulator.start(...)
+
+        The ``report`` object is now attached to the simulation and it will be notified about the events.
+        """
+
         self.clear()
     
     def clear(self) -> None:
@@ -152,13 +174,13 @@ class SimulationReport(SimulationEventReceiver):
         self.global_evaluations: List[Tuple[int, Dict[str, float]]] = []
         self.local_evaluations: List[Tuple[int, Dict[str, float]]] = []
     
-    def update_message(self, failed: bool, msg_size: Optional[int]=None) -> None:
+    def update_message(self, failed: bool, msg: Optional[Message]=None) -> None:
         if failed:
             self.failed_messages += 1
         else:
-            assert msg_size is not None, "msg_size is not set"
+            assert msg is not None, "msg is not set"
             self.sent_messages += 1
-            self.total_size += msg_size
+            self.total_size += msg.get_size()
     
     def update_evaluation(self, round: int, on_user: bool, evaluation: List[Dict[str, float]]) -> None:
         ev = self._collect_results(evaluation)
@@ -259,9 +281,10 @@ class GossipSimulator(SimulationEventSender):
                 for i in node_ids:
                     node = self.nodes[i]
                     if node.timed_out(t):
+
                         peer = node.get_peer()
                         msg = node.send(t, peer, self.protocol)
-                        self.notify_message(False, msg.get_size())
+                        self.notify_message(False, msg)
                         if msg:
                             if random() >= self.drop_prob:
                                 d = self.delay.get(msg)
@@ -269,8 +292,9 @@ class GossipSimulator(SimulationEventSender):
                             else:
                                 self.notify_message(True)
                 
+                is_online = random(self.n_nodes) <= self.online_prob
                 for msg in msg_queues[t]:
-                    if random() < self.online_prob:
+                    if is_online[msg.receiver]:
                         reply = self.nodes[msg.receiver].receive(t, msg)
                         if reply:
                             if random() > self.drop_prob:
@@ -278,10 +302,12 @@ class GossipSimulator(SimulationEventSender):
                                 rep_queues[t + d].append(reply)
                             else:
                                 self.notify_message(True)
+                    else:
+                        self.notify_message(True)
                 del msg_queues[t]
 
                 for reply in rep_queues[t]:
-                    self.notify_message(False, reply.get_size())
+                    self.notify_message(False, reply)
                     self.nodes[reply.receiver].receive(t, reply)
                     
                 del rep_queues[t]
@@ -390,7 +416,7 @@ class TokenizedGossipSimulator(GossipSimulator):
                         if random() < self.accounts[i].proactive():
                             peer = node.get_peer()
                             msg = node.send(t, peer, self.protocol)
-                            self.notify_message(False, msg.get_size())
+                            self.notify_message(False, msg)
                             if msg: 
                                 if random() >= self.drop_prob:
                                     d = self.delay.get(msg)
@@ -399,9 +425,11 @@ class TokenizedGossipSimulator(GossipSimulator):
                                     self.notify_message(True)
                         else:
                             self.accounts[i].add(1)
-
+                
+                is_online = random(self.n_nodes) <= self.online_prob
                 for msg in msg_queues[t]:
-                    if random() < self.online_prob:
+                    reply = None
+                    if is_online[msg.receiver]:
                         if msg.value and isinstance(msg.value[0], CacheKey):
                             sender_mh = CACHE[msg.value[0]]
                         reply = self.nodes[msg.receiver].receive(t, msg)
@@ -420,17 +448,20 @@ class TokenizedGossipSimulator(GossipSimulator):
                                 for _ in range(reaction):
                                     peer = node.get_peer()
                                     msg = node.send(t, peer, self.protocol)
-                                    self.notify_message(False, msg.get_size())
+                                    self.notify_message(False, msg)
                                     if msg: 
                                         if random() >= self.drop_prob:
                                             d = self.delay.get(msg)
                                             msg_queues[t + d].append(msg)
                                         else:
                                             self.notify_message(True)
+                    else:
+                        self.notify_message(True)
+                
                 del msg_queues[t]
 
                 for reply in rep_queues[t]:
-                    self.notify_message(False, reply.get_size())
+                    self.notify_message(False, reply)
                     self.nodes[reply.receiver].receive(t, reply)
                 del rep_queues[t]
 

@@ -1,4 +1,4 @@
-"""This module contains utility functions that are used in multiple modules."""
+"""This module contains utility functions."""
 
 import tarfile
 from urllib.request import urlopen
@@ -7,14 +7,13 @@ from zipfile import ZipFile
 import numpy as np
 from numpy.random import randint
 import torch
-from torch.nn import Module
 from typing import List, Dict
 import matplotlib.pyplot as plt
 
 from . import LOG
 
 # AUTHORSHIP
-__version__ = "0.0.0dev"
+__version__ = "0.0.1"
 __author__ = "Mirko Polato"
 __copyright__ = "Copyright 2021, gossipy"
 __license__ = "MIT"
@@ -40,7 +39,7 @@ __all__ = ["choice_not_n",
 def choice_not_n(mn: int,
                  mx: int,
                  notn: int) -> int:
-    r"""Draws from the uniform distribution an integer between `mn` and `mx`, excluding `notn`.
+    r"""Draws from the uniform distribution an integer between ``mn`` and ``mx``, excluding ``notn``.
     
     Parameters
     ----------
@@ -54,7 +53,7 @@ def choice_not_n(mn: int,
     Returns
     -------
     int
-        Random integer :math:`x` s.t. :math:`\textrm{mn} \leq x \leq \textrm{mx}` and :math:`x \neq \textrm{notn}`.
+        Random integer :math:`x` s.t. ``mn`` :math:`\leq x \leq` ``mx`` and :math:`x \neq` ``notn``.
     """
 
     c: int = randint(mn, mx)
@@ -65,17 +64,17 @@ def choice_not_n(mn: int,
 #def sigmoid(x: float) -> float:
 #    return 1 / (1 + np.exp(-x))
 
-def torch_models_eq(m1: Module,
-                    m2: Module) -> bool:
-    """Checks if two models are equal.
+def torch_models_eq(m1: torch.nn.Module,
+                    m2: torch.nn.Module) -> bool:
+    """Checks if two pytorch models are equal.
 
-    The equality is defined in terms of the parameters of the models, both architectures and weights.
+    The equality is defined in terms of the parameters of the models, both architecture and weights.
     
     Parameters
     ----------
-    m1 : Module
+    m1 : torch.nn.Module
         First model to compare.
-    m2 : Module
+    m2 : torch.nn.Module
         Second model to compare.
     
     Returns
@@ -84,14 +83,20 @@ def torch_models_eq(m1: Module,
         True if the two models are equal, False otherwise.
     """
 
-    for (k1, i1), (k2, i2) in zip(m1.state_dict().items(), m2.state_dict().items()):
-        if not k1 == k2 or not torch.equal(i1, i2):
+    sd1 = m1.state_dict()
+    sd2 = m2.state_dict()
+
+    if len(sd1) != len(sd2):
+        return False
+    
+    for (k1, i1), (k2, i2) in zip(sd1.items(), sd2.items()):
+        if  k1 != k2 or not torch.equal(i1, i2):
             return False
     return True
 
 
 def download_and_unzip(url: str, extract_to: str='.') -> str:
-    """Downloads a file from `url` and unzips it into `extract_to`.
+    """Downloads a file from ``url`` and unzips it into ``extract_to``.
     
     Parameters
     ----------
@@ -102,19 +107,19 @@ def download_and_unzip(url: str, extract_to: str='.') -> str:
     
     Returns
     -------
-    str
-        Name of the extracted file.
+    list of str
+        List of names of the extracted files.
     """
 
     LOG.info("Downloading %s into %s" %(url, extract_to))
     http_response = urlopen(url)
     zipfile = ZipFile(BytesIO(http_response.read()))
     zipfile.extractall(path=extract_to)
-    return zipfile.namelist()[0]
+    return zipfile.namelist()
 
 
 def download_and_untar(url: str, extract_to: str='.') -> List[str]:
-    """Downloads a file from `url` and untar it into `extract_to`.
+    """Downloads a file from ``url`` and untar it into ``extract_to``.
     
     Parameters
     ----------
@@ -143,10 +148,10 @@ def plot_evaluation(evals: List[List[Dict]],
     Parameters
     ----------
     evals : list of list of dict
-        This argument is meant to contain the results of a repeated experiment (outer list).
+        This argument is meant to contain the results of a repeated experiment (outer list: each element an experiment).
         For each experiment, the inner list contains the results of the evaluations performed during the 
         simulation. The results are stored in a dictionary where the keys are the names of the metrics and the
-        values are the corresponding values.
+        values are the corresponding performance.
     title : str, default="Untitled plot"
         Title of the plot.
     """

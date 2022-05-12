@@ -273,11 +273,13 @@ class Cache():
 
 
 CACHE = Cache()
-"""The models cache. 
+"""The models' cache. 
 
 All models that are exchanged between nodes are temporarely stored in the cache.
 If a model is needed by another node, it is retrieved from the cache and only one copy remains active in memory.
-If a model is not referenced anymore, it is removed from the cache."""
+If a model is not referenced anymore, it is automatically removed from the cache.
+The models contained in the cache are a deep copy of the models stored in the nodes.
+"""
 
 
 class Message(Sizeable):
@@ -438,6 +440,8 @@ class LinearDelay(Delay):
 
         | The delay is linear with respect to the message's size and it is computed as follows:
         | delay = floor(timexunit * size(msg)) + overhead.
+        | This type of delay allows to simulate the transmission time which is a linear function
+        | of the size of the message.
 
         Parameters
         ----------

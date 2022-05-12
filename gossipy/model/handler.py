@@ -40,19 +40,50 @@ __all__ = [
 
 class ModelHandler(Sizeable, EqualityMixin):
     def __init__(self,
-                 create_model_mode: CreateModelMode=CreateModelMode.UPDATE,
+                 create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
                  *args, **kwargs):
+        """The ModelHandler class is the base class for all model handlers.
+
+        A ModelHandler class manages the training (i.e., update) and evaluation of a model.
+        It is also responsible for the merging of two (or more) models according to the
+        :attr:`mode`.
+
+        A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
+        update according to the :attr:`mode`.
+
+        Parameters
+        ----------
+        create_model_mode : CreateModelMode, default=CreateModelMode.MERGE_UPDATE
+            The mode in which the model is created/updated.
+        """
         self.model = None
         self.mode = create_model_mode
         self.n_updates = 0
 
     def init(self, *args, **kwargs) -> None:
+        """Initialize the model."""
         raise NotImplementedError()
 
     def _update(self, data: Any, *args, **kwargs) -> None:
+        """Update the model.
+        
+        The update usually consists of a number of training steps/epochs using the provided data.
+
+        Parameters
+        ----------
+        data : Any
+            The data to use for the update.
+        """
         raise NotImplementedError()
 
     def _merge(self, other_model_handler: ModelHandler, *args, **kwargs) -> None:
+        """Merge the model handler with the provided model handler.
+
+        Parameters
+        ----------
+        other_model_handler : ModelHandler
+            The model handler to merge with.
+        """
         raise NotImplementedError()
 
     def __call__(self,
@@ -77,15 +108,36 @@ class ModelHandler(Sizeable, EqualityMixin):
             raise ValueError("Unknown create model mode %s" %str(self.mode))
 
     def evaluate(self, *args, **kwargs) -> Any:
+        """Evaluate the model."""
         raise NotImplementedError()
 
     def copy(self) -> Any:
+        """Return a deep copy of the model handler."""
         return copy.deepcopy(self)
     
     def get_size(self) -> int:
+        """Return the size of the model.
+
+        Returns
+        -------
+        int
+            The size of the model.
+        """
         return self.model.get_size() if self.model is not None else 0
     
     def caching(self, owner: int) -> CacheKey:
+        """Cache the model handler and return the cache key.
+
+        Parameters
+        ----------
+        owner : int
+            The ID of the client that own of this particular model handler.
+        
+        Returns
+        -------
+        CacheKey
+            The cache key corresponding to this model handler in the cache.
+        """
         key = CacheKey(owner, self.n_updates)
         CACHE.push(key, self.copy())
         return key
@@ -186,7 +238,7 @@ class TorchModelHandler(ModelHandler):
                 res["auc"] = roc_auc_score(y_true, auc_scores).astype(float)
             else:
                 res["auc"] = 0.5
-                LOG.warning("*** WARNING: # of classes != 2. AUC is set to 0.5. ***")
+                LOG.warning("# of classes != 2. AUC is set to 0.5.")
         return res
 
 

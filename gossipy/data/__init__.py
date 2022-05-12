@@ -379,7 +379,7 @@ def load_recsys_dataset(name: str,
     """
     ratings = {}
     if name in {"ml-100k", "ml-1m", "ml-10m", "ml-20m"}:
-        folder = download_and_unzip("https://files.grouplens.org/datasets/movielens/%s.zip" %name)
+        folder = download_and_unzip("https://files.grouplens.org/datasets/movielens/%s.zip" %name)[0]
         if name == "ml-100k":
             filename = "u.data"
             sep = "\t"

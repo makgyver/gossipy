@@ -67,17 +67,17 @@ class GossipNode():
             Whether the node is synchronous with the round's length. In this case, the node will regularly time out 
             at the same point in the round. If `False`, the node will time out with a fixed delay. 
         """
-        self.idx = idx
-        self.data = data
-        self.round_len = round_len
-        self.n_nodes = n_nodes
-        self.model_handler = model_handler
-        self.sync = sync
-        self.delay = randint(0, round_len) if sync else int(normal(round_len, round_len/10))
-        self.known_nodes = list(np.where(known_nodes > 0)[-1]) if known_nodes is not None else None
+        self.idx: int = idx
+        self.data:  Union[Tuple[Tensor, Optional[Tensor]], Tuple[ndarray, Optional[ndarray]]] = data
+        self.round_len: int = round_len
+        self.n_nodes: int = n_nodes
+        self.model_handler: ModelHandler = model_handler
+        self.sync: bool = sync
+        self.delay: int = randint(0, round_len) if sync else int(normal(round_len, round_len/10))
+        self.known_nodes: Optional[np.ndarray] = list(np.where(known_nodes > 0)[-1]) if known_nodes is not None else None
 
-    def update_neighbors(self, neighbors: np.ndarray) -> None:
-        self.known_nodes = list(np.where(neighbors > 0)[-1])
+    #def update_neighbors(self, neighbors: np.ndarray) -> None:
+    #    self.known_nodes = list(np.where(neighbors > 0)[-1])
 
     def init_model(self, local_train: bool=True, *args, **kwargs) -> None:
         """Initializes the local model.
@@ -122,7 +122,10 @@ class GossipNode():
              t: int,
              peer: int,
              protocol: AntiEntropyProtocol) -> Message:
-        """Sends a message to the peer.
+        """Sends a message to the specified peer.
+
+        The method actually prepares the message that will be sent to the peer.
+        The sending is performed by the simluator and it may be delayed or it can fail.
 
         Parameters
         ----------
@@ -136,12 +139,16 @@ class GossipNode():
         Returns
         -------
         Message
-            The sent message.
+            The message to send.
         
         Raises
         ------
         ValueError
             If the protocol is not supported.
+        
+        See Also
+        --------
+        :class:`gossipy.simul.GossipSimulator`
         """
         if protocol == AntiEntropyProtocol.PUSH:
             key = self.model_handler.caching(self.idx)
