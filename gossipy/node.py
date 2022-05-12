@@ -226,6 +226,13 @@ class GossipNode():
         if isinstance(self.data, tuple):
             return self.data[1] is not None
         else: return True
+    
+
+    def __repr__(self) -> str:
+        return str(self)
+    
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__} #{self.idx} (Δ={self.delay})"
 
 
 class PassThroughNode(GossipNode):

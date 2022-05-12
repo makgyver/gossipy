@@ -9,6 +9,7 @@ from numpy.random import randint
 import torch
 from typing import List, Dict
 import matplotlib.pyplot as plt
+from json import JSONEncoder
 
 from . import LOG
 
@@ -171,3 +172,8 @@ def plot_evaluation(evals: List[List[Dict]],
         LOG.info(f"{k}: {mu[-1]:.2f}")
     ax.legend(loc="lower right")
     plt.show()
+
+
+class StringEncoder(JSONEncoder):
+    def default(self, o):
+        return str(o)

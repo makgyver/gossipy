@@ -250,6 +250,13 @@ class DataDispatcher():
             Whether there is a test set or not.
         """
         return self.data_handler.eval_size() > 0
+    
+    def __repr__(self) -> str:
+        return str(self)
+    
+    def __str__(self) -> str:
+        return "DataDispatcher(handler=%s, n=%d, eval_on_user=%s)" \
+                %(self.data_handler, self.n, self.eval_on_user)
 
 
 class RecSysDataDispatcher(DataDispatcher):
@@ -278,6 +285,9 @@ class RecSysDataDispatcher(DataDispatcher):
     
     def has_test(self) -> bool:
         return False
+    
+    def __str__(self) -> str:
+        return f"RecSysDataDispatcher(handler={self.data_handler}, eval_on_user={self.eval_on_user})"
 
 
 UCI_BASE_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/"

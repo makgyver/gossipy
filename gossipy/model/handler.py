@@ -141,7 +141,13 @@ class ModelHandler(Sizeable, EqualityMixin):
         key = CacheKey(owner, self.n_updates)
         CACHE.push(key, self.copy())
         return key
-
+    
+    def __repr__(self) -> str:
+        return str(self)
+    
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}(model={str(self.model)}_{self.n_updates}, mode={self.mode})"
+     
 
 class TorchModelHandler(ModelHandler):
     def __init__(self,

@@ -50,6 +50,8 @@ class ClassificationDataHandler(DataHandler):
         else:
             self.Xtr, self.ytr = X, y
             self.Xte, self.yte = X_te, y_te
+        
+        self.n_classes = len(np.unique(self.ytr))
 
     # CHECKME: typing
     def __getitem__(self, idx: Union[int, List[int]])-> \
@@ -77,6 +79,14 @@ class ClassificationDataHandler(DataHandler):
     
     def eval_size(self) -> int:
         return self.Xte.shape[0] if self.Xte is not None else 0
+    
+    def __repr__(self) -> str:
+        return str(self)
+    
+    def __str__(self) -> str:
+        res: str = f"{self.__class__.__name__}(size_tr={self.size()}, size_te={self.eval_size()}"
+        res += f", n_feats={self.size(1)}, n_classes={self.n_classes})"
+        return res
 
 
 # Same as ClassificationDataHandler but without a test set
@@ -92,6 +102,9 @@ class ClusteringDataHandler(ClassificationDataHandler):
     
     def eval_size(self) -> int:
         return self.size()
+    
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}(size={self.size()})"
 
 # Same as ClassificationDataHandler but with float labels
 # Alternative: creating a unique DataHandler class for both classification and regression
@@ -142,3 +155,7 @@ class RecSysDataHandler(DataHandler):
     
     def eval_size(self) -> int:
         return 0
+    
+    def __str__(self) -> str:
+        n_rat = sum([len(self.ratings[u]) for u in range(self.n_users)])
+        return f"{self.__class__.__name__}(n_users={self.size()}, n_items={self.n_items}, n_ratings={n_rat}))"

@@ -5,16 +5,17 @@ from numpy.random import shuffle, random, randint, choice
 from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from rich.progress import track
 import dill
+import json
 
 from . import CACHE, AntiEntropyProtocol, LOG, CacheKey, Delay, Message, set_seed
 from .data import DataDispatcher
 from .node import GossipNode
 from .flow_control import TokenAccount
 from .model.handler import ModelHandler
-from .utils import plot_evaluation
+from .utils import StringEncoder, plot_evaluation
 
 # AUTHORSHIP
-__version__ = "0.0.0dev"
+__version__ = "0.0.1"
 __author__ = "Mirko Polato"
 __copyright__ = "Copyright 2021, gossipy"
 __license__ = "MIT"
@@ -143,6 +144,13 @@ class SimulationEventSender(ABC):
 
 
 class SimulationReport(SimulationEventReceiver):
+    
+    sent_messages: int
+    total_size: int
+    failed_messages: int
+    global_evaluations: List[Tuple[int, Dict[str, float]]]
+    local_evaluations: List[Tuple[int, Dict[str, float]]]
+
     def __init__(self):
         """Class that implements a basic simulation report.
 
@@ -168,11 +176,11 @@ class SimulationReport(SimulationEventReceiver):
     
     def clear(self) -> None:
         """Clear the report."""
-        self.sent_messages: int = 0
-        self.total_size: int = 0
-        self.failed_messages: int = 0
-        self.global_evaluations: List[Tuple[int, Dict[str, float]]] = []
-        self.local_evaluations: List[Tuple[int, Dict[str, float]]] = []
+        self.sent_messages = 0
+        self.total_size = 0
+        self.failed_messages = 0
+        self.global_evaluations = []
+        self.local_evaluations = []
     
     def update_message(self, failed: bool, msg: Optional[Message]=None) -> None:
         if failed:
@@ -354,7 +362,12 @@ class GossipSimulator(SimulationEventSender):
             return loaded["simul"]
     
     def __repr__(self) -> str:
-        pass
+        return str(self)
+
+    def __str__(self) -> str:
+        skip = ["nodes", "model_handler_params", "gossip_node_params"]
+        attrs = {k: v for k, v in self.__dict__.items() if k not in skip}
+        return f"{self.__class__.__name__} {str(json.dumps(attrs, indent=4, sort_keys=True, cls=StringEncoder))}"
 
 
 class TokenizedGossipSimulator(GossipSimulator):

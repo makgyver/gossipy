@@ -381,6 +381,12 @@ class Delay():
             The delay in time units.
         """
         return self.delay
+    
+    def __repr__(self) -> str:
+        return str(self)
+    
+    def __str__(self) -> str:
+        return "Delay(%d)" %self.delay
 
 
 class UniformDelay(Delay):
@@ -415,6 +421,10 @@ class UniformDelay(Delay):
             The delay in time units.
         """
         return np.random.randint(self.min_delay, self.max_delay+1)
+    
+    def __str__(self) -> str:
+        return "UniformDelay(%d, %d)" %(self.min_delay, self.max_delay) 
+
 
 class LinearDelay(Delay):
     def __init__(self, timexunit: float, overhead: int):
@@ -454,3 +464,6 @@ class LinearDelay(Delay):
             The delay in time units.
         """
         return int(self.timexunit * msg.get_size()) + self.overhead
+    
+    def __str__(self) -> str:
+        return "LinearDelay(time_x_unit=%d, overhead=%d)" %(self.timexunit, self.overhead) 

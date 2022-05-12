@@ -17,7 +17,11 @@ __status__ = "Development"
 #
 
 
-__all__ = ["TorchPerceptron", "TorchMLP", "AdaLine", "Pegasos", "LogisticRegression"]
+__all__ = ["TorchPerceptron",
+           "TorchMLP",
+           "AdaLine",
+           "Pegasos",
+           "LogisticRegression"]
 
 class TorchPerceptron(TorchModel):
     def __init__(self, dim: int):
@@ -35,6 +39,9 @@ class TorchPerceptron(TorchModel):
         xavier_uniform_(self.model._modules['linear'].weight)
     
     def __repr__(self) -> str:
+        return str(self)
+    
+    def __str__(self) -> str:
         return "TorchPerceptron(size=%d)\n%s" %(self.get_size(), str(self.model))
 
 
@@ -62,9 +69,9 @@ class TorchMLP(TorchModel):
             if type(m) == Linear:
                 xavier_uniform_(m.weight)
         self.model.apply(_init_weights)
-    
-    def __repr__(self) -> str:
-        return "TorchMLP(size=%d)\n%s" %(self.get_size(), str(self.model))
+
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}(size=%d)\n%s" %(self.get_size(), str(self.model))
 
 
 class AdaLine(TorchModel):
@@ -98,6 +105,6 @@ class LogisticRegression(TorchModel):
     def init_weights(self) -> None:
         pass
     
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return "LogisticRegression(in_size=%d, out_size=%d)" %(self.model.in_features,
                                                                self.model.out_features)

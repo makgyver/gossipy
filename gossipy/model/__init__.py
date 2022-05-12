@@ -4,7 +4,7 @@ from torch.nn.modules.container import ParameterList
 from .. import Sizeable
 
 # AUTHORSHIP
-__version__ = "0.0.0dev"
+__version__ = "0.0.1"
 __author__ = "Mirko Polato"
 __copyright__ = "Copyright 2021, gossipy"
 __license__ = "MIT"
@@ -36,6 +36,9 @@ class TorchModel(torch.nn.Module, Sizeable):
         return self._get_n_params()
     
     def __repr__(self) -> str:
+        return str(self)
+    
+    def __str__(self) -> str:
         return "%s(size=%d)" %(self.__class__.__name__, self.get_size())
     
     def get_params_list(self):
