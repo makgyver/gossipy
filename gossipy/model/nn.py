@@ -25,6 +25,13 @@ __all__ = ["TorchPerceptron",
 
 class TorchPerceptron(TorchModel):
     def __init__(self, dim: int):
+        """Perceptron model.
+
+        Parameters
+        ----------
+        dim : int
+            The number of input features.
+        """
         super(TorchPerceptron, self).__init__()
         self.input_dim = dim
         self.model = Sequential(OrderedDict({

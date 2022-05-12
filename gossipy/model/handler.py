@@ -16,9 +16,9 @@ from gossipy import CacheItem, CacheKey
 from gossipy.model.nn import AdaLine, Pegasos
 
 # AUTHORSHIP
-__version__ = "0.0.0dev"
+__version__ = "0.0.1"
 __author__ = "Mirko Polato"
-__copyright__ = "Copyright 2021, gossipy"
+__copyright__ = "Copyright 2022, gossipy"
 __license__ = "MIT"
 __maintainer__ = "Mirko Polato, PhD"
 __email__ = "mak1788@gmail.com"
@@ -56,12 +56,14 @@ class ModelHandler(Sizeable, EqualityMixin):
         create_model_mode : CreateModelMode, default=CreateModelMode.MERGE_UPDATE
             The mode in which the model is created/updated.
         """
+
         self.model = None
         self.mode = create_model_mode
         self.n_updates = 0
 
     def init(self, *args, **kwargs) -> None:
         """Initialize the model."""
+
         raise NotImplementedError()
 
     def _update(self, data: Any, *args, **kwargs) -> None:
@@ -74,6 +76,7 @@ class ModelHandler(Sizeable, EqualityMixin):
         data : Any
             The data to use for the update.
         """
+
         raise NotImplementedError()
 
     def _merge(self, other_model_handler: ModelHandler, *args, **kwargs) -> None:
@@ -84,6 +87,7 @@ class ModelHandler(Sizeable, EqualityMixin):
         other_model_handler : ModelHandler
             The model handler to merge with.
         """
+
         raise NotImplementedError()
 
     def __call__(self,
@@ -109,10 +113,12 @@ class ModelHandler(Sizeable, EqualityMixin):
 
     def evaluate(self, *args, **kwargs) -> Any:
         """Evaluate the model."""
+
         raise NotImplementedError()
 
     def copy(self) -> Any:
         """Return a deep copy of the model handler."""
+
         return copy.deepcopy(self)
     
     def get_size(self) -> int:
@@ -123,6 +129,7 @@ class ModelHandler(Sizeable, EqualityMixin):
         int
             The size of the model.
         """
+
         return self.model.get_size() if self.model is not None else 0
     
     def caching(self, owner: int) -> CacheKey:
@@ -138,6 +145,7 @@ class ModelHandler(Sizeable, EqualityMixin):
         CacheKey
             The cache key corresponding to this model handler in the cache.
         """
+
         key = CacheKey(owner, self.n_updates)
         CACHE.push(key, self.copy())
         return key
@@ -479,7 +487,7 @@ class KMeansHandler(ModelHandler):
         self.alpha = alpha
         #self._init_count = 0
     
-    def init(self):
+    def init(self) -> None:
         self.model = torch.rand(size=(self.k, self.dim))
     
     # def _has_empty(self) -> bool:

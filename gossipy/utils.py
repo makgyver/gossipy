@@ -174,6 +174,7 @@ def plot_evaluation(evals: List[List[Dict]],
     plt.show()
 
 
+# Undocumented
 class StringEncoder(JSONEncoder):
-    def default(self, o):
+    def default(self, o) -> str:
         return str(o)

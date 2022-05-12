@@ -13,7 +13,7 @@ from gossipy.model.nn import TorchModel
 # AUTHORSHIP
 __version__ = "0.0.1"
 __author__ = "Mirko Polato"
-__copyright__ = "Copyright 2021, gossipy"
+__copyright__ = "Copyright 2022, gossipy"
 __license__ = "MIT"
 __maintainer__ = "Mirko Polato, PhD"
 __email__ = "mak1788@gmail.com"
@@ -25,9 +25,32 @@ __all__ = ["TorchModelSampling",
 
 
 class TorchModelSampling:
+    """Class for sampling parameters from a torch model.
+    
+    This class only contains static methods because it does not need to know
+    beforehand the specific type of model. It is therefore not possible to
+    instantiate it.
+    The sampling over a model is performed by randomly selecting a subset of its parameters.
+    """
+
 
     @classmethod
     def sample(cls, size: float, net: TorchModel) -> Dict[int, Optional[Tuple[LongTensor, ...]]]:
+        """Sample a subset of the parameters of a given model.
+
+        Parameters
+        ----------
+        size : float
+            The size (in percentage) of the subset to be sampled.
+        net : TorchModel
+            The model to be sampled.
+
+        Returns
+        -------
+        Dict[int, Optional[Tuple[LongTensor, ...]]]
+            A dictionary containing the indices of the parameters to be sampled. The keys are the indices of the
+            layers, and the values are the indices of the parameters to be sampled in that layer.
+        """
         assert 0 < size <= 1, "size must be in the range (0, 1]."
         if size >= 0.9:
             LOG.warning("You are using a high sample size (=%.2f) which can impact "\
@@ -46,11 +69,25 @@ class TorchModelSampling:
                 
         return samples
     
+    # FIXME: is this correct?
     @classmethod
     def merge(cls, sample: Dict[int, Optional[Tuple[LongTensor, ...]]],
                    net1: TorchModel,
                    net2: TorchModel,
                    reduce: str="mean") -> None:
+        """Merge a sample of the parameters of two models.
+
+        Parameters
+        ----------
+        sample : Dict[int, Optional[Tuple[LongTensor, ...]]]
+            A dictionary containing the indices of the sampled parameters.
+        net1 : TorchModel
+            The first model.
+        net2 : TorchModel
+            The second model.
+        reduce : {'mean', 'sum'}
+            The reduction method to be used.
+        """
         assert str(net1) == str(net2), "net1 and net2 must have the same architecture."
         assert reduce in {"mean", "sum"}, "reduce must be either 'sum' or 'mean'."
 
@@ -65,8 +102,6 @@ class TorchModelSampling:
                 if t_ids is not None:
                     mul = 2 if reduce == "mean" else 1
                     plist1[i][t_ids] = (plist1[i][t_ids] + plist2[i][t_ids]) / mul
-
-
 
 
 class TorchModelPartition:

@@ -30,6 +30,29 @@ class ClassificationDataHandler(DataHandler):
                  y_te: Optional[Union[np.ndarray, torch.Tensor]]=None,
                  test_size: float=0.2,
                  seed: int=42):
+        """Handler for classification data.
+
+        The handlers provides methods to access the data and to split it into
+        training and evaluation sets.
+
+        Parameters
+        ----------
+        X : np.ndarray or torch.Tensor
+            The data set examples matrix. If :param:`X_te` is not None, then the
+            data set is assumed to be already splitted into training and evaluation set
+            (:param:`test_size` will be ignored).
+        y : np.ndarray or torch.Tensor
+            The data set labels.
+        X_te : np.ndarray or torch.Tensor, default=None
+            The evaluation set examples matrix.
+        y_te : np.ndarray or torch.Tensor, default=None
+            The evaluation set labels.
+        test_size : float, default=0.2
+            The size of the evaluation set as a fraction of the data set.
+        seed : int, default=42
+            The seed used to split the data set into training and evaluation set.
+        """
+
         assert(0 <= test_size < 1)
         assert(isinstance(X, (torch.Tensor, np.ndarray)))
 
@@ -144,7 +167,7 @@ class RecSysDataHandler(DataHandler):
             return self.ratings[idx][self.test_id[idx]:]
         else: return self[idx]
 
-    def size(self):
+    def size(self) -> int:
         return self.n_users
     
     def get_train_set(self) -> Tuple[Any, Any]:

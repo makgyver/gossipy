@@ -6,7 +6,7 @@ from .. import Sizeable
 # AUTHORSHIP
 __version__ = "0.0.1"
 __author__ = "Mirko Polato"
-__copyright__ = "Copyright 2021, gossipy"
+__copyright__ = "Copyright 2022, gossipy"
 __license__ = "MIT"
 __maintainer__ = "Mirko Polato, PhD"
 __email__ = "mak1788@gmail.com"
@@ -18,9 +18,18 @@ __all__ = ["TorchModel"]
 
 class TorchModel(torch.nn.Module, Sizeable):
     def __init__(self, *args, **kwargs):
+        """Abstract class for a torch model.
+
+        TorchModel is an abstract class that wraps a torch module and provide
+        an interface to easily access the number parameters of the module as well as
+        to easily initialize the weights of the module.
+        """
+
         super(TorchModel, self).__init__()
 
     def init_weights(self, *args, **kwargs) -> None:
+        """Initialize the weights of the model."""
+
         raise NotImplementedError()
     
     def _get_n_params(self) -> int:
@@ -33,6 +42,14 @@ class TorchModel(torch.nn.Module, Sizeable):
         return pp
     
     def get_size(self) -> int:
+        """Returns the number of parameters of the model.
+        
+        Returns
+        -------
+        int
+            The number of parameters of the model.
+        """
+
         return self._get_n_params()
     
     def __repr__(self) -> str:
@@ -42,4 +59,12 @@ class TorchModel(torch.nn.Module, Sizeable):
         return "%s(size=%d)" %(self.__class__.__name__, self.get_size())
     
     def get_params_list(self):
+        """Returns a list of the parameters of the model as a torch.nn.ParameterList.
+
+        Returns
+        -------
+        torch.nn.ParameterList
+            A list of the parameters of the model.
+        """
+
         return ParameterList(self.parameters())

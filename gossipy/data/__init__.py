@@ -14,10 +14,11 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 from .. import LOG
 from ..utils import download_and_unzip, download_and_untar
+from .handler import RecSysDataHandler
 
 
 # AUTHORSHIP
-__version__ = "0.0.0dev"
+__version__ = "0.0.1"
 __author__ = "Mirko Polato"
 __copyright__ = "Copyright 2021, gossipy"
 __license__ = "MIT"
@@ -29,19 +30,31 @@ __status__ = "Development"
 
 __all__ = ["DataHandler",
            "DataDispatcher",
+           "RecSysDataDispatcher",
            "load_classification_dataset",
            "load_recsys_dataset",
            "get_CIFAR10",
            "get_FashionMNIST",
            "get_FEMNIST"]
 
+UCI_BASE_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/"
+
+UCI_URL_AND_CLASS = {
+    "spambase" : (UCI_BASE_URL + "spambase/spambase.data", 57),
+    "sonar" : (UCI_BASE_URL + "undocumented/connectionist-bench/sonar/sonar.all-data", 60),
+    "ionosphere" : (UCI_BASE_URL + "ionosphere/ionosphere.data", 34),
+    "abalone" : (UCI_BASE_URL + "abalone/abalone.data", 0),
+    "banknote" : (UCI_BASE_URL + "00267/data_banknote_authentication.txt", 4),
+    #"dexter" : (UCI_BASE_URL + "dexter/DEXTER/", -1)
+}
+
 
 class DataHandler():
     def __init__(self):
         """Abstract class for data handlers.
 
-        A DataHandler class provides attributes and methods to manage a datasets.
-        A subclass must implement the following methods:
+        A :class:`DataHandler` class provides attributes and methods to manage a dataset.
+        A subclass of :class:`DataHandler` must implement the following methods:
 
         - __getitem__(self, idx)
         - at(self, idx, eval_set=False)
@@ -50,10 +63,23 @@ class DataHandler():
         - get_train_set(self)
         - eval_size(self)
         """
+
         pass
         
     def __getitem__(self, idx: Union[int, List[int]]) -> Any:
-        """Get a sample (or samples) from the training set."""
+        """Get a sample (or samples) from the training set.
+        
+        Parameters
+        ----------
+        idx : int or list[int]
+            The index or indices of the sample(s) to get.
+        
+        Returns
+        -------
+        Any
+            The sample(s) at the given index(ices) in the training set.
+        """
+
         raise NotImplementedError()
     
     def at(self, 
@@ -73,6 +99,7 @@ class DataHandler():
         Any
             The sample(s) at the given index(ices) in the training/evaluation set.
         """
+
         raise NotImplementedError()
 
     def size(self, dim: int=0) -> int:
@@ -88,6 +115,7 @@ class DataHandler():
         int
             The size of the dataset along the given dimension.
         """
+
         raise NotImplementedError()
 
     def get_eval_set(self) -> Tuple[Any, Any]:
@@ -98,6 +126,7 @@ class DataHandler():
         tuple[Any, Any]
             The evaluation set of the dataset.
         """
+
         raise NotImplementedError()
     
     def get_train_set(self) -> Tuple[Any, Any]:
@@ -108,6 +137,7 @@ class DataHandler():
         tuple[Any, Any]
             The training set of the dataset.
         """
+
         raise NotImplementedError()
 
     def eval_size(self) -> int:
@@ -118,6 +148,7 @@ class DataHandler():
         int
             The size of the evaluation set of the dataset.
         """
+
         raise NotImplementedError()
 
 
@@ -141,6 +172,7 @@ class DataDispatcher():
         eval_on_user : bool, default=True
             If True, a test set is assigned to each user.
         """
+
         assert(data_handler.size() >= n)
         if n <= 1: n = data_handler.size()
         self.data_handler = data_handler
@@ -165,6 +197,7 @@ class DataDispatcher():
         te_assignments : list[int], default=None
             The list of assignments for the test set. If None, the test set is not assigned.
         """
+
         assert len(tr_assignments) == self.n
         assert len(te_assignments) == self.n or not te_assignments
         self.tr_assignments = tr_assignments
@@ -184,6 +217,7 @@ class DataDispatcher():
         seed : int, default=42
             The seed for the random number generator.
         """
+
         self.tr_assignments = [[] for _ in range(self.n)]
         self.te_assignments = [[] for _ in range(self.n)]
 
@@ -217,6 +251,7 @@ class DataDispatcher():
         AssertionError
             If the index is out of range, i.e., no clients has the specified index.
         """
+
         assert 0 <= idx < self.n, "Index %d out of range." %idx
         return self.data_handler.at(self.tr_assignments[idx]), \
                self.data_handler.at(self.te_assignments[idx], True)
@@ -229,6 +264,7 @@ class DataDispatcher():
         int
             The number of clients.
         """
+
         return self.n
 
     def get_eval_set(self) -> Tuple[Any, Any]:
@@ -239,6 +275,7 @@ class DataDispatcher():
         tuple[Any, Any]
             The test set.
         """
+
         return self.data_handler.get_eval_set()
     
     def has_test(self) -> bool:
@@ -249,6 +286,7 @@ class DataDispatcher():
         bool
             Whether there is a test set or not.
         """
+
         return self.data_handler.eval_size() > 0
     
     def __repr__(self) -> str:
@@ -260,7 +298,6 @@ class DataDispatcher():
 
 
 class RecSysDataDispatcher(DataDispatcher):
-    from .handler import RecSysDataHandler
     def __init__(self,
                  data_handler: RecSysDataHandler):
         self.data_handler = data_handler
@@ -290,18 +327,6 @@ class RecSysDataDispatcher(DataDispatcher):
         return f"RecSysDataDispatcher(handler={self.data_handler}, eval_on_user={self.eval_on_user})"
 
 
-UCI_BASE_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/"
-
-UCI_URL_AND_CLASS = {
-    "spambase" : (UCI_BASE_URL + "spambase/spambase.data", 57),
-    "sonar" : (UCI_BASE_URL + "undocumented/connectionist-bench/sonar/sonar.all-data", 60),
-    "ionosphere" : (UCI_BASE_URL + "ionosphere/ionosphere.data", 34),
-    "abalone" : (UCI_BASE_URL + "abalone/abalone.data", 0),
-    "banknote" : (UCI_BASE_URL + "00267/data_banknote_authentication.txt", 4),
-    #"dexter" : (UCI_BASE_URL + "dexter/DEXTER/", -1)
-}
-
-
 def load_classification_dataset(name_or_path: str,
                                 normalize: bool=True,
                                 as_tensor: bool=True) -> Union[Tuple[torch.Tensor, torch.Tensor],
@@ -325,6 +350,7 @@ def load_classification_dataset(name_or_path: str,
     tuple[torch.Tensor, torch.Tensor] or tuple[np.ndarray, np.ndarray]
         A tuple containing the data and the labels with the specified type.
     """
+
     if name_or_path == "iris":
         dataset = datasets.load_iris()
         X, y = dataset.data, dataset.target
@@ -387,6 +413,7 @@ def load_recsys_dataset(name: str,
         A tuple contining the ratings, the number of users and the number of items.
         Ratings are represented as a dictionary mapping user ids to a list of tuples (item id, rating).
     """
+
     ratings = {}
     if name in {"ml-100k", "ml-1m", "ml-10m", "ml-20m"}:
         folder = download_and_unzip("https://files.grouplens.org/datasets/movielens/%s.zip" %name)[0]
@@ -444,6 +471,7 @@ def get_CIFAR10(path: str="./data",
     tuple[tuple[np.ndarray, list], tuple[np.ndarray, list]] or tuple[tuple[Tensor, Tensor], tuple[Tensor, Tensor]]
         Tuple of training and test sets of the form :math:`(X_train, y_train), (X_test, y_test)`.
     """
+
     download = not Path(os.path.join(path, "/cifar-10-batches-py")).is_dir()
     train_set = torchvision.datasets.CIFAR10(root=path,
                                              train=True,
@@ -485,6 +513,7 @@ def get_FashionMNIST(path: str="./data",
         Tuple of training and test sets of the form 
         :math:`(X_\text{train}, y_\text{train}), (X_\text{test}, y_\text{test})`.
     """
+
     download = not Path(os.path.join(path, "/FashionMNIST/raw/")).is_dir()
     train_set = torchvision.datasets.FashionMNIST(root=path,
                                                   train=True,
@@ -502,7 +531,8 @@ def get_FashionMNIST(path: str="./data",
     return train_set, test_set
 
 
-def get_FEMNIST(path: str="./data"):
+def get_FEMNIST(path: str="./data") -> Tuple[Tuple[torch.Tensor, torch.Tensor, List[int]], \
+                                             Tuple[torch.Tensor, torch.Tensor, List[int]]]:
     url = 'https://raw.githubusercontent.com/tao-shen/FEMNIST_pytorch/master/femnist.tar.gz'
     te_name, tr_name = download_and_untar(url, path)
     Xtr, ytr, ids_tr = torch.load(os.path.join(path, tr_name))
