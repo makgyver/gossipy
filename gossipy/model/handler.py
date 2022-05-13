@@ -1,6 +1,5 @@
 from __future__ import annotations
 import copy
-
 import torch
 from torch import LongTensor
 from torch.nn import ParameterList, Parameter
@@ -9,11 +8,12 @@ from typing import Any, Callable, Tuple, Dict, Optional, Union, Iterable
 from sklearn.metrics import accuracy_score, roc_auc_score, recall_score, f1_score, precision_score
 from sklearn.metrics.cluster import normalized_mutual_info_score as nmi
 from scipy.optimize import linear_sum_assignment as hungarian
-from gossipy import CACHE, LOG, Sizeable, CreateModelMode, EqualityMixin
-from gossipy.model import TorchModel
-from gossipy.model.sampling import TorchModelPartition, TorchModelSampling
-from gossipy import CacheItem, CacheKey
-from gossipy.model.nn import AdaLine, Pegasos
+
+from .. import CACHE, LOG, CacheKey, Sizeable, EqualityMixin
+from ..core import CreateModelMode
+from . import TorchModel
+from .sampling import TorchModelPartition, TorchModelSampling
+from .nn import AdaLine, Pegasos
 
 # AUTHORSHIP
 __version__ = "0.0.1"

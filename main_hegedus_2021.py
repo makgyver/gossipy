@@ -2,7 +2,8 @@ import torch
 from torch.nn.modules.loss import CrossEntropyLoss
 from networkx import to_numpy_matrix
 from networkx.generators.random_graphs import random_regular_graph
-from gossipy import UniformDelay, set_seed, AntiEntropyProtocol, CreateModelMode
+from gossipy import set_seed
+from gossipy.core import UniformDelay, AntiEntropyProtocol, CreateModelMode
 from gossipy.node import GossipNode, PartitioningBasedNode, SamplingBasedNode
 from gossipy.model.handler import PartitionedTMH, SamplingTMH, TorchModelHandler
 from gossipy.model.sampling import TorchModelPartition
@@ -13,9 +14,9 @@ from gossipy.simul import GossipSimulator, TokenizedGossipSimulator, repeat_simu
 from gossipy.flow_control import RandomizedTokenAccount
 
 # AUTHORSHIP
-__version__ = "0.0.0dev"
+__version__ = "0.0.1"
 __author__ = "Mirko Polato"
-__copyright__ = "Copyright 2021, gossipy"
+__copyright__ = "Copyright 2022, gossipy"
 __license__ = "MIT"
 __maintainer__ = "Mirko Polato, PhD"
 __email__ = "mak1788@gmail.com"

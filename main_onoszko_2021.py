@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.transforms import Compose, Normalize, RandomVerticalFlip
-from gossipy import AntiEntropyProtocol, CreateModelMode
+from gossipy.core import AntiEntropyProtocol, CreateModelMode
 from gossipy.data import DataDispatcher
 
 from gossipy.model import TorchModel
@@ -11,10 +11,10 @@ from gossipy.data.handler import ClassificationDataHandler
 from gossipy.model.handler import TorchModelHandler
 from gossipy.node import PENSNode
 from gossipy.simul import GossipSimulator, repeat_simulation
-from gossipy.utils import get_CIFAR10
+from gossipy.data import get_CIFAR10
 
 # AUTHORSHIP
-__version__ = "0.0.0dev"
+__version__ = "0.0.1"
 __author__ = "Mirko Polato"
 __copyright__ = "Copyright 2022, gossipy"
 __license__ = "MIT"

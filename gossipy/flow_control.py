@@ -20,6 +20,10 @@ __all__ = ["TokenAccount",
 
 class TokenAccount():
     def __init__(self):
+        """Abstract class representing a generic token account.
+
+        The token account framework has been firstly proposed in :cite:p:`Danner:2018`
+        """
         self.n_tokens = 0
     
     def add(self, n: int=1) -> None:

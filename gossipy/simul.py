@@ -1,13 +1,14 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 import numpy as np
-from numpy.random import shuffle, random, randint, choice
+from numpy.random import shuffle, random, choice
 from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
 from rich.progress import track
 import dill
 import json
 
-from . import CACHE, AntiEntropyProtocol, LOG, CacheKey, Delay, Message, set_seed
+from . import CACHE, LOG, CacheKey
+from .core import AntiEntropyProtocol, Message, Delay
 from .data import DataDispatcher
 from .node import GossipNode
 from .flow_control import TokenAccount

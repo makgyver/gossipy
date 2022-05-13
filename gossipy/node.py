@@ -1,14 +1,14 @@
-from gossipy.model.sampling import TorchModelSampling
 import random
 import numpy as np
 from numpy.random import randint, normal, rand
 from numpy import ndarray
 from torch import Tensor
 from typing import Any, Optional, Union, Dict, Tuple
-from gossipy import CacheKey
+from . import CACHE, LOG
+from .core import AntiEntropyProtocol, CreateModelMode, MessageType, Message
 from .utils import choice_not_n
 from .model.handler import ModelHandler, PartitionedTMH, SamplingTMH
-from . import CACHE, AntiEntropyProtocol, CreateModelMode, LOG, MessageType, Message
+from .model.sampling import TorchModelSampling
 
 # AUTHORSHIP
 __version__ = "0.0.0dev"

@@ -3,7 +3,8 @@ from scipy.spatial import distance
 from sklearn.cluster import KMeans
 from sklearn.metrics.cluster import normalized_mutual_info_score as nmi
 
-from gossipy import set_seed, AntiEntropyProtocol, CreateModelMode
+from gossipy import set_seed
+from gossipy.core import AntiEntropyProtocol, CreateModelMode
 from gossipy.node import GossipNode
 from gossipy.model.handler import KMeansHandler
 from gossipy.data import load_classification_dataset, DataDispatcher
@@ -11,9 +12,9 @@ from gossipy.data.handler import ClusteringDataHandler
 from gossipy.simul import GossipSimulator, repeat_simulation
 
 # AUTHORSHIP
-__version__ = "0.0.0dev"
+__version__ = "0.0.1"
 __author__ = "Mirko Polato"
-__copyright__ = "Copyright 2021, gossipy"
+__copyright__ = "Copyright 2022, gossipy"
 __license__ = "MIT"
 __maintainer__ = "Mirko Polato, PhD"
 __email__ = "mak1788@gmail.com"
