@@ -97,7 +97,8 @@ class AntiEntropyProtocol(Enum):
     PULL = 2
     """Pull the gossip model from the gossip node(s)."""
     PUSH_PULL = 3
-    """Push the local model to the gossip node(s) and then pull the gossip model from the gossip node(s)."""
+    """Push the local model to the gossip node(s) and then pull the gossip model from the gossip \
+        node(s)."""
 
 
 class MessageType(Enum):
@@ -110,12 +111,14 @@ class MessageType(Enum):
     REPLY = 3
     """The message is a response to a PULL message."""
     PUSH_PULL = 4
-    """The message contains the model (and possibly additional information) and also asks for the model."""
+    """The message contains the model (and possibly additional information) and also asks for the \
+        model."""
 
 
 class EqualityMixin(object):
     def __init__(self):
         """Mixin for equality comparison."""
+
         pass
 
     def __eq__(self, other: Any) -> bool:
@@ -129,18 +132,30 @@ class Sizeable():
     def __init__(self):
         """The interface for objects that can be sized.
         
-        Each class that implements this interface must define the method `get_size()`.
+        Each class that implements this interface must define the method :func:`get_size`.
         """
+
         pass
     
     def get_size(self) -> int:
-        """Returns the size of the object."""
+        """Returns the size of the object.
+
+        The size is intended to be the number of "atomic" objects that the object contains.
+        For example, a list of integers would have a size of the number of integers.
+        
+        Returns
+        -------
+        int
+            The size of the object.
+        """
+
         raise NotImplementedError()
 
 
 class CacheKey(Sizeable):
     def __init__(self, *args):
         """The key for a cache item."""
+
         self.key: Tuple[Any, ...] = tuple(args)
     
     def get(self):
@@ -151,6 +166,7 @@ class CacheKey(Sizeable):
         Any
             The value of the cache item.
         """
+
         return self.key
     
     def get_size(self) -> int:
@@ -177,6 +193,9 @@ class CacheKey(Sizeable):
 
 
 class CacheItem(Sizeable):
+    _value: Any
+    _refs: int
+
     def __init__(self, value: Any):
         """The class of an item in the cache.
 
@@ -187,12 +206,12 @@ class CacheItem(Sizeable):
         value : Any
             The value of the item.
         """
-        self.value: Any = value
-        self.refs: int = 1
+        self._value = value
+        self._refs = 1
     
     def add_ref(self) -> None:
         """Adds a reference to the item."""
-        self.refs += 1
+        self._refs += 1
     
     def del_ref(self) -> Any:
         """Deletes a reference to the item.
@@ -202,8 +221,8 @@ class CacheItem(Sizeable):
         Any
             The value of the unreferenced item.
         """
-        self.refs -= 1
-        return self.value
+        self._refs -= 1
+        return self._value
     
     def is_referenced(self) -> bool:
         """Returns True if the item is referenced, False otherwise.
@@ -213,28 +232,43 @@ class CacheItem(Sizeable):
         bool
             `True` if the item is referenced, `False` otherwise.
         """
-        return self.refs > 0
+
+        return self._refs > 0
     
     def get_size(self) -> int:
-        if isinstance(self.value, (tuple, list)):
+        if isinstance(self._value, (tuple, list)):
             sz: int = 0
-            for t in self.value:
+            for t in self._value:
                 if t is None: continue
                 if isinstance(t, (float, int, bool)): sz += 1
                 elif isinstance(t, Sizeable): sz += t.get_size()
                 else: 
                     LOG.warning("Impossible to compute the size of %s. Set to 0." %t)
             return max(sz, 1)
-        elif isinstance(self.value, Sizeable):
-            return self.value.get_size()
-        elif isinstance(self.value, (float, int, bool)):
+        elif isinstance(self._value, Sizeable):
+            return self._value.get_size()
+        elif isinstance(self._value, (float, int, bool)):
             return 1
         else:
-            LOG.warning("Impossible to compute the size of %s. Set to 0." %self.value)
+            LOG.warning("Impossible to compute the size of %s. Set to 0." %self._value)
             return 0
     
+    def get(self) -> Any:
+        """Returns the value.
+
+        Returns
+        -------
+        Any
+            The value of the item.
+        """
+
+        return self._value
+
     def __repr__(self):
-        return self.value.__repr__()
+        return self._value.__repr__()
+    
+    def __str__(self) -> str:
+        return f"CacheItem({str(self._value)})"
 
 
 class Cache():
@@ -260,7 +294,7 @@ class Cache():
     def __getitem__(self, key: CacheKey):
         if key not in self._cache:
             return None
-        return self._cache[key].value
+        return self._cache[key].get()
 
     def load(self, cache_dict: Dict[CacheKey, Any]):
         self._cache = cache_dict
@@ -301,9 +335,11 @@ class Message(Sizeable):
             The receiver node id.
         type : MessageType
             The message type.
-        value : tuple[Any, ...]
+        value : tuple[Any, ...] or None
             The message's payload. The typical payload is a single item tuple containing the model (handler).
+            If the value is None, the message represents an ACK.
         """
+
         self.timestamp: int = timestamp
         self.sender: int = sender
         self.receiver: int = receiver
@@ -353,6 +389,7 @@ class Message(Sizeable):
 
 
 class Delay():
+    _delay: int
 
     def __init__(self, delay: int=0):
         """A class representing a constant delay.
@@ -363,7 +400,7 @@ class Delay():
             The constant delay in time units.
         """
         assert delay >= 0
-        self.delay: int = delay
+        self._delay = delay
     
     def get(self, msg: Message) -> int:
         """Returns the delay for the specified message.
@@ -380,16 +417,20 @@ class Delay():
         int
             The delay in time units.
         """
-        return self.delay
+
+        return self._delay
     
     def __repr__(self) -> str:
         return str(self)
     
     def __str__(self) -> str:
-        return "Delay(%d)" %self.delay
+        return "Delay(%d)" %self._delay
 
 
 class UniformDelay(Delay):
+    _min_delay: int
+    _max_delay: int
+
     def __init__(self, min_delay: int, max_delay: int):
         """A class representing a uniform delay.
     
@@ -400,9 +441,10 @@ class UniformDelay(Delay):
         max_delay : int
             The maximum delay in time units.
         """
+
         assert min_delay <= max_delay and min_delay >= 0
-        self.min_delay: int = min_delay
-        self.max_delay: int = max_delay
+        self._min_delay: int = min_delay
+        self._max_delay: int = max_delay
     
     def get(self, msg: Message) -> int:
         """Returns the delay for the specified message.
@@ -420,13 +462,17 @@ class UniformDelay(Delay):
         int
             The delay in time units.
         """
-        return np.random.randint(self.min_delay, self.max_delay+1)
+
+        return np.random.randint(self._min_delay, self._max_delay+1)
     
     def __str__(self) -> str:
-        return "UniformDelay(%d, %d)" %(self.min_delay, self.max_delay) 
+        return "UniformDelay(%d, %d)" %(self._min_delay, self._max_delay) 
 
 
 class LinearDelay(Delay):
+    _overhead: int
+    _timexunit: float
+    
     def __init__(self, timexunit: float, overhead: int):
         """A class representing a linear delay.
 
@@ -441,9 +487,10 @@ class LinearDelay(Delay):
         overhead : int
             The overhead delay (in time units) to apply to each message.
         """
+
         assert timexunit >= 0 and overhead >= 0
-        self.timexunit: float = timexunit
-        self.overhead: int = overhead
+        self._timexunit = timexunit
+        self._overhead = overhead
     
     def get(self, msg: Message) -> int:
         """Returns the delay for the specified message.
@@ -463,7 +510,8 @@ class LinearDelay(Delay):
         int
             The delay in time units.
         """
-        return int(self.timexunit * msg.get_size()) + self.overhead
+
+        return int(self._timexunit * msg.get_size()) + self._overhead
     
     def __str__(self) -> str:
-        return "LinearDelay(time_x_unit=%d, overhead=%d)" %(self.timexunit, self.overhead) 
+        return "LinearDelay(time_x_unit=%d, overhead=%d)" %(self._timexunit, self._overhead) 

@@ -604,5 +604,3 @@ class PENSNode(GossipNode):
         else:
             recv_model = CACHE.pop(recv_model)
             self.model_handler(recv_model, self.data[0])
-
-

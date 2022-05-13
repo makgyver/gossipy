@@ -514,7 +514,7 @@ class TokenizedGossipSimulator(GossipSimulator):
 def repeat_simulation(gossip_simulator: GossipSimulator,
                       n_rounds: Optional[int]=1000,
                       repetitions: Optional[int]=10,
-                      seed: int = 98765,
+                      seed: int=98765,
                       verbose: Optional[bool]=True) -> Tuple[List[List[float]], List[List[float]]]:
     
     report = SimulationReport()

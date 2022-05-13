@@ -17,7 +17,7 @@ from . import LOG
 # AUTHORSHIP
 __version__ = "0.0.1"
 __author__ = "Mirko Polato"
-__copyright__ = "Copyright 2021, gossipy"
+__copyright__ = "Copyright 2022, gossipy"
 __license__ = "MIT"
 __maintainer__ = "Mirko Polato, PhD"
 __email__ = "mak1788@gmail.com"
@@ -63,8 +63,6 @@ def choice_not_n(mn: int,
         c = randint(mn, mx)
     return c
 
-#def sigmoid(x: float) -> float:
-#    return 1 / (1 + np.exp(-x))
 
 def torch_models_eq(m1: torch.nn.Module,
                     m2: torch.nn.Module) -> bool:
