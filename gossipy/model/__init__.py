@@ -1,3 +1,5 @@
+"""This module provides a series of classes to handle the models."""
+
 import torch
 from torch.nn.modules.container import ParameterList
 

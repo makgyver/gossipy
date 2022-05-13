@@ -7,9 +7,9 @@ import torch
 import random
 
 # AUTHORSHIP
-__version__ = "0.0.0dev"
+__version__ = "0.0.1"
 __author__ = "Mirko Polato"
-__copyright__ = "Copyright 2021, gossipy"
+__copyright__ = "Copyright 2022, gossipy"
 __license__ = "MIT"
 __maintainer__ = "Mirko Polato, PhD"
 __email__ = "mak1788@gmail.com"
@@ -17,7 +17,7 @@ __status__ = "Development"
 #
 
 __all__ = ["LOG",
-            "CACHE",
+           "CACHE",
            #"node",
            #"simul",
            #"utils",
@@ -25,7 +25,7 @@ __all__ = ["LOG",
            #"model",
            #"flow_control",
            "set_seed",
-           "DuplicateFilter",
+           #"DuplicateFilter",
            "CreateModelMode",
            "AntiEntropyProtocol",
            "MessageType",
@@ -33,16 +33,16 @@ __all__ = ["LOG",
            "CacheKey",
            "CacheItem",
            "Sizeable",
-           "EqualityMixin",
+           #"EqualityMixin",
            "Cache",
            "Delay",
            "UniformDelay",
            "LinearDelay"]
 
 
+# Undocumented class
 class DuplicateFilter(object):
     def __init__(self):
-        """Removes duplicate log messages."""
         self.msgs = set()
 
     def filter(self, record):
@@ -65,12 +65,15 @@ LOG.addFilter(DuplicateFilter())
 
 def set_seed(seed=0) -> None:
     """Sets the seed for the random number generator.
+
+    The seed is set for numpy, torch and random.
     
     Parameters
     ----------
     seed : int, default=0
         The seed to set.
     """
+
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -81,10 +84,13 @@ class CreateModelMode(Enum):
 
     UPDATE = 1
     """Update the model with the local data."""
+
     MERGE_UPDATE = 2
     """Merge the models and then make an update."""
+
     UPDATE_MERGE = 3
     """Update the models with the local data and then merge the models."""
+
     PASS = 4
     """Do nothing."""
 
@@ -94,8 +100,10 @@ class AntiEntropyProtocol(Enum):
 
     PUSH = 1
     """Push the local model to the gossip node(s)."""
+    
     PULL = 2
     """Pull the gossip model from the gossip node(s)."""
+
     PUSH_PULL = 3
     """Push the local model to the gossip node(s) and then pull the gossip model from the gossip \
         node(s)."""
@@ -106,19 +114,21 @@ class MessageType(Enum):
 
     PUSH = 1
     """The message contains the model (and possibly additional information)"""
+
     PULL = 2
     """Asks for the model to the receiver."""
+
     REPLY = 3
     """The message is a response to a PULL message."""
+
     PUSH_PULL = 4
     """The message contains the model (and possibly additional information) and also asks for the \
         model."""
 
 
+# Undocumented class
 class EqualityMixin(object):
     def __init__(self):
-        """Mixin for equality comparison."""
-
         pass
 
     def __eq__(self, other: Any) -> bool:
@@ -230,7 +240,7 @@ class CacheItem(Sizeable):
         Returns
         -------
         bool
-            `True` if the item is referenced, `False` otherwise.
+            `True` if the item is referenced at least once, `False` otherwise.
         """
 
         return self._refs > 0
@@ -274,13 +284,52 @@ class CacheItem(Sizeable):
 class Cache():
     _cache: Dict[CacheKey, CacheItem] = {}
 
+    def __init__(self):
+        """This class represent a cache.
+        
+        Items are stored in the cache to keep in memory only a single copy of each item.
+        A cached item (wrapped in :class:`CacheItem`) is kept in the cache until it is not 
+        referenced anymore. In such a case, it is automatically deleted from the cache.
+        To each item is associated a unique key of type :class:`CacheKey`.
+        """
+
+        pass
+
     def push(self, key: CacheKey, value: Any):
+        """Pushes an item into the cache.
+
+        Parameters
+        ----------
+        key : CacheKey
+            The key associated to the item.
+        value : Any
+            The value of the item. The value will be wrapped into a :class:`CacheItem` object before
+            being stored in the cache.
+        """
+
         if key not in self._cache:
             self._cache[key] = CacheItem(value)
         else:
             self._cache[key].add_ref()
     
     def pop(self, key: CacheKey):
+        """Retrieve an item from the cache.
+
+        If the item to retrieve is not in the cache, i.e., the key is not valid, None is returned.
+        Otherwise, the item is returned and a reference to the item is deleted from the cache.
+        If the item is not referenced anymore, it is automatically deleted from the cache.
+
+        Parameters
+        ----------
+        key : CacheKey
+            The key associated to the item to retrieve.
+
+        Returns
+        -------
+        Any
+            The value of the item.
+        """
+
         if key not in self._cache:
             return None
         obj = self._cache[key].del_ref()
@@ -289,6 +338,8 @@ class Cache():
         return obj
     
     def clear(self):
+        """Clears the cache."""
+
         self._cache.clear()
     
     def __getitem__(self, key: CacheKey):
@@ -297,12 +348,31 @@ class Cache():
         return self._cache[key].get()
 
     def load(self, cache_dict: Dict[CacheKey, Any]):
+        """Loads the cache from a dictionary.
+
+        Parameters
+        ----------
+        cache_dict : Dict[CacheKey, Any]
+            The dictionary containing the cache.
+        """
+
         self._cache = cache_dict
     
     def get_cache(self) -> Dict[CacheKey, Any]:
+        """Returns the cache.
+
+        Returns
+        -------
+        Dict[CacheKey, Any]
+            The cache.
+        """
+
         return self._cache
     
     def __repr__(self):
+        return str(self)
+    
+    def __str__(self) -> str:
         return str(self._cache)
 
 
@@ -328,7 +398,8 @@ class Message(Sizeable):
         Parameters
         ----------
         timestamp : int
-            The message's timestamp with the respect to the simulation time.
+            The message's timestamp with the respect to the simulation time. The timestamp refers
+            to the moment when the message is sent.
         sender : int
             The sender node id.
         receiver : int
@@ -350,7 +421,11 @@ class Message(Sizeable):
         """Computes and returns the estimated size of the message.
 
         The size is expressed in number of "atomic" values stored in the message.
-        Atomic values are integers, floats, and booleans. Currently strings are not supported.
+        Atomic values are integers, floats, and booleans. 
+        
+        Note
+        ----
+        Currently strings are not supported.
 
         Returns
         -------

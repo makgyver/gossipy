@@ -27,11 +27,11 @@ Python module for simulating gossip learning, a.k.a. decentralized federated lea
 
 ### Features
 
-- [ ] Logger (partially implemented)
+- [x] Logger
 - [ ] Models cache[[Ormandi 2013]](#1) [[Giaretta 2019]](#4) (partially implemented)
 - [ ] Perfect matching [[Ormandi 2013]](#1)
 - [ ] More realistic online behaviour (currently it is a worst case scenario)
-- [ ] Message transmission time: currently modelled as a delay independent from the size of the message
+- [x] Message transmission time: currently modelled as a delay independent from the size of the message
 - [x] PENS [[Onoszko 2021]](#8) (partially implemented)
 - [ ] DFL [[Liu 2022]](#10)
 - [ ] Segmented GL [[Hu 2019]](#5)
@@ -40,7 +40,7 @@ Python module for simulating gossip learning, a.k.a. decentralized federated lea
 
 ### Extras
 
-- [ ] Documentation
+- [ ] Documentation (partially implemented)
 - [ ] Add 'Weights and Biases' support
 
 ## References

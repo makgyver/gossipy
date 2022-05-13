@@ -85,6 +85,24 @@ class ClassificationDataHandler(DataHandler):
     def at(self, 
            idx: Union[int, List[int]],
            eval_set=False) -> Tuple[np.ndarray, int]:
+        """Get the data set example and label at the given index or list of indices.
+
+        Parameters
+        ----------
+        idx : int or list of int
+            The index or list of indices of the data set examples to get.
+        eval_set : bool, default=False
+            If True, the data set example and label are retrieved from the evaluation set.
+            Otherwise, they are retrieved from the training set.
+        
+        Returns
+        -------
+        X : np.ndarray
+            The data set example.
+        y : int
+            The data set label.
+        """
+        
         if eval_set:
             if (not isinstance(idx, list) or idx):
                 return self.Xte[idx, :], self.yte[idx]
