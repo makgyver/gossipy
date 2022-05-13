@@ -145,11 +145,11 @@ class SimulationEventSender(ABC):
 
 class SimulationReport(SimulationEventReceiver):
     
-    sent_messages: int
-    total_size: int
-    failed_messages: int
-    global_evaluations: List[Tuple[int, Dict[str, float]]]
-    local_evaluations: List[Tuple[int, Dict[str, float]]]
+    _sent_messages: int
+    _total_size: int
+    _failed_messages: int
+    _global_evaluations: List[Tuple[int, Dict[str, float]]]
+    _local_evaluations: List[Tuple[int, Dict[str, float]]]
 
     def __init__(self):
         """Class that implements a basic simulation report.
@@ -176,31 +176,31 @@ class SimulationReport(SimulationEventReceiver):
     
     def clear(self) -> None:
         """Clear the report."""
-        self.sent_messages = 0
-        self.total_size = 0
-        self.failed_messages = 0
-        self.global_evaluations = []
-        self.local_evaluations = []
+        self._sent_messages = 0
+        self._total_size = 0
+        self._failed_messages = 0
+        self._global_evaluations = []
+        self._local_evaluations = []
     
     def update_message(self, failed: bool, msg: Optional[Message]=None) -> None:
         if failed:
-            self.failed_messages += 1
+            self._failed_messages += 1
         else:
             assert msg is not None, "msg is not set"
-            self.sent_messages += 1
-            self.total_size += msg.get_size()
+            self._sent_messages += 1
+            self._total_size += msg.get_size()
     
     def update_evaluation(self, round: int, on_user: bool, evaluation: List[Dict[str, float]]) -> None:
         ev = self._collect_results(evaluation)
         if on_user:
-            self.local_evaluations.append((round, ev))
+            self._local_evaluations.append((round, ev))
         else:
-            self.global_evaluations.append((round, ev))
+            self._global_evaluations.append((round, ev))
     
     def update_end(self) -> None:
-        LOG.info("# Sent messages: %d" %self.sent_messages)
-        LOG.info("# Failed messages: %d" %self.failed_messages)
-        LOG.info("Total size: %d" %self.total_size)
+        LOG.info("# Sent messages: %d" %self._sent_messages)
+        LOG.info("# Failed messages: %d" %self._failed_messages)
+        LOG.info("Total size: %d" %self._total_size)
 
     def _collect_results(self, results: List[Dict[str, float]]) -> Dict[str, float]:
         if not results: return {}
@@ -210,6 +210,12 @@ class SimulationReport(SimulationEventReceiver):
                 res[k].append(r[k])
             res[k] = np.mean(res[k])
         return res
+    
+    def get_evaluation(self, local: bool=False):
+        if local:
+            return self._local_evaluations
+        else:
+            return self._global_evaluations
 
 
 class GossipSimulator(SimulationEventSender):
@@ -520,8 +526,8 @@ def repeat_simulation(gossip_simulator: GossipSimulator,
             LOG.info("Simulation %d/%d" %(i, repetitions))
             gossip_simulator.init_nodes(seed*i)
             gossip_simulator.start(n_rounds=n_rounds)
-            eval_list.append([ev for _, ev in report.global_evaluations])
-            eval_user_list.append([ev for _, ev in report.local_evaluations])
+            eval_list.append([ev for _, ev in report.get_evaluation(False)])
+            eval_user_list.append([ev for _, ev in report.get_evaluation(True)])
             report.clear()
     except KeyboardInterrupt:
         LOG.info("Execution interrupted during the %d/%d simulation." %(i, repetitions))

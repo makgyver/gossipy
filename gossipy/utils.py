@@ -1,6 +1,7 @@
 """This module contains utility functions."""
 
 import tarfile
+from urllib.error import URLError
 from urllib.request import urlopen
 from io import BytesIO
 from zipfile import ZipFile
@@ -113,7 +114,15 @@ def download_and_unzip(url: str, extract_to: str='.') -> str:
     """
 
     LOG.info("Downloading %s into %s" %(url, extract_to))
-    http_response = urlopen(url)
+    try:
+        http_response = urlopen(url)
+    except URLError:
+        # Handle urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] 
+        # certificate verify failed: certificate has expired 
+        import ssl
+        ssl._create_default_https_context = ssl._create_unverified_context
+        http_response = urlopen(url)
+
     zipfile = ZipFile(BytesIO(http_response.read()))
     zipfile.extractall(path=extract_to)
     return zipfile.namelist()

@@ -14,7 +14,6 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 from .. import LOG
 from ..utils import download_and_unzip, download_and_untar
-from .handler import RecSysDataHandler
 
 
 # AUTHORSHIP
@@ -298,6 +297,7 @@ class DataDispatcher():
 
 
 class RecSysDataDispatcher(DataDispatcher):
+    from .handler import RecSysDataHandler
     def __init__(self,
                  data_handler: RecSysDataHandler):
         self.data_handler = data_handler

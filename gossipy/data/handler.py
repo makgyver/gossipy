@@ -38,9 +38,9 @@ class ClassificationDataHandler(DataHandler):
         Parameters
         ----------
         X : np.ndarray or torch.Tensor
-            The data set examples matrix. If :param:`X_te` is not None, then the
+            The data set examples matrix. If ``X_te`` is not None, then the
             data set is assumed to be already splitted into training and evaluation set
-            (:param:`test_size` will be ignored).
+            (``test_size`` will be ignored).
         y : np.ndarray or torch.Tensor
             The data set labels.
         X_te : np.ndarray or torch.Tensor, default=None
