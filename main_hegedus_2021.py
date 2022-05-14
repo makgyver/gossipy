@@ -50,9 +50,11 @@ simulator = TokenizedGossipSimulator(
         "tm_partition": TorchModelPartition(net, 4),
         "net" : net,
         "optimizer" : torch.optim.SGD,
-        "l2_reg": .001,
+        "optimizer_params" : {
+            "lr": 1,
+            "weight_decay": .001
+        },
         "criterion" : CrossEntropyLoss(),
-        "learning_rate" : 1,
         "create_model_mode" : CreateModelMode.UPDATE #CreateModelMode.MERGE_UPDATE
     },
     topology=topology,

@@ -88,7 +88,7 @@ data_handler = ClassificationDataHandler(train_set[0], train_set[1],
                                          test_set[0], test_set[1])
 
 simulator = GossipSimulator(
-    data_dispatcher=CustomDataDispatcher(data_handler, n=100, eval_on_user=False),
+    data_dispatcher=CustomDataDispatcher(data_handler, n=5, eval_on_user=False),
     delta=100,
     protocol=AntiEntropyProtocol.PUSH,
     gossip_node_class=PENSNode,
@@ -100,11 +100,14 @@ simulator = GossipSimulator(
     model_handler_class=TorchModelHandler,
     model_handler_params={
         "optimizer": torch.optim.SGD,
+        "optimizer_params": {
+            "lr": 0.01,
+            "weight_decay": 0.001
+        },
         "criterion": F.cross_entropy,
         "net": CIFAR10Net(),
         "create_model_mode": CreateModelMode.MERGE_UPDATE,
         "batch_size": 8,
-        "l2_reg": 0.001,
         "local_epochs": 3
     },
     topology=None,

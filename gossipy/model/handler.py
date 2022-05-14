@@ -161,18 +161,15 @@ class TorchModelHandler(ModelHandler):
     def __init__(self,
                  net: TorchModel,
                  optimizer: torch.optim.Optimizer,
+                 optimizer_params: Dict[str, Any],
                  criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
-                 l2_reg: float=0.01,
-                 learning_rate: float=0.001,
                  local_epochs: int=1,
                  batch_size: int=32,
                  create_model_mode: CreateModelMode=CreateModelMode.UPDATE,
                  copy_model=True):
         super(TorchModelHandler, self).__init__(create_model_mode)
         self.model = copy.deepcopy(net) if copy_model else net
-        self.optimizer = optimizer(self.model.parameters(),
-                                   lr=learning_rate,
-                                   weight_decay=l2_reg)
+        self.optimizer = optimizer(self.model.parameters(), **optimizer_params)
         self.criterion = criterion
         assert (batch_size == 0 and local_epochs > 0) or (batch_size > 0)
         self.local_epochs = local_epochs
@@ -352,18 +349,16 @@ class PartitionedTMH(TorchModelHandler):
                  net: TorchModel,
                  tm_partition: TorchModelPartition,
                  optimizer: torch.optim.Optimizer,
+                 optimizer_params: Dict[str, Any],
                  criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
-                 l2_reg: float=0.01,
-                 learning_rate: float=0.001,
                  local_epochs: int=1,
                  batch_size: int=32,
                  create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
                  copy_model=True):
         super(PartitionedTMH, self).__init__(net,
                                              optimizer,
+                                             optimizer_params,
                                              criterion,
-                                             l2_reg,
-                                             learning_rate,
                                              local_epochs,
                                              batch_size,
                                              create_model_mode,
