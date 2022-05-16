@@ -343,7 +343,6 @@ class SamplingTMH(TorchModelHandler):
             raise ValueError("Unknown create model mode %s." %str(self.mode))
         
 
-
 class PartitionedTMH(TorchModelHandler):
     def __init__(self,
                  net: TorchModel,

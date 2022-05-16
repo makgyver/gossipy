@@ -235,6 +235,7 @@ class GossipNode():
         return f"{self.__class__.__name__} #{self.idx} (Δ={self.delay})"
 
 
+# Giaretta et al. 2019
 class PassThroughNode(GossipNode):
     def __init__(self,
                  idx: int, #node's id
@@ -306,7 +307,7 @@ class PassThroughNode(GossipNode):
                            (key, self.n_neighs))
         return None
 
-# FIXME: something seems wrong with the implementation of this type of node
+
 class CacheNeighNode(GossipNode):
     def __init__(self,
                  idx: int, #node's id
@@ -324,10 +325,7 @@ class CacheNeighNode(GossipNode):
                                              model_handler,
                                              known_nodes,
                                              sync)
-        key = self.model_handler.caching(self.idx)
-        #for _ in range(len(self.known_nodes) - 1):
-        #    self.model_handler._CACHE[key].add_ref()
-        self.cache = {i : key for i in self.known_nodes}
+        self.local_cache = {}
                         
     def send(self,
              t: int,
@@ -335,8 +333,11 @@ class CacheNeighNode(GossipNode):
              protocol: AntiEntropyProtocol) -> Union[Message, None]:
 
         if protocol == AntiEntropyProtocol.PUSH:
-            cached_model = CACHE.pop(self.cache[peer])
-            self.model_handler(cached_model, self.data[0])
+            if self.local_cache:
+                k = random.choice(set(self.local_cache.keys()))
+                cached_model = CACHE.pop(self.local_cache[k])
+                del self.local_cache[k]
+                self.model_handler(cached_model, self.data[0])
             key = self.model_handler.caching(self.idx)
             return Message(t,
                            self.idx,
@@ -346,8 +347,11 @@ class CacheNeighNode(GossipNode):
         elif protocol == AntiEntropyProtocol.PULL:
             return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
-            cached_model = CACHE.pop(self.cache[peer])
-            self.model_handler(cached_model, self.data[0])
+            if self.local_cache:
+                k = random.choice(set(self.local_cache.keys()))
+                cached_model = CACHE.pop(self.local_cache[k])
+                del self.local_cache[k]
+                self.model_handler(cached_model, self.data[0])
             key = self.model_handler.caching(self.idx)
             return Message(t,
                            self.idx,
@@ -364,12 +368,12 @@ class CacheNeighNode(GossipNode):
         if msg_type == MessageType.PUSH or \
            msg_type == MessageType.REPLY or \
            msg_type == MessageType.PUSH_PULL:
-            self.cache[sender] = recv_model
+            if self.local_cache[sender]:
+                CACHE.pop(self.local_cache[sender])
+            self.local_cache[sender] = recv_model
 
         if msg_type == MessageType.PULL or \
            msg_type == MessageType.PUSH_PULL:
-            cached_model = CACHE.pop(self.cache[sender])
-            self.model_handler(cached_model, self.data[0])
             key = self.model_handler.caching(self.idx)
             return Message(t,
                            self.idx,
