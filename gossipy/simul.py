@@ -73,6 +73,17 @@ class SimulationEventReceiver(ABC):
 
         pass
 
+    def update_timestep(self, t: int):
+        """Signal the end of the timestep ``t``.
+
+        Parameters
+        ----------
+        t : int
+            The current time step.
+        """
+
+        pass
+
 
 class SimulationEventSender(ABC):
     """
@@ -138,6 +149,17 @@ class SimulationEventSender(ABC):
         for er in self._receivers:
             er.update_evaluation(round, on_user, evaluation)
     
+    def notify_timestep(self, t: int):
+        """Notify all receivers about a timestep.
+        
+        Parameters
+        ----------
+        t : int
+            The timestep number.
+        """
+        for er in self._receivers:
+            er.update_timestep(t)
+
     def notify_end(self) -> None:
         """Notify all receivers about the end of the simulation."""
         for er in self._receivers:
@@ -345,6 +367,7 @@ class GossipSimulator(SimulationEventSender):
                                 for _, n in self.nodes.items()]
                         if ev:
                             self.notify_evaluation(t, False, ev)
+                self.notify_timestep(t)
 
         except KeyboardInterrupt:
             LOG.warning("Simulation interrupted by user.")

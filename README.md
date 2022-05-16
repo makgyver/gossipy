@@ -21,7 +21,7 @@
 # :warning: UNDER DEVELOPMENT :warning:
 
 # gossipy 
-Python module for simulating gossip learning, a.k.a. decentralized federated learning.
+Python module for simulating gossip learning and decentralized federated learning.
 
 ## TODOs
 
@@ -37,11 +37,13 @@ Python module for simulating gossip learning, a.k.a. decentralized federated lea
 - [ ] Segmented GL [[Hu 2019]](#5)
 - [ ] CMFL [[Che 2021]](#9)
 - [ ] Add training stopping criterion
+- [ ] GPU support (quick fix)
 
 ### Extras
 
 - [ ] Documentation (partially implemented)
 - [ ] Add 'Weights and Biases' support
+
 
 ## References
 <a id="1">[Ormandi 2013]</a>

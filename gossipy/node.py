@@ -307,7 +307,7 @@ class PassThroughNode(GossipNode):
                            (key, self.n_neighs))
         return None
 
-
+# Giaretta et al. 2019
 class CacheNeighNode(GossipNode):
     def __init__(self,
                  idx: int, #node's id
@@ -382,7 +382,7 @@ class CacheNeighNode(GossipNode):
                            (key,))
         return None
 
-
+# Hegedus 2021
 class SamplingBasedNode(GossipNode):
     def __init__(self,
                  idx: int, #node's id
@@ -449,6 +449,7 @@ class SamplingBasedNode(GossipNode):
         return None
 
 
+# Hegedus 2021
 class PartitioningBasedNode(GossipNode):
     def __init__(self,
                  idx: int, #node's id
@@ -517,7 +518,7 @@ class PartitioningBasedNode(GossipNode):
         return None
 
 
-
+# Onoszko 2021
 class PENSNode(GossipNode):
     def __init__(self,
                  idx: int, #node's id
