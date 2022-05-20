@@ -1,5 +1,6 @@
 """This module provides a series of classes to handle the models."""
 
+from abc import ABC, abstractmethod
 import torch
 from torch.nn.modules.container import ParameterList
 
@@ -18,7 +19,7 @@ __status__ = "Development"
 __all__ = ["TorchModel"]
 
 
-class TorchModel(torch.nn.Module, Sizeable):
+class TorchModel(torch.nn.Module, Sizeable, ABC):
     def __init__(self, *args, **kwargs):
         """Abstract class for a torch model.
 
@@ -29,10 +30,11 @@ class TorchModel(torch.nn.Module, Sizeable):
 
         super(TorchModel, self).__init__()
 
+    @abstractmethod
     def init_weights(self, *args, **kwargs) -> None:
         """Initialize the weights of the model."""
 
-        raise NotImplementedError()
+        pass
     
     def _get_n_params(self) -> int:
         pp = 0

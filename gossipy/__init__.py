@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Any, Dict, Tuple
 import logging
 from rich.logging import RichHandler
@@ -83,7 +84,7 @@ class EqualityMixin(object):
         return not self.__eq__(other)
 
 
-class Sizeable():
+class Sizeable(ABC):
     def __init__(self):
         """The interface for objects that can be sized.
         
@@ -92,6 +93,7 @@ class Sizeable():
 
         pass
     
+    @abstractmethod
     def get_size(self) -> int:
         """Returns the size of the object.
 
@@ -104,7 +106,7 @@ class Sizeable():
             The size of the object.
         """
 
-        raise NotImplementedError()
+        pass
 
 
 class CacheKey(Sizeable):

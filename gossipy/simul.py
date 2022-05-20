@@ -1,14 +1,15 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from copy import deepcopy
 import numpy as np
 from numpy.random import shuffle, random, choice
-from typing import Any, Callable, DefaultDict, Optional, Dict, List, Tuple
+from typing import Callable, DefaultDict, Optional, Dict, List, Tuple
 from rich.progress import track
 import dill
 import json
 
 from . import CACHE, LOG, CacheKey
-from .core import AntiEntropyProtocol, Message, Delay
+from .core import AntiEntropyProtocol, Message, ConstantDelay, Delay
 from .data import DataDispatcher
 from .node import GossipNode
 from .flow_control import TokenAccount
@@ -53,7 +54,10 @@ class SimulationEventReceiver(ABC):
 
         pass
 
-    def update_evaluation(self, round: int, on_user: bool, evaluation: List[Dict[str, float]]) -> None:
+    def update_evaluation(self,
+                          round: int,
+                          on_user: bool,
+                          evaluation: List[Dict[str, float]]) -> None:
         """Receive an update about an evaluation.
 
         Parameters
@@ -134,7 +138,10 @@ class SimulationEventSender(ABC):
             er.update_message(falied, msg)
 
 
-    def notify_evaluation(self, round: int, on_user:bool, evaluation: List[Dict[str, float]]) -> None:
+    def notify_evaluation(self,
+                          round: int,
+                          on_user:bool,
+                          evaluation: List[Dict[str, float]]) -> None:
         """Notify all receivers about an evaluation.   
         
         Parameters
@@ -177,11 +184,11 @@ class SimulationReport(SimulationEventReceiver):
     def __init__(self):
         """Class that implements a basic simulation report.
 
-        The report traces the number of sent messages, the number of failed messages, the total size of the messages, 
-        and the evaluation metrics (both global and local).
+        The report traces the number of sent messages, the number of failed messages,
+        the total size of the messages, and the evaluation metrics (both global and local).
 
-        The report is updated according to the design pattern Observer (actually Event Receiver). Thus, 
-        the report must be created and attached to the simulation.
+        The report is updated according to the design pattern Observer (actually Event Receiver).
+        Thus, the report must be created and attached to the simulation.
 
         Examples
         --------
@@ -192,7 +199,8 @@ class SimulationReport(SimulationEventReceiver):
         >>> simulator.add_receiver(report)
         >>> simulator.start(...)
 
-        The ``report`` object is now attached to the simulation and it will be notified about the events.
+        The ``report`` object is now attached to the simulation and it will be notified about the
+        events.
         """
 
         self.clear()
@@ -213,7 +221,10 @@ class SimulationReport(SimulationEventReceiver):
             self._sent_messages += 1
             self._total_size += msg.get_size()
     
-    def update_evaluation(self, round: int, on_user: bool, evaluation: List[Dict[str, float]]) -> None:
+    def update_evaluation(self,
+                          round: int,
+                          on_user: bool,
+                          evaluation: List[Dict[str, float]]) -> None:
         ev = self._collect_results(evaluation)
         if on_user:
             self._local_evaluations.append((round, ev))
@@ -243,54 +254,34 @@ class SimulationReport(SimulationEventReceiver):
 
 class GossipSimulator(SimulationEventSender):
     def __init__(self,
+                 nodes: Dict[int, GossipNode],
                  data_dispatcher: DataDispatcher,
                  delta: int,
                  protocol: AntiEntropyProtocol,
-                 gossip_node_class: GossipNode,
-                 gossip_node_params: Dict[str, Any],
-                 model_handler_class: ModelHandler,
-                 model_handler_params: Dict[str, Any],
-                 topology: Optional[np.ndarray],
                  drop_prob: float=0., # [0,1] - probability of a message being dropped
                  online_prob: float=1., # [0,1] - probability of a node to be online
-                 delay: Delay=Delay(0),
+                 delay: Delay=ConstantDelay(0),
                  sampling_eval: float=0., # [0, 1] - percentage of nodes to evaluate
-                 round_synced: bool=True):
+                ):
         
         assert 0 <= drop_prob <= 1, "drop_prob must be in the range [0,1]."
         assert 0 <= online_prob <= 1, "online_prob must be in the range [0,1]."
         assert 0 <= sampling_eval <= 1, "sampling_eval must be in the range [0,1]."
 
         self.data_dispatcher = data_dispatcher
-        self.n_nodes = data_dispatcher.size()
+        self.n_nodes = len(nodes)
         self.delta = delta #round_len
         self.protocol = protocol
         self.drop_prob = drop_prob
         self.online_prob = online_prob
         self.delay = delay
         self.sampling_eval = sampling_eval
-        self.gossip_node_class = gossip_node_class
-        self.gossip_node_params = gossip_node_params
-        self.model_handler_class = model_handler_class
-        self.model_handler_params = model_handler_params
-        self.topology = topology
-        self.round_synced = round_synced
         self.initialized = False
-        self.nodes = {}
+        self.nodes = nodes
         
 
     def init_nodes(self, seed:int=98765) -> None:
         self.initialized = True
-        self.data_dispatcher.assign(seed)
-        self.nodes = {i: self.gossip_node_class(idx=i,
-                                                data=self.data_dispatcher[i],
-                                                round_len=self.delta,
-                                                n_nodes=self.n_nodes,
-                                                model_handler=self.model_handler_class(**self.model_handler_params),
-                                                known_nodes=self.topology[i] if self.topology is not None else None,
-                                                sync=self.round_synced,
-                                                **self.gossip_node_params)
-                                                for i in range(self.n_nodes)}
         for _, node in self.nodes.items():
             node.init_model()
     
@@ -304,7 +295,9 @@ class GossipSimulator(SimulationEventSender):
 
 
     def start(self, n_rounds: int=100) -> None:
-        assert self.initialized, "The simulator is not inizialized. Please, call the method 'init_nodes'."
+        assert self.initialized, \
+               "The simulator is not inizialized. Please, call the method 'init_nodes'."
+        LOG.info("Simulation started.")
         node_ids = np.arange(self.n_nodes)
         
         pbar = track(range(n_rounds * self.delta), description="Simulating...")
@@ -344,14 +337,18 @@ class GossipSimulator(SimulationEventSender):
                 del msg_queues[t]
 
                 for reply in rep_queues[t]:
-                    self.notify_message(False, reply)
-                    self.nodes[reply.receiver].receive(t, reply)
+                    if is_online[reply.receiver]:
+                        self.notify_message(False, reply)
+                        self.nodes[reply.receiver].receive(t, reply)
+                    else:
+                        self.notify_message(True)
                     
                 del rep_queues[t]
 
                 if (t+1) % self.delta == 0:
                     if self.sampling_eval > 0:
-                        sample = choice(list(self.nodes.keys()), max(int(self.n_nodes * self.sampling_eval), 1))
+                        sample = choice(list(self.nodes.keys()),
+                                        max(int(self.n_nodes * self.sampling_eval), 1))
                         ev = [self.nodes[i].evaluate() for i in sample if self.nodes[i].has_test()]
                     else:
                         ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
@@ -397,48 +394,39 @@ class GossipSimulator(SimulationEventSender):
     def __str__(self) -> str:
         skip = ["nodes", "model_handler_params", "gossip_node_params"]
         attrs = {k: v for k, v in self.__dict__.items() if k not in skip}
-        return f"{self.__class__.__name__} {str(json.dumps(attrs, indent=4, sort_keys=True, cls=StringEncoder))}"
+        return f"{self.__class__.__name__} \
+                 {str(json.dumps(attrs, indent=4, sort_keys=True, cls=StringEncoder))}"
 
 
 class TokenizedGossipSimulator(GossipSimulator):
     def __init__(self,
+                 nodes: Dict[int, GossipNode],
                  data_dispatcher: DataDispatcher,
-                 token_account_class: TokenAccount,
-                 token_account_params: Dict[str, Any],
+                 token_account: TokenAccount,
                  utility_fun: Callable[[ModelHandler, ModelHandler], int],
                  delta: int,
                  protocol: AntiEntropyProtocol,
-                 gossip_node_class: GossipNode,
-                 gossip_node_params: Dict[str, Any],
-                 model_handler_class: ModelHandler,
-                 model_handler_params: Dict[str, Any],
-                 topology: Optional[np.ndarray],
-                 drop_prob: float=0., # [0,1]
-                 online_prob: float=1., # [0,1]
-                 delay: Delay=Delay(0),
-                 sampling_eval: float=0., #[0, 1]
-                 round_synced: bool=True):
-        super(TokenizedGossipSimulator, self).__init__(data_dispatcher,
+                 drop_prob: float=0., # [0,1] - probability of a message being dropped
+                 online_prob: float=1., # [0,1] - probability of a node to be online
+                 delay: Delay=ConstantDelay(0),
+                 sampling_eval: float=0., # [0, 1] - percentage of nodes to evaluate
+                 ):
+        super(TokenizedGossipSimulator, self).__init__(nodes,
+                                                       data_dispatcher,
                                                        delta,
                                                        protocol,
-                                                       gossip_node_class,
-                                                       gossip_node_params,
-                                                       model_handler_class,
-                                                       model_handler_params,
-                                                       topology,
                                                        drop_prob,
                                                        online_prob,
                                                        delay,
-                                                       sampling_eval,
-                                                       round_synced)
+                                                       sampling_eval)
         self.utility_fun = utility_fun
-        self.token_account_class = token_account_class
-        self.token_account_params = token_account_params
+        self.token_account_proto = token_account
+        self.accounts = {}
     
     def init_nodes(self, seed: int=98765) -> None:
         super().init_nodes(seed)
-        self.accounts = {i: self.token_account_class(**self.token_account_params)
-                            for i in range(self.n_nodes)}
+        self.accounts = {i: deepcopy(self.token_account_proto) for i in range(self.n_nodes)}
+        
     
     def start(self, n_rounds: int=100) -> Tuple[List[float], List[float]]:
         node_ids = np.arange(self.n_nodes)
@@ -484,7 +472,8 @@ class TokenizedGossipSimulator(GossipSimulator):
                                 self.notify_message(True)
 
                         if not reply:
-                            utility = self.utility_fun(self.nodes[msg.receiver].model_handler, sender_mh)#msg.value[0])
+                            utility = self.utility_fun(self.nodes[msg.receiver].model_handler,
+                                                       sender_mh)#msg.value[0])
                             reaction = self.accounts[msg.receiver].reactive(utility)
                             if reaction:
                                 self.accounts[msg.receiver].sub(reaction)
@@ -504,13 +493,17 @@ class TokenizedGossipSimulator(GossipSimulator):
                 del msg_queues[t]
 
                 for reply in rep_queues[t]:
-                    self.notify_message(False, reply)
-                    self.nodes[reply.receiver].receive(t, reply)
+                    if is_online[reply.receiver]:
+                        self.notify_message(False, reply)
+                        self.nodes[reply.receiver].receive(t, reply)
+                    else:
+                        self.notify_message(True)
                 del rep_queues[t]
 
                 if (t+1) % self.delta == 0:
                     if self.sampling_eval > 0:
-                        sample = choice(list(self.nodes.keys()), max(int(self.n_nodes * self.sampling_eval), 1))
+                        sample = choice(list(self.nodes.keys()),
+                                        max(int(self.n_nodes * self.sampling_eval), 1))
                         ev = [self.nodes[i].evaluate() for i in sample if self.nodes[i].has_test()]
                     else:
                         ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
@@ -526,6 +519,8 @@ class TokenizedGossipSimulator(GossipSimulator):
                                 for _, n in self.nodes.items()]
                         if ev:
                             self.notify_evaluation(t, False, ev)
+                
+                self.notify_timestep(t)
 
         except KeyboardInterrupt:
             LOG.warning("Simulation interrupted by user.")

@@ -1,7 +1,8 @@
 import networkx as nx
 from networkx.generators.trees import random_tree
 from gossipy import set_seed
-from gossipy.core import AntiEntropyProtocol, CreateModelMode
+from gossipy import data
+from gossipy.core import AntiEntropyProtocol, CreateModelMode, StaticP2PNetwork
 from gossipy.node import GossipNode
 from gossipy.model.handler import PegasosHandler
 from gossipy.model.nn import Pegasos
@@ -23,23 +24,29 @@ set_seed(42)
 X, y = load_classification_dataset("spambase", as_tensor=True)
 y = 2*y - 1 #convert 0/1 labels to -1/1
 data_handler = ClassificationDataHandler(X, y, test_size=.1)
-topology = None#nx.to_numpy_matrix(random_tree(data_handler.size()))
+
+data_dispatcher = DataDispatcher(data_handler, eval_on_user=False)
+data_dispatcher.assign()
+
+topology = StaticP2PNetwork(data_dispatcher.size())
+
+nodes = GossipNode.generate(
+    data_dispatcher=data_dispatcher,
+    p2p_net=topology,
+    model_proto=PegasosHandler(
+        net=Pegasos(data_handler.size(1)),
+        lam=.01,
+        create_model_mode=CreateModelMode.MERGE_UPDATE),
+    round_len=100,
+    sync=False
+)
 
 simulator = GossipSimulator(
-    data_dispatcher=DataDispatcher(data_handler, eval_on_user=False),
+    nodes=nodes,
+    data_dispatcher=data_dispatcher,
     delta=100,
     protocol=AntiEntropyProtocol.PUSH,
-    gossip_node_class=GossipNode,
-    gossip_node_params={},
-    model_handler_class=PegasosHandler,
-    model_handler_params={
-        "net" : Pegasos(data_handler.size(1)),
-        "lam" : .01,
-        "create_model_mode" : CreateModelMode.MERGE_UPDATE
-    },
-    topology=topology,
-    sampling_eval=.1,
-    round_synced=False
+    sampling_eval=.1
 )
 
 res = repeat_simulation(

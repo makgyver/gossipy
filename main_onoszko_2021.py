@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.transforms import Compose, Normalize, RandomVerticalFlip
-from gossipy.core import AntiEntropyProtocol, CreateModelMode
+from gossipy.core import AntiEntropyProtocol, CreateModelMode, StaticP2PNetwork
 from gossipy.data import DataDispatcher
 
 from gossipy.model import TorchModel
@@ -87,32 +87,34 @@ test_set = torch.cat((Xte[:half_te], rotated_Xte[half_te:])), torch.cat((yte[:ha
 data_handler = ClassificationDataHandler(train_set[0], train_set[1],
                                          test_set[0], test_set[1])
 
-simulator = GossipSimulator(
-    data_dispatcher=CustomDataDispatcher(data_handler, n=5, eval_on_user=False),
-    delta=100,
-    protocol=AntiEntropyProtocol.PUSH,
-    gossip_node_class=PENSNode,
-    gossip_node_params={
-        "n_sampled" : 10,
-        "m_top": 2,
-        "step1_rounds": 100
-    },
-    model_handler_class=TorchModelHandler,
-    model_handler_params={
-        "optimizer": torch.optim.SGD,
-        "optimizer_params": {
+data_dispatcher = CustomDataDispatcher(data_handler, n=5, eval_on_user=False)
+data_dispatcher.assign()
+nodes = PENSNode.generate(
+    data_dispatcher=data_dispatcher,
+    p2p_net=StaticP2PNetwork(5),
+    model_proto=TorchModelHandler(
+        net=CIFAR10Net(),
+        optimizer= torch.optim.SGD,
+        optimizer_params = {
             "lr": 0.01,
             "weight_decay": 0.001
         },
-        "criterion": F.cross_entropy,
-        "net": CIFAR10Net(),
-        "create_model_mode": CreateModelMode.MERGE_UPDATE,
-        "batch_size": 8,
-        "local_epochs": 3
-    },
-    topology=None,
-    sampling_eval=0.1,
-    round_synced=True
+        criterion = F.cross_entropy,
+        create_model_mode= CreateModelMode.MERGE_UPDATE,
+        batch_size= 8,
+        local_epochs= 3),
+    round_len=100,
+    sync=False,
+    n_sampled= 10,
+    m_top= 2,
+    step1_rounds= 100)
+
+simulator = GossipSimulator(
+    nodes = nodes,
+    data_dispatcher=data_dispatcher,
+    delta=100,
+    protocol=AntiEntropyProtocol.PUSH,
+    sampling_eval=0.1
 )
 
 res = repeat_simulation(

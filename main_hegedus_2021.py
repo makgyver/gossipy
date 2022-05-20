@@ -3,7 +3,7 @@ from torch.nn.modules.loss import CrossEntropyLoss
 from networkx import to_numpy_matrix
 from networkx.generators.random_graphs import random_regular_graph
 from gossipy import set_seed
-from gossipy.core import UniformDelay, AntiEntropyProtocol, CreateModelMode
+from gossipy.core import UniformDelay, AntiEntropyProtocol, CreateModelMode, StaticP2PNetwork
 from gossipy.node import GossipNode, PartitioningBasedNode, SamplingBasedNode
 from gossipy.model.handler import PartitionedTMH, SamplingTMH, TorchModelHandler
 from gossipy.model.sampling import TorchModelPartition
@@ -28,41 +28,40 @@ set_seed(98765)
 X, y = load_classification_dataset("spambase", as_tensor=True)
 data_handler = ClassificationDataHandler(X, y, test_size=.1)
 dispatcher = DataDispatcher(data_handler, n=100, eval_on_user=False)
-topology = to_numpy_matrix(random_regular_graph(20, 100, seed=42))
+topology = StaticP2PNetwork(100, to_numpy_matrix(random_regular_graph(20, 100, seed=42)))
 net = LogisticRegression(data_handler.Xtr.shape[1], 2)
 
+dispatcher.assign()
 
-simulator = TokenizedGossipSimulator(
-#simulator = GossipSimulator(
+nodes = PartitioningBasedNode.generate(
     data_dispatcher=dispatcher,
-    token_account_class=RandomizedTokenAccount, #Coincides with the paper's setting
-    token_account_params={"C": 20, "A": 10},
-    utility_fun=lambda mh1, mh2: 1, #The utility function is always = 1 (i.e., utility is not used)
-    delta=100,
-    protocol=AntiEntropyProtocol.PUSH, 
-    #gossip_node_class=SamplingBasedNode,
-    gossip_node_class=PartitioningBasedNode,
-    gossip_node_params={},
-    #model_handler_class=SamplingTMH,
-    model_handler_class=PartitionedTMH,
-    model_handler_params={
-        #"sample_size" : .25,
-        "tm_partition": TorchModelPartition(net, 4),
-        "net" : net,
-        "optimizer" : torch.optim.SGD,
-        "optimizer_params" : {
+    p2p_net=topology,
+    round_len=100,
+    model_proto=PartitionedTMH(
+        net=net,
+        tm_partition=TorchModelPartition(net, 4),
+        optimizer=torch.optim.SGD,
+        optimizer_params={
             "lr": 1,
             "weight_decay": .001
         },
-        "criterion" : CrossEntropyLoss(),
-        "create_model_mode" : CreateModelMode.UPDATE #CreateModelMode.MERGE_UPDATE
-    },
-    topology=topology,
+        criterion=CrossEntropyLoss(),
+        create_model_mode=CreateModelMode.UPDATE #CreateModelMode.MERGE_UPDATE
+    ),
+    sync=True
+)
+
+simulator = TokenizedGossipSimulator(
+    nodes=nodes,
+    data_dispatcher=dispatcher,
+    token_account=RandomizedTokenAccount(C=20, A=10),
+    utility_fun=lambda mh1, mh2: 1, #The utility function is always = 1 (i.e., utility is not used)
+    delta=100,
+    protocol=AntiEntropyProtocol.PUSH, 
     delay=UniformDelay(0, 10),
     online_prob=.2, #Approximates the average online rate of the STUNner's smartphone traces
     #drop_prob=.1, #Simulates the possibility of message dropping
-    sampling_eval=.1,
-    round_synced=True
+    sampling_eval=.1
 )
 
 res = repeat_simulation(

@@ -94,7 +94,7 @@ class TorchModelSampling:
         plist1 = ParameterList(net1.parameters())
         plist2 = ParameterList(net2.parameters())
 
-        assert len(plist1) == len(sample), "The provided sample is not compatible with the networks."
+        assert len(plist1) == len(sample), "The provided sample is incompatible with the network."
 
         with torch.no_grad():
             for i in range(len(plist1)):

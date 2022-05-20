@@ -1,11 +1,14 @@
+from __future__ import annotations
 import random
 import numpy as np
 from numpy.random import randint, normal, rand
 from numpy import ndarray
 from torch import Tensor
 from typing import Any, Optional, Union, Dict, Tuple
+from gossipy.data import DataDispatcher
+
 from . import CACHE, LOG
-from .core import AntiEntropyProtocol, CreateModelMode, MessageType, Message
+from .core import AntiEntropyProtocol, CreateModelMode, MessageType, Message, P2PNetwork
 from .utils import choice_not_n
 from .model.handler import ModelHandler, PartitionedTMH, SamplingTMH
 from .model.sampling import TorchModelSampling
@@ -34,9 +37,8 @@ class GossipNode():
                  data: Union[Tuple[Tensor, Optional[Tensor]],
                              Tuple[ndarray, Optional[ndarray]]], #node's data
                  round_len: int, #round length
-                 n_nodes: int, #number of nodes in the network
                  model_handler: ModelHandler, #object that handles the model learning/inference
-                 known_nodes: Optional[np.ndarray]=None, #reachable nodes according to the network topology
+                 p2p_net: P2PNetwork,
                  sync: bool=True):
         r"""Class that represents a generic node in a gossip network. 
 
@@ -57,12 +59,11 @@ class GossipNode():
             a test set. 
         round_len : int
             The number of time units in a round.
-        n_nodes : int
-            The number of nodes in the network.
         model_handler : ModelHandler
             The object that handles the model learning/inference.
-        known_nodes : np.ndarray, default=None
-            The reachable nodes according to the network topology. If `None`, the node will be initialized with all.
+        p2p_net: P2PNetwork
+            The perr2peer network that provides the list of reachable nodes according to the network
+            topology.
         sync : bool, default=True
             Whether the node is synchronous with the round's length. In this case, the node will regularly time out 
             at the same point in the round. If `False`, the node will time out with a fixed delay. 
@@ -70,14 +71,10 @@ class GossipNode():
         self.idx: int = idx
         self.data:  Union[Tuple[Tensor, Optional[Tensor]], Tuple[ndarray, Optional[ndarray]]] = data
         self.round_len: int = round_len
-        self.n_nodes: int = n_nodes
         self.model_handler: ModelHandler = model_handler
         self.sync: bool = sync
-        self.delay: int = randint(0, round_len) if sync else int(normal(round_len, round_len/10))
-        self.known_nodes: Optional[np.ndarray] = list(np.where(known_nodes > 0)[-1]) if known_nodes is not None else None
-
-    #def update_neighbors(self, neighbors: np.ndarray) -> None:
-    #    self.known_nodes = list(np.where(neighbors > 0)[-1])
+        self.delta: int = randint(0, round_len) if sync else int(normal(round_len, round_len/10))
+        self.p2p_net = p2p_net
 
     def init_model(self, local_train: bool=True, *args, **kwargs) -> None:
         """Initializes the local model.
@@ -99,10 +96,9 @@ class GossipNode():
         int
             The index of the randomly selected peer.
         """
-        if self.known_nodes is not None:
-            return random.choice(self.known_nodes)
-        return choice_not_n(0, self.n_nodes, self.idx)
-
+        peers = self.p2p_net.get_peers(self.idx)
+        return random.choice(peers) if peers else choice_not_n(0, self.p2p_net.size(), self.idx)
+        
     def timed_out(self, t: int) -> bool:
         """Checks whether the node has timed out.
         
@@ -116,7 +112,7 @@ class GossipNode():
         bool
             Whether the node has timed out.
         """
-        return ((t % self.round_len) == self.delay) if self.sync else ((t % self.delay) == 0)
+        return ((t % self.round_len) == self.delta) if self.sync else ((t % self.delta) == 0)
 
     def send(self,
              t: int,
@@ -150,6 +146,7 @@ class GossipNode():
         --------
         :class:`gossipy.simul.GossipSimulator`
         """
+
         if protocol == AntiEntropyProtocol.PUSH:
             key = self.model_handler.caching(self.idx)
             return Message(t, self.idx, peer, MessageType.PUSH, (key,))
@@ -180,6 +177,7 @@ class GossipNode():
         Message or `None`
             The message to be sent back to the peer. If `None`, there is no message to be sent back.
         """
+
         msg_type: MessageType
         recv_model: Any 
         msg_type, recv_model = msg.type, msg.value[0] if msg.value else None
@@ -232,8 +230,29 @@ class GossipNode():
         return str(self)
     
     def __str__(self) -> str:
-        return f"{self.__class__.__name__} #{self.idx} (Δ={self.delay})"
+        return f"{self.__class__.__name__} #{self.idx} (Δ={self.delta})"
 
+
+    @classmethod
+    def generate(cls,
+                 data_dispatcher: DataDispatcher,
+                 p2p_net: P2PNetwork,
+                 model_proto: ModelHandler,
+                 round_len: int,
+                 sync: bool,
+                 **kwargs) -> Dict[int, GossipNode]:
+        
+        nodes = {}
+        for idx in range(p2p_net.size()):
+            node = cls(idx=idx,
+                       data=data_dispatcher[idx], 
+                       round_len=round_len, 
+                       model_handler=model_proto.copy(), 
+                       p2p_net=p2p_net, 
+                       sync=sync, 
+                       **kwargs)
+            nodes[idx] = node
+        return nodes
 
 # Giaretta et al. 2019
 class PassThroughNode(GossipNode):
@@ -242,18 +261,16 @@ class PassThroughNode(GossipNode):
                  data: Union[Tuple[Tensor, Optional[Tensor]],
                              Tuple[ndarray, Optional[ndarray]]], #node's data
                  round_len: int, #round length
-                 n_nodes: int, #number of nodes in the network
                  model_handler: ModelHandler, #object that handles the model learning/inference
-                 known_nodes: Optional[np.ndarray]=None, #reachable nodes according to the network topology
+                 p2p_net: P2PNetwork,
                  sync=True):
         super(PassThroughNode, self).__init__(idx,
                                               data,
                                               round_len,
-                                              n_nodes,
                                               model_handler,
-                                              known_nodes,
+                                              p2p_net,
                                               sync)
-        self.n_neighs = len(self.known_nodes)
+        self.n_neighs = p2p_net.size(idx)
 
     def send(self,
              t: int,
@@ -314,16 +331,14 @@ class CacheNeighNode(GossipNode):
                  data: Union[Tuple[Tensor, Optional[Tensor]],
                              Tuple[ndarray, Optional[ndarray]]], #node's data
                  round_len: int, #round length
-                 n_nodes: int, #number of nodes in the network
                  model_handler: ModelHandler, #object that handles the model learning/inference
-                 known_nodes: np.ndarray, #reachable nodes according to the network topology
+                 p2p_net: P2PNetwork,
                  sync: bool=True):
         super(CacheNeighNode, self).__init__(idx,
                                              data,
                                              round_len,
-                                             n_nodes,
                                              model_handler,
-                                             known_nodes,
+                                             p2p_net,
                                              sync)
         self.local_cache = {}
                         
@@ -389,16 +404,14 @@ class SamplingBasedNode(GossipNode):
                  data: Union[Tuple[Tensor, Optional[Tensor]],
                              Tuple[ndarray, Optional[ndarray]]], #node's data
                  round_len: int, #round length
-                 n_nodes: int, #number of nodes in the network
                  model_handler: SamplingTMH, #object that handles the model learning/inference
-                 known_nodes: np.ndarray, #reachable nodes according to the network topology
+                 p2p_net: P2PNetwork,
                  sync=True):
         super(SamplingBasedNode, self).__init__(idx,
                                                 data,
                                                 round_len,
-                                                n_nodes,
                                                 model_handler,
-                                                known_nodes,
+                                                p2p_net,
                                                 sync)
                         
     def send(self,
@@ -456,16 +469,14 @@ class PartitioningBasedNode(GossipNode):
                  data: Union[Tuple[Tensor, Optional[Tensor]],
                              Tuple[ndarray, Optional[ndarray]]], #node's data
                  round_len: int, #round length
-                 n_nodes: int, #number of nodes in the network
                  model_handler: PartitionedTMH, #object that handles the model learning/inference
-                 known_nodes: np.ndarray, #reachable nodes according to the network topology
+                 p2p_net: P2PNetwork,
                  sync=True):
         super(PartitioningBasedNode, self).__init__(idx,
                                                     data,
                                                     round_len,
-                                                    n_nodes,
                                                     model_handler,
-                                                    known_nodes,
+                                                    p2p_net,
                                                     sync)
                         
     def send(self,
@@ -525,9 +536,8 @@ class PENSNode(GossipNode):
                  data: Union[Tuple[Tensor, Optional[Tensor]],
                              Tuple[ndarray, Optional[ndarray]]], #node's data
                  round_len: int, #round length
-                 n_nodes: int, #number of nodes in the network
                  model_handler: ModelHandler, #object that handles the model learning/inference
-                 known_nodes: np.ndarray, #reachable nodes according to the network topology
+                 p2p_net: P2PNetwork,
                  n_sampled: int=10, #value from the paper
                  m_top: int=2, #value from the paper
                  step1_rounds=200,
@@ -535,22 +545,19 @@ class PENSNode(GossipNode):
         super(PENSNode, self).__init__(idx,
                                        data,
                                        round_len,
-                                       n_nodes,
                                        model_handler,
-                                       known_nodes,
+                                       p2p_net,
                                        sync)
         assert self.model_handler.mode == CreateModelMode.MERGE_UPDATE, \
                "PENSNode can only be used with MERGE_UPDATE mode."
         self.cache = {}
         self.n_sampled = n_sampled
         self.m_top = m_top
-        if self.known_nodes:
-            self.neigh_counter = {i: 0 for i in self.known_nodes}
-            self.selected = {i: 0 for i in self.known_nodes}
-        else:
-            self.neigh_counter = {i: 0 for i in range(self.n_nodes)}
-            self.selected = {i: 0 for i in range(self.n_nodes)}
-            del self.neigh_counter[self.idx] # remove itself from the dict
+        known_nodes = p2p_net.get_peers(self.idx)
+        if not known_nodes:
+            known_nodes = list(range(0, self.idx)) + list(range(self.idx + 1, self.p2p_net.size()))
+        self.neigh_counter = {i: 0 for i in known_nodes}
+        self.selected = {i: 0 for i in known_nodes}
         self.step1_rounds = step1_rounds
         self.step = 1
         self.best_nodes = None

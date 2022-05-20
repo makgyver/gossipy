@@ -4,7 +4,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics.cluster import normalized_mutual_info_score as nmi
 
 from gossipy import set_seed
-from gossipy.core import AntiEntropyProtocol, CreateModelMode
+from gossipy.core import AntiEntropyProtocol, CreateModelMode, StaticP2PNetwork, UniformDelay
 from gossipy.node import GossipNode
 from gossipy.model.handler import KMeansHandler
 from gossipy.data import load_classification_dataset, DataDispatcher
@@ -45,26 +45,30 @@ print("K-means NMI:", nmi(y.numpy(), P))
 km = KMeans(n_clusters=2, n_init=1, random_state=98765).fit(X)
 print("Sklearn K-means NMI:", nmi(y.numpy(), km.labels_))
 
+data_dispatcher = DataDispatcher(data_handler, eval_on_user=False)
+data_dispatcher.assign()
+
+nodes = GossipNode.generate(
+    data_dispatcher=data_dispatcher,
+    p2p_net=StaticP2PNetwork(data_dispatcher.size()),
+    model_proto=KMeansHandler(
+        k=2,
+        dim=data_handler.size(1),
+        alpha=0.1,
+        matching="hungarian",
+        create_model_mode=CreateModelMode.MERGE_UPDATE),
+    round_len=1000,
+    sync=True)
+
 simulator = GossipSimulator(
-    data_dispatcher=DataDispatcher(data_handler, eval_on_user=False),
+    nodes=nodes,
+    data_dispatcher=data_dispatcher,
     delta=1000,
     protocol=AntiEntropyProtocol.PUSH,
-    gossip_node_class=GossipNode,
-    gossip_node_params={},
-    model_handler_class=KMeansHandler,
-    model_handler_params={
-        "k" : 2,
-        "dim" : data_handler.size(1),
-        "alpha" : 0.1,
-        "matching" : "hungarian",
-        "create_model_mode" : CreateModelMode.MERGE_UPDATE
-    },
-    topology=None,
-    #delay=(1, 4),
+    #delay=UniformDelay(1, 4),
     #online_prob=.2, #Approximates the average online rate of the STUNner's smartphone traces
     #drop_prob=.5, #Simulates the possibility of message dropping
-    sampling_eval=0.01,
-    round_synced=True
+    sampling_eval=0.01
 )
 
 res = repeat_simulation(

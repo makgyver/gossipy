@@ -1,4 +1,5 @@
 from __future__ import annotations
+from abc import ABC, abstractmethod
 import copy
 import torch
 from torch import LongTensor
@@ -38,7 +39,7 @@ __all__ = [
 ]
 
 
-class ModelHandler(Sizeable, EqualityMixin):
+class ModelHandler(Sizeable, EqualityMixin, ABC):
     def __init__(self,
                  create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
                  *args, **kwargs):
@@ -61,11 +62,13 @@ class ModelHandler(Sizeable, EqualityMixin):
         self.mode = create_model_mode
         self.n_updates = 0
 
+    @abstractmethod
     def init(self, *args, **kwargs) -> None:
         """Initialize the model."""
 
-        raise NotImplementedError()
-
+        pass
+    
+    @abstractmethod
     def _update(self, data: Any, *args, **kwargs) -> None:
         """Update the model.
         
@@ -77,8 +80,9 @@ class ModelHandler(Sizeable, EqualityMixin):
             The data to use for the update.
         """
 
-        raise NotImplementedError()
-
+        pass
+    
+    @abstractmethod
     def _merge(self, other_model_handler: ModelHandler, *args, **kwargs) -> None:
         """Merge the model handler with the provided model handler.
 
@@ -88,7 +92,7 @@ class ModelHandler(Sizeable, EqualityMixin):
             The model handler to merge with.
         """
 
-        raise NotImplementedError()
+        pass
 
     def __call__(self,
                  recv_model: Any,
@@ -111,10 +115,11 @@ class ModelHandler(Sizeable, EqualityMixin):
         else:
             raise ValueError("Unknown create model mode %s" %str(self.mode))
 
+    @abstractmethod
     def evaluate(self, *args, **kwargs) -> Any:
         """Evaluate the model."""
 
-        raise NotImplementedError()
+        pass
 
     def copy(self) -> Any:
         """Return a deep copy of the model handler."""

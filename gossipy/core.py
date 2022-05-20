@@ -1,6 +1,8 @@
-from typing import Any, Tuple
+from abc import ABC, abstractmethod
+from typing import Any, List, Optional, Tuple, Union
 from enum import Enum
 import numpy as np
+from scipy.sparse import csr_matrix
 
 from . import Sizeable
 
@@ -20,7 +22,10 @@ __all__ = ["CreateModelMode",
            "Message",
            "Delay",
            "UniformDelay",
-           "LinearDelay"]
+           "LinearDelay",
+           "P2PNetwork",
+           "StaticP2PNetwork"]
+
 
 class CreateModelMode(Enum):
     """The mode for creating/updating the gossip model."""
@@ -146,7 +151,31 @@ class Message(Sizeable):
         return s
 
 
-class Delay():
+class Delay(ABC):
+    """A class representing a delay.
+
+    The delay is a function that takes a message and returns the delay in simulation time units.
+    """
+
+    @abstractmethod
+    def get(self, msg: Message) -> int:
+        """Returns the delay for the specified message.
+
+        Parameters
+        ----------
+        msg : Message
+            The message for which the delay is computed.
+        
+        Returns
+        -------
+        int
+            The delay in time units.
+        """
+
+        pass
+
+
+class ConstantDelay(Delay):
     _delay: int
 
     def __init__(self, delay: int=0):
@@ -157,7 +186,8 @@ class Delay():
         delay : int
             The constant delay in time units.
         """
-        assert delay >= 0
+
+        assert delay >= 0, "Delay must be non-negative!"
         self._delay = delay
     
     def get(self, msg: Message) -> int:
@@ -182,7 +212,7 @@ class Delay():
         return str(self)
     
     def __str__(self) -> str:
-        return "Delay(%d)" %self._delay
+        return "ConstantDelay(%d)" %self._delay
 
 
 class UniformDelay(Delay):
@@ -200,9 +230,10 @@ class UniformDelay(Delay):
             The maximum delay in time units.
         """
 
-        assert min_delay <= max_delay and min_delay >= 0
-        self._min_delay: int = min_delay
-        self._max_delay: int = max_delay
+        assert min_delay <= max_delay and min_delay >= 0, \
+            "The minimum delay must be non-negative and less than or equal to the maximum delay!"
+        self._min_delay = min_delay
+        self._max_delay = max_delay
     
     def get(self, msg: Message) -> int:
         """Returns the delay for the specified message.
@@ -273,3 +304,42 @@ class LinearDelay(Delay):
     
     def __str__(self) -> str:
         return "LinearDelay(time_x_unit=%d, overhead=%d)" %(self._timexunit, self._overhead) 
+
+
+
+class P2PNetwork(ABC):
+    _topology: Union[None, csr_matrix, np.ndarray]
+    _num_nodes: int
+
+    def __init__(self, num_nodes: int, topology: Optional[Union[np.ndarray, csr_matrix]]=None):
+        if topology is None: assert num_nodes > 0, "The number of nodes must be positive!"
+        else: num_nodes == topology.shape[0], \
+            "The number of nodes must match the number of rows of the topology!"
+        
+        self._num_nodes = num_nodes
+        self._topology = {}
+
+        if topology is not None:
+            if isinstance(topology, np.ndarray):
+                for node in range(num_nodes):
+                    self._topology[node] = list(np.where(topology[node, :] > 0)[-1])
+            elif isinstance(topology, csr_matrix):
+                for node in range(num_nodes):
+                    self._topology[node] = list(topology.getrow(node).nonzero()[-1])
+        else:
+            self._topology = {i: None for i in range(num_nodes)}
+
+    def size(self, node: Optional[int]=None) -> int:
+        if node:
+            return len(self._topology[node]) if self._topology[node] else self._num_nodes - 1
+        return self._num_nodes
+
+    @abstractmethod
+    def get_peers(self, node_id: int):
+        pass
+
+
+class StaticP2PNetwork(P2PNetwork):
+    def get_peers(self, node_id: int) -> List[int]:
+        assert 0 <= node_id < self._num_nodes
+        return self._topology[node_id]

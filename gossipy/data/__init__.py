@@ -1,11 +1,13 @@
 """This module contains functions and classes to manage datasets loading and dispatching."""
 
 import os
+from abc import ABC, abstractmethod
 from typing import Any, Tuple, Union, Dict, List, Optional
 import shutil
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from pyparsing import ParseSyntaxException
 import torch
 import torchvision
 from torch import Tensor, tensor
@@ -49,7 +51,7 @@ UCI_URL_AND_CLASS = {
 }
 
 
-class DataHandler():
+class DataHandler(ABC):
     def __init__(self):
         """Abstract class for data handlers.
 
@@ -65,7 +67,8 @@ class DataHandler():
         """
 
         pass
-        
+    
+    @abstractmethod
     def __getitem__(self, idx: Union[int, List[int]]) -> Any:
         """Get a sample (or samples) from the training set.
         
@@ -80,8 +83,9 @@ class DataHandler():
             The sample(s) at the given index(ices) in the training set.
         """
 
-        raise NotImplementedError()
+        pass
     
+    @abstractmethod
     def at(self, 
            idx: Union[int, List[int]],
            eval_set: bool=False) -> Any:
@@ -100,8 +104,9 @@ class DataHandler():
             The sample(s) at the given index(ices) in the training/evaluation set.
         """
 
-        raise NotImplementedError()
+        pass
 
+    @abstractmethod
     def size(self, dim: int=0) -> int:
         """Get the size of the training set along a given dimension.
 
@@ -116,8 +121,9 @@ class DataHandler():
             The size of the dataset along the given dimension.
         """
 
-        raise NotImplementedError()
+        pass
 
+    @abstractmethod
     def get_eval_set(self) -> Tuple[Any, Any]:
         """Get the evaluation set of the dataset.
 
@@ -127,8 +133,9 @@ class DataHandler():
             The evaluation set of the dataset.
         """
 
-        raise NotImplementedError()
+        ParseSyntaxException
     
+    @abstractmethod
     def get_train_set(self) -> Tuple[Any, Any]:
         """Get the training set of the dataset.
 
@@ -138,8 +145,9 @@ class DataHandler():
             The training set of the dataset.
         """
 
-        raise NotImplementedError()
+        pass
 
+    @abstractmethod
     def eval_size(self) -> int:
         """Get the number of examples of the evaluation set.
 
@@ -149,14 +157,15 @@ class DataHandler():
             The size of the evaluation set of the dataset.
         """
 
-        raise NotImplementedError()
+        pass
 
 
 class DataDispatcher():
     def __init__(self,
                  data_handler: DataHandler,
                  n: int=0, #number of clients
-                 eval_on_user: bool=True):
+                 eval_on_user: bool=True,
+                 auto_assign: bool=True):
         """DataDispatcher is responsible for assigning data to clients.
 
         The assignment is done by shuffling the data and assigning it uniformly to the clients.
@@ -171,6 +180,8 @@ class DataDispatcher():
             examples in the training set.
         eval_on_user : bool, default=True
             If True, a test set is assigned to each user.
+        auto_assign : bool, default=True
+            If True, the data is shuffled and assigned to the clients.
         """
 
         assert(data_handler.size() >= n)
@@ -180,7 +191,8 @@ class DataDispatcher():
         self.eval_on_user = eval_on_user
         self.tr_assignments = None
         self.te_assignments = None
-        #self.assign()
+        if auto_assign:
+            self.assign()
     
     def set_assignments(self, tr_assignments: List[int],
                               te_assignments: Optional[List[int]]) -> None:

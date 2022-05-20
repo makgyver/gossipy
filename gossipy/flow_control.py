@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from numpy.random import binomial
 
 # AUTHORSHIP
@@ -18,7 +19,7 @@ __all__ = ["TokenAccount",
            "RandomizedTokenAccount"]
 
 
-class TokenAccount():
+class TokenAccount(ABC):
     def __init__(self):
         """Abstract class representing a generic token account.
 
@@ -32,11 +33,13 @@ class TokenAccount():
     def sub(self, n: int=1) -> None:
         self.n_tokens = max(0, self.n_tokens - n)
     
+    @abstractmethod
     def proactive(self) -> float:
-        raise NotImplementedError()
+        pass
 
+    @abstractmethod
     def reactive(self, utility: int) -> int:
-        raise NotImplementedError()
+        pass
 
 
 class PurelyProactiveTokenAccount(TokenAccount):
