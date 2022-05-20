@@ -9,7 +9,8 @@ from gossipy.node import GossipNode
 from gossipy.model.handler import KMeansHandler
 from gossipy.data import load_classification_dataset, DataDispatcher
 from gossipy.data.handler import ClusteringDataHandler
-from gossipy.simul import GossipSimulator, repeat_simulation
+from gossipy.simul import GossipSimulator, SimulationReport
+from gossipy.utils import plot_evaluation
 
 # AUTHORSHIP
 __version__ = "0.0.1"
@@ -67,13 +68,13 @@ simulator = GossipSimulator(
     protocol=AntiEntropyProtocol.PUSH,
     #delay=UniformDelay(1, 4),
     #online_prob=.2, #Approximates the average online rate of the STUNner's smartphone traces
-    #drop_prob=.5, #Simulates the possibility of message dropping
+    drop_prob=.1, #Simulates the possibility of message dropping
     sampling_eval=0.01
 )
 
-res = repeat_simulation(
-    gossip_simulator=simulator,
-    n_rounds=500,
-    repetitions=1,
-    verbose=True
-)
+report = SimulationReport()
+simulator.add_receiver(report)
+simulator.init_nodes(seed=42)
+simulator.start(n_rounds=500)
+
+plot_evaluation([[ev for _, ev in report.get_evaluation(False)]], "Overall test results")

@@ -10,8 +10,9 @@ from gossipy.model.sampling import TorchModelPartition
 from gossipy.model.nn import LogisticRegression
 from gossipy.data import load_classification_dataset, DataDispatcher
 from gossipy.data.handler import ClassificationDataHandler
-from gossipy.simul import GossipSimulator, TokenizedGossipSimulator, repeat_simulation
+from gossipy.simul import GossipSimulator, SimulationReport, TokenizedGossipSimulator
 from gossipy.flow_control import RandomizedTokenAccount
+from gossipy.utils import plot_evaluation
 
 # AUTHORSHIP
 __version__ = "0.0.1"
@@ -64,9 +65,9 @@ simulator = TokenizedGossipSimulator(
     sampling_eval=.1
 )
 
-res = repeat_simulation(
-    gossip_simulator=simulator,
-    n_rounds=1000, #500
-    repetitions=1,
-    verbose=True
-)
+report = SimulationReport()
+simulator.add_receiver(report)
+simulator.init_nodes(seed=42)
+simulator.start(n_rounds=1000)
+
+plot_evaluation([[ev for _, ev in report.get_evaluation(False)]], "Overall test results")

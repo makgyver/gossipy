@@ -6,7 +6,8 @@ from gossipy.node import GossipNode
 from gossipy.model.handler import MFModelHandler
 from gossipy.data import RecSysDataDispatcher, load_recsys_dataset
 from gossipy.data.handler import  RecSysDataHandler
-from gossipy.simul import GossipSimulator, repeat_simulation
+from gossipy.simul import GossipSimulator, SimulationReport
+from gossipy.utils import plot_evaluation
 
 # AUTHORSHIP
 __version__ = "0.0.1"
@@ -46,9 +47,9 @@ simulator = GossipSimulator(
     sampling_eval=.1
 )
 
-res = repeat_simulation(
-    gossip_simulator=simulator,
-    n_rounds=100, #500
-    repetitions=1,
-    verbose=True
-)
+report = SimulationReport()
+simulator.add_receiver(report)
+simulator.init_nodes(seed=42)
+simulator.start(n_rounds=100)
+
+plot_evaluation([[ev for _, ev in report.get_evaluation(True)]], "User-wise test results")

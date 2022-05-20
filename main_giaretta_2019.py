@@ -8,7 +8,8 @@ from gossipy.model.handler import PegasosHandler
 from gossipy.model.nn import Pegasos
 from gossipy.data import load_classification_dataset, DataDispatcher
 from gossipy.data.handler import ClassificationDataHandler
-from gossipy.simul import GossipSimulator, repeat_simulation
+from gossipy.simul import GossipSimulator, SimulationReport
+from gossipy.utils import plot_evaluation
 
 # AUTHORSHIP
 __version__ = "0.0.1"
@@ -49,9 +50,9 @@ simulator = GossipSimulator(
     sampling_eval=.1
 )
 
-res = repeat_simulation(
-    gossip_simulator=simulator,
-    n_rounds=100,
-    repetitions=1, #set values > 1
-    verbose=True
-)
+report = SimulationReport()
+simulator.add_receiver(report)
+simulator.init_nodes(seed=42)
+simulator.start(n_rounds=100)
+
+plot_evaluation([[ev for _, ev in report.get_evaluation(False)]], "Overall test results")

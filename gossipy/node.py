@@ -572,14 +572,15 @@ class PENSNode(GossipNode):
         if self.step == 1 and (t // self.round_len) >= self.step1_rounds:
             self.step = 2
             self._select_neighbors()
-        peer = super().timed_out(t)
-        if self.step == 1:
-            self.selected[peer] += 1
-        return peer
-    
+        return super().timed_out(t)
+        
     def get_peer(self) -> int:
         if self.step == 1 or not self.best_nodes:
-            return super().get_peer()
+            peer = super().get_peer()
+            if self.step == 1:
+                self.selected[peer] += 1
+            return peer
+            
         return random.choice(self.best_nodes)
 
     def send(self,

@@ -31,8 +31,7 @@ __all__ = ["SimulationEventReceiver",
            "SimulationEventSender",
            "SimulationReport",
            "GossipSimulator",
-           "TokenizedGossipSimulator",
-           "repeat_simulation"]
+           "TokenizedGossipSimulator"]
 
 
 class SimulationEventReceiver(ABC):
@@ -530,30 +529,30 @@ class TokenizedGossipSimulator(GossipSimulator):
         return
 
 
-def repeat_simulation(gossip_simulator: GossipSimulator,
-                      n_rounds: Optional[int]=1000,
-                      repetitions: Optional[int]=10,
-                      seed: int=98765,
-                      verbose: Optional[bool]=True) -> Tuple[List[List[float]], List[List[float]]]:
+# def repeat_simulation(gossip_simulator: GossipSimulator,
+#                       n_rounds: Optional[int]=1000,
+#                       repetitions: Optional[int]=10,
+#                       seed: int=98765,
+#                       verbose: Optional[bool]=True) -> Tuple[List[List[float]], List[List[float]]]:
     
-    report = SimulationReport()
-    gossip_simulator.add_receiver(report)
-    eval_list: List[List[float]] = []
-    eval_user_list: List[List[float]] = []
-    try:
-        for i in range(1, repetitions+1):
-            LOG.info("Simulation %d/%d" %(i, repetitions))
-            gossip_simulator.init_nodes(seed*i)
-            gossip_simulator.start(n_rounds=n_rounds)
-            eval_list.append([ev for _, ev in report.get_evaluation(False)])
-            eval_user_list.append([ev for _, ev in report.get_evaluation(True)])
-            report.clear()
-    except KeyboardInterrupt:
-        LOG.info("Execution interrupted during the %d/%d simulation." %(i, repetitions))
+#     report = SimulationReport()
+#     gossip_simulator.add_receiver(report)
+#     eval_list: List[List[float]] = []
+#     eval_user_list: List[List[float]] = []
+#     try:
+#         for i in range(1, repetitions+1):
+#             LOG.info("Simulation %d/%d" %(i, repetitions))
+#             gossip_simulator.init_nodes(seed*i)
+#             gossip_simulator.start(n_rounds=n_rounds)
+#             eval_list.append([ev for _, ev in report.get_evaluation(False)])
+#             eval_user_list.append([ev for _, ev in report.get_evaluation(True)])
+#             report.clear()
+#     except KeyboardInterrupt:
+#         LOG.info("Execution interrupted during the %d/%d simulation." %(i, repetitions))
 
-    if verbose and eval_list:
-        plot_evaluation(eval_list, "Overall test")
-        plot_evaluation(eval_user_list, "User-wise test")
+#     if verbose and eval_list:
+#         plot_evaluation(eval_list, "Overall test")
+#         plot_evaluation(eval_user_list, "User-wise test")
     
-    return eval_list, eval_user_list
+#     return eval_list, eval_user_list
     

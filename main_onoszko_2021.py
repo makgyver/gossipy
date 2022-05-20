@@ -10,8 +10,9 @@ from gossipy.model import TorchModel
 from gossipy.data.handler import ClassificationDataHandler
 from gossipy.model.handler import TorchModelHandler
 from gossipy.node import PENSNode
-from gossipy.simul import GossipSimulator, repeat_simulation
+from gossipy.simul import GossipSimulator, SimulationReport
 from gossipy.data import get_CIFAR10
+from gossipy.utils import plot_evaluation
 
 # AUTHORSHIP
 __version__ = "0.0.1"
@@ -117,10 +118,9 @@ simulator = GossipSimulator(
     sampling_eval=0.1
 )
 
-res = repeat_simulation(
-    gossip_simulator=simulator,
-    n_rounds=500,
-    repetitions=1,
-    verbose=True
-)
+report = SimulationReport()
+simulator.add_receiver(report)
+simulator.init_nodes(seed=42)
+simulator.start(n_rounds=500)
 
+plot_evaluation([[ev for _, ev in report.get_evaluation(False)]], "Overall test results")
