@@ -1,0 +1,9 @@
+gossipy.data package
+====================
+
+Module contents
+---------------
+
+.. automodule:: gossipy.data.handler
+   :members:
+   :show-inheritance:

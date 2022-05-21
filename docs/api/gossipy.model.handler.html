@@ -1,0 +1,696 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>gossipy.model.handler module &#8212; gossipy 0.0.1 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gossipy.model.nn module" href="gossipy.model.nn.html" />
+    <link rel="prev" title="gossipy.model module" href="gossipy.model.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">gossipy</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../getting_started.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  API documentation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/makgyver/gossipy" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="gossipy.html">
+   gossipy package
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="gossipy.data.html">
+     gossipy.data package
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gossipy.data.handler.html">
+       gossipy.data.handler module
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="gossipy.model.html">
+     gossipy.model module
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="#">
+       gossipy.model.handler module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gossipy.model.nn.html">
+       gossipy.model.nn module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gossipy.model.sampling.html">
+       gossipy.model.sampling module
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="gossipy.data.html">
+   gossipy.data package
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+  <label for="toctree-checkbox-4">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="gossipy.data.handler.html">
+     gossipy.data.handler module
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="gossipy.model.html">
+   gossipy.model module
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     gossipy.model.handler module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="gossipy.model.nn.html">
+     gossipy.model.nn module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="gossipy.model.sampling.html">
+     gossipy.model.sampling module
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-gossipy.model.handler">
+   Module contents
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="gossipy-model-handler-module">
+<h1>gossipy.model.handler module<a class="headerlink" href="#gossipy-model-handler-module" title="Permalink to this headline">#</a></h1>
+<section id="module-gossipy.model.handler">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-gossipy.model.handler" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.model.handler.AdaLineHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">AdaLineHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.UPDATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.AdaLineHandler" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.ModelHandler</span></code></a></p>
+<p>The ModelHandler class is the base class for all model handlers.</p>
+<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
+It is also responsible for the merging of two (or more) models according to the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
+update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
+<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.nn.html#gossipy.model.nn.AdaLine" title="gossipy.model.nn.AdaLine"><em>AdaLine</em></a>) – </p></li>
+<li><p><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+<li><p><strong>copy_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.AdaLineHandler.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.AdaLineHandler.evaluate" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><em>Tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.AdaLineHandler.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.AdaLineHandler.init" title="Permalink to this definition">#</a></dt>
+<dd><p>Initialize the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.model.handler.KMeansHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">KMeansHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matching</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'naive'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.UPDATE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.KMeansHandler" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.ModelHandler</span></code></a></p>
+<p>The ModelHandler class is the base class for all model handlers.</p>
+<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
+It is also responsible for the merging of two (or more) models according to the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
+update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
+<li><p><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+<li><p><strong>matching</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.KMeansHandler.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.KMeansHandler.evaluate" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><em>Tuple</em></a><em>[</em><em>torch.FloatTensor</em><em>, </em><em>torch.LongTensor</em><em>]</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.KMeansHandler.get_size">
+<span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.KMeansHandler.get_size" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the size of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The size of the model.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.KMeansHandler.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.KMeansHandler.init" title="Permalink to this definition">#</a></dt>
+<dd><p>Initialize the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.model.handler.MFModelHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">MFModelHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lam_reg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.UPDATE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.MFModelHandler" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.ModelHandler</span></code></a></p>
+<p>The ModelHandler class is the base class for all model handlers.</p>
+<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
+It is also responsible for the merging of two (or more) models according to the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
+update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
+<li><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>n_items</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>lam_reg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+<li><p><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.MFModelHandler.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ratings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.MFModelHandler.evaluate" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.MFModelHandler.get_size">
+<span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.MFModelHandler.get_size" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the size of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The size of the model.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.MFModelHandler.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.MFModelHandler.init" title="Permalink to this definition">#</a></dt>
+<dd><p>Initialize the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>r_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>r_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.model.handler.ModelHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">ModelHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.MERGE_UPDATE</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.ModelHandler" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gossipy.html#gossipy.Sizeable" title="gossipy.Sizeable"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.Sizeable</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.EqualityMixin</span></code>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>The ModelHandler class is the base class for all model handlers.</p>
+<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
+It is also responsible for the merging of two (or more) models according to the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
+update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.ModelHandler.caching">
+<span class="sig-name descname"><span class="pre">caching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.ModelHandler.caching" title="Permalink to this definition">#</a></dt>
+<dd><p>Cache the model handler and return the cache key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The ID of the client that own of this particular model handler.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The cache key corresponding to this model handler in the cache.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="gossipy.html#gossipy.CacheKey" title="gossipy.CacheKey">CacheKey</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.ModelHandler.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.ModelHandler.copy" title="Permalink to this definition">#</a></dt>
+<dd><p>Return a deep copy of the model handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.ModelHandler.evaluate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.ModelHandler.evaluate" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.ModelHandler.get_size">
+<span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.ModelHandler.get_size" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the size of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The size of the model.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.ModelHandler.init">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.ModelHandler.init" title="Permalink to this definition">#</a></dt>
+<dd><p>Initialize the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.model.handler.PartitionedTMH">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">PartitionedTMH</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tm_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.MERGE_UPDATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.PartitionedTMH" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.TorchModelHandler" title="gossipy.model.handler.TorchModelHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.TorchModelHandler</span></code></a></p>
+<p>The ModelHandler class is the base class for all model handlers.</p>
+<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
+It is also responsible for the merging of two (or more) models according to the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
+update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
+<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><em>TorchModel</em></a>) – </p></li>
+<li><p><strong>tm_partition</strong> (<em>TorchModelPartition</em>) – </p></li>
+<li><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/master/optim.html#torch.optim.Optimizer" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.optim.Optimizer</em></a>) – </p></li>
+<li><p><strong>optimizer_params</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>criterion</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em>) – </p></li>
+<li><p><strong>local_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.PartitionedTMH.caching">
+<span class="sig-name descname"><span class="pre">caching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.PartitionedTMH.caching" title="Permalink to this definition">#</a></dt>
+<dd><p>Cache the model handler and return the cache key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The ID of the client that own of this particular model handler.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The cache key corresponding to this model handler in the cache.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="gossipy.html#gossipy.CacheKey" title="gossipy.CacheKey">CacheKey</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.model.handler.PegasosHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">PegasosHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.UPDATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.PegasosHandler" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.AdaLineHandler" title="gossipy.model.handler.AdaLineHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.AdaLineHandler</span></code></a></p>
+<p>The ModelHandler class is the base class for all model handlers.</p>
+<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
+It is also responsible for the merging of two (or more) models according to the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
+update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
+<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.nn.html#gossipy.model.nn.Pegasos" title="gossipy.model.nn.Pegasos"><em>Pegasos</em></a>) – </p></li>
+<li><p><strong>lam</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+<li><p><strong>copy_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.model.handler.SamplingTMH">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">SamplingTMH</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.SamplingTMH" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.TorchModelHandler" title="gossipy.model.handler.TorchModelHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.TorchModelHandler</span></code></a></p>
+<p>The ModelHandler class is the base class for all model handlers.</p>
+<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
+It is also responsible for the merging of two (or more) models according to the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
+update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
+<li><p><strong>sample_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.model.handler.TorchModelHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">TorchModelHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.UPDATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.TorchModelHandler" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.ModelHandler</span></code></a></p>
+<p>The ModelHandler class is the base class for all model handlers.</p>
+<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
+It is also responsible for the merging of two (or more) models according to the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
+update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
+<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><em>TorchModel</em></a>) – </p></li>
+<li><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/master/optim.html#torch.optim.Optimizer" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.optim.Optimizer</em></a>) – </p></li>
+<li><p><strong>optimizer_params</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>Any</em><em>]</em>) – </p></li>
+<li><p><strong>criterion</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em>) – </p></li>
+<li><p><strong>local_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.TorchModelHandler.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.TorchModelHandler.evaluate" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><em>Tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.model.handler.TorchModelHandler.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.TorchModelHandler.init" title="Permalink to this definition">#</a></dt>
+<dd><p>Initialize the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+              </div>
+              
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022, Mirko Polato.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

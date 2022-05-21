@@ -1,0 +1,619 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>gossipy.data.handler module &#8212; gossipy 0.0.1 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gossipy.model module" href="gossipy.model.html" />
+    <link rel="prev" title="gossipy.data package" href="gossipy.data.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">gossipy</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../getting_started.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  API documentation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/makgyver/gossipy" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="gossipy.html">
+   gossipy package
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="gossipy.data.html">
+     gossipy.data package
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="#">
+       gossipy.data.handler module
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="gossipy.model.html">
+     gossipy.model module
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gossipy.model.handler.html">
+       gossipy.model.handler module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gossipy.model.nn.html">
+       gossipy.model.nn module
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gossipy.model.sampling.html">
+       gossipy.model.sampling module
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="gossipy.data.html">
+   gossipy.data package
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+  <label for="toctree-checkbox-4">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     gossipy.data.handler module
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="gossipy.model.html">
+   gossipy.model module
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="gossipy.model.handler.html">
+     gossipy.model.handler module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="gossipy.model.nn.html">
+     gossipy.model.nn module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="gossipy.model.sampling.html">
+     gossipy.model.sampling module
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-gossipy.data.handler">
+   Module contents
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="gossipy-data-handler-module">
+<h1>gossipy.data.handler module<a class="headerlink" href="#gossipy-data-handler-module" title="Permalink to this headline">#</a></h1>
+<section id="module-gossipy.data.handler">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-gossipy.data.handler" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.data.handler.ClassificationDataHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.data.handler.</span></span><span class="sig-name descname"><span class="pre">ClassificationDataHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_te</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_te</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.ClassificationDataHandler" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gossipy.data.html#gossipy.data.DataHandler" title="gossipy.data.DataHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.data.DataHandler</span></code></a></p>
+<p>Handler for classification data.</p>
+<p>The handlers provides methods to access the data and to split it into
+training and evaluation sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set examples matrix. If <code class="docutils literal notranslate"><span class="pre">X_te</span></code> is not None, then the
+data set is assumed to be already splitted into training and evaluation set
+(<code class="docutils literal notranslate"><span class="pre">test_size</span></code> will be ignored).</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set labels.</p></li>
+<li><p><strong>X_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set examples matrix.</p></li>
+<li><p><strong>y_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set labels.</p></li>
+<li><p><strong>test_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The size of the evaluation set as a fraction of the data set.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=42</em>) – The seed used to split the data set into training and evaluation set.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.ClassificationDataHandler.at">
+<span class="sig-name descname"><span class="pre">at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.ClassificationDataHandler.at" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the data set example and label at the given index or list of indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>list of int</em>) – The index or list of indices of the data set examples to get.</p></li>
+<li><p><strong>eval_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=False</em>) – If True, the data set example and label are retrieved from the evaluation set.
+Otherwise, they are retrieved from the training set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>np.ndarray</em>) – The data set example.</p></li>
+<li><p><strong>y</strong> (<em>int</em>) – The data set label.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.ClassificationDataHandler.eval_size">
+<span class="sig-name descname"><span class="pre">eval_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.ClassificationDataHandler.eval_size" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the number of examples of the evaluation set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The size of the evaluation set of the dataset.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.ClassificationDataHandler.get_eval_set">
+<span class="sig-name descname"><span class="pre">get_eval_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.ClassificationDataHandler.get_eval_set" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the evaluation set of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The evaluation set of the dataset.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)">tuple</a>[Any, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.ClassificationDataHandler.get_train_set">
+<span class="sig-name descname"><span class="pre">get_train_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.ClassificationDataHandler.get_train_set" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the training set of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The training set of the dataset.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)">tuple</a>[Any, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.ClassificationDataHandler.size">
+<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.ClassificationDataHandler.size" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the size of the training set along a given dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=0</em>) – The dimension along which to get the size of the dataset.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The size of the dataset along the given dimension.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.data.handler.ClusteringDataHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.data.handler.</span></span><span class="sig-name descname"><span class="pre">ClusteringDataHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.ClusteringDataHandler" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.data.handler.ClassificationDataHandler" title="gossipy.data.handler.ClassificationDataHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.data.handler.ClassificationDataHandler</span></code></a></p>
+<p>Handler for classification data.</p>
+<p>The handlers provides methods to access the data and to split it into
+training and evaluation sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set examples matrix. If <code class="docutils literal notranslate"><span class="pre">X_te</span></code> is not None, then the
+data set is assumed to be already splitted into training and evaluation set
+(<code class="docutils literal notranslate"><span class="pre">test_size</span></code> will be ignored).</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set labels.</p></li>
+<li><p><strong>X_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set examples matrix.</p></li>
+<li><p><strong>y_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set labels.</p></li>
+<li><p><strong>test_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The size of the evaluation set as a fraction of the data set.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=42</em>) – The seed used to split the data set into training and evaluation set.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.ClusteringDataHandler.eval_size">
+<span class="sig-name descname"><span class="pre">eval_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.ClusteringDataHandler.eval_size" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the number of examples of the evaluation set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The size of the evaluation set of the dataset.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.ClusteringDataHandler.get_eval_set">
+<span class="sig-name descname"><span class="pre">get_eval_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.ClusteringDataHandler.get_eval_set" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the evaluation set of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The evaluation set of the dataset.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)">tuple</a>[Any, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.data.handler.RecSysDataHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.data.handler.</span></span><span class="sig-name descname"><span class="pre">RecSysDataHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ratings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_users</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.RecSysDataHandler" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="gossipy.data.html#gossipy.data.DataHandler" title="gossipy.data.DataHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.data.DataHandler</span></code></a></p>
+<p>Abstract class for data handlers.</p>
+<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">DataHandler</span></code> class provides attributes and methods to manage a dataset.
+A subclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">DataHandler</span></code> must implement the following methods:</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">__getitem__()</span></code></p></li>
+<li><p><a class="reference internal" href="#gossipy.data.handler.RecSysDataHandler.at" title="gossipy.data.handler.RecSysDataHandler.at"><code class="xref py py-meth docutils literal notranslate"><span class="pre">at()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#gossipy.data.handler.RecSysDataHandler.size" title="gossipy.data.handler.RecSysDataHandler.size"><code class="xref py py-meth docutils literal notranslate"><span class="pre">size()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#gossipy.data.handler.RecSysDataHandler.get_eval_set" title="gossipy.data.handler.RecSysDataHandler.get_eval_set"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_eval_set()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#gossipy.data.handler.RecSysDataHandler.get_train_set" title="gossipy.data.handler.RecSysDataHandler.get_train_set"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_train_set()</span></code></a></p></li>
+<li><p><a class="reference internal" href="#gossipy.data.handler.RecSysDataHandler.eval_size" title="gossipy.data.handler.RecSysDataHandler.eval_size"><code class="xref py py-meth docutils literal notranslate"><span class="pre">eval_size()</span></code></a></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ratings</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><em>List</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><em>Tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>n_users</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>n_items</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>test_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.RecSysDataHandler.at">
+<span class="sig-name descname"><span class="pre">at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.RecSysDataHandler.at" title="Permalink to this definition">#</a></dt>
+<dd><p>Get a sample (or samples) from the training/test set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>]</em>) – The index or indices of the sample(s) to get.</p></li>
+<li><p><strong>eval_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=False</em>) – Whether to get the sample(s) from the training or the evaluation set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The sample(s) at the given index(ices) in the training/evaluation set.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.RecSysDataHandler.eval_size">
+<span class="sig-name descname"><span class="pre">eval_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.RecSysDataHandler.eval_size" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the number of examples of the evaluation set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The size of the evaluation set of the dataset.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.RecSysDataHandler.get_eval_set">
+<span class="sig-name descname"><span class="pre">get_eval_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.RecSysDataHandler.get_eval_set" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the evaluation set of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The evaluation set of the dataset.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)">tuple</a>[Any, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.RecSysDataHandler.get_train_set">
+<span class="sig-name descname"><span class="pre">get_train_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.RecSysDataHandler.get_train_set" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the training set of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The training set of the dataset.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)">tuple</a>[Any, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.RecSysDataHandler.size">
+<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.RecSysDataHandler.size" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the size of the training set along a given dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=0</em>) – The dimension along which to get the size of the dataset.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The size of the dataset along the given dimension.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.data.handler.RegressionDataHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.data.handler.</span></span><span class="sig-name descname"><span class="pre">RegressionDataHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_te</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_te</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.RegressionDataHandler" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.data.handler.ClassificationDataHandler" title="gossipy.data.handler.ClassificationDataHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.data.handler.ClassificationDataHandler</span></code></a></p>
+<p>Handler for classification data.</p>
+<p>The handlers provides methods to access the data and to split it into
+training and evaluation sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set examples matrix. If <code class="docutils literal notranslate"><span class="pre">X_te</span></code> is not None, then the
+data set is assumed to be already splitted into training and evaluation set
+(<code class="docutils literal notranslate"><span class="pre">test_size</span></code> will be ignored).</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set labels.</p></li>
+<li><p><strong>X_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set examples matrix.</p></li>
+<li><p><strong>y_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set labels.</p></li>
+<li><p><strong>test_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The size of the evaluation set as a fraction of the data set.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=42</em>) – The seed used to split the data set into training and evaluation set.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.data.handler.RegressionDataHandler.at">
+<span class="sig-name descname"><span class="pre">at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.RegressionDataHandler.at" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the data set example and label at the given index or list of indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em> or </em><em>list of int</em>) – The index or list of indices of the data set examples to get.</p></li>
+<li><p><strong>eval_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=False</em>) – If True, the data set example and label are retrieved from the evaluation set.
+Otherwise, they are retrieved from the training set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>np.ndarray</em>) – The data set example.</p></li>
+<li><p><strong>y</strong> (<em>int</em>) – The data set label.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+              </div>
+              
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022, Mirko Polato.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

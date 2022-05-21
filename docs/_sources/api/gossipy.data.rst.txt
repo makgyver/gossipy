@@ -1,0 +1,18 @@
+gossipy.data package
+====================
+
+Module contents
+---------------
+
+.. automodule:: gossipy.data
+   :members:
+   :show-inheritance:
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   gossipy.data.handler

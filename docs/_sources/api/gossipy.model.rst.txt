@@ -1,0 +1,45 @@
+gossipy.model package
+=====================
+
+Submodules
+----------
+
+gossipy.model.byzantine module
+------------------------------
+
+.. automodule:: gossipy.model.byzantine
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+gossipy.model.handler module
+----------------------------
+
+.. automodule:: gossipy.model.handler
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+gossipy.model.nn module
+-----------------------
+
+.. automodule:: gossipy.model.nn
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+gossipy.model.sampling module
+-----------------------------
+
+.. automodule:: gossipy.model.sampling
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: gossipy.model
+   :members:
+   :undoc-members:
+   :show-inheritance:
