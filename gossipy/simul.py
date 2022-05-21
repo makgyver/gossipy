@@ -14,7 +14,7 @@ from .data import DataDispatcher
 from .node import GossipNode
 from .flow_control import TokenAccount
 from .model.handler import ModelHandler
-from .utils import StringEncoder, plot_evaluation
+from .utils import StringEncoder
 
 # AUTHORSHIP
 __version__ = "0.0.1"
@@ -35,13 +35,11 @@ __all__ = ["SimulationEventReceiver",
 
 
 class SimulationEventReceiver(ABC):
-    """
-    The event receiver interface declares all the update methods, used by the event sender.
-    """
+    """The event receiver interface declares all the update methods, used by the event sender."""
 
     @abstractmethod
     def update_message(self, failed: bool, msg: Optional[Message]=None) -> None:
-        """Receive an update about a sent or a failed message.
+        """Receives an update about a sent or a failed message.
 
         Parameters
         ----------
@@ -57,7 +55,7 @@ class SimulationEventReceiver(ABC):
                           round: int,
                           on_user: bool,
                           evaluation: List[Dict[str, float]]) -> None:
-        """Receive an update about an evaluation.
+        """Receives an update about an evaluation.
 
         Parameters
         ----------
@@ -71,13 +69,15 @@ class SimulationEventReceiver(ABC):
 
         pass
 
+    @abstractmethod
     def update_end(self) -> None:
-        """Receive an update about the end of the simulation."""
+        """Receives an update about the end of the simulation."""
 
         pass
 
+    @abstractmethod
     def update_timestep(self, t: int):
-        """Signal the end of the timestep ``t``.
+        """Signals the end of the timestep ``t``.
 
         Parameters
         ----------
@@ -89,32 +89,34 @@ class SimulationEventReceiver(ABC):
 
 
 class SimulationEventSender(ABC):
-    """
-    The event sender interface declares a set of methods for managing receviers.
-    """
+    """The event sender interface declares methods for managing receviers."""
 
     _receivers: List[SimulationEventReceiver] = []
 
     def add_receiver(self, receiver: SimulationEventReceiver) -> None:
-        """Attach an event receiver to the event sender.
+        """Attaches an event receiver to the event sender.
 
         Parameters
         ----------
         receiver : SimulationEventReceiver
             The receiver to attach.
         """
+
         if receiver not in self._receivers:
             self._receivers.append(receiver)
 
 
     def remove_receiver(self, receiver: SimulationEventReceiver) -> None:
-        """Detach an event receiver from the event sender.
+        """Detaches an event receiver from the event sender.
+
+        If the ``receiver`` is not attached to the event sender, nothing happens.
 
         Parameters
         ----------
         receiver : SimulationEventReceiver
             The receiver to detach.
         """
+
         try:
             idx = self._receivers.index(receiver)
             self._receivers.pop(idx)
@@ -123,8 +125,7 @@ class SimulationEventSender(ABC):
 
 
     def notify_message(self, falied: bool, msg: Optional[Message]=None) -> None:
-        """
-        Notify all receivers about a sent message or a failed message.
+        """Notifies all receivers about a sent message or a failed message.
 
         Parameters
         ----------
@@ -133,6 +134,7 @@ class SimulationEventSender(ABC):
         msg_size : Message or None, default=None
             The message.
         """
+
         for er in self._receivers:
             er.update_message(falied, msg)
 
@@ -141,7 +143,7 @@ class SimulationEventSender(ABC):
                           round: int,
                           on_user:bool,
                           evaluation: List[Dict[str, float]]) -> None:
-        """Notify all receivers about an evaluation.   
+        """Notifies all receivers about a performed evaluation.   
         
         Parameters
         ----------
@@ -152,22 +154,25 @@ class SimulationEventSender(ABC):
         evaluation : list of dict[str, float]
             The evaluation metrics computed on each client.
         """
+
         for er in self._receivers:
             er.update_evaluation(round, on_user, evaluation)
     
     def notify_timestep(self, t: int):
-        """Notify all receivers about a timestep.
+        """Notifies all receivers that a timestep has happened.
         
         Parameters
         ----------
         t : int
             The timestep number.
         """
+
         for er in self._receivers:
             er.update_timestep(t)
 
     def notify_end(self) -> None:
-        """Notify all receivers about the end of the simulation."""
+        """Notifies all receivers about the end of the simulation."""
+
         for er in self._receivers:
             er.update_end()
 
@@ -184,10 +189,10 @@ class SimulationReport(SimulationEventReceiver):
         """Class that implements a basic simulation report.
 
         The report traces the number of sent messages, the number of failed messages,
-        the total size of the messages, and the evaluation metrics (both global and local).
+        the total size of the sent messages, and the evaluation metrics (both global and local).
 
         The report is updated according to the design pattern Observer (actually Event Receiver).
-        Thus, the report must be created and attached to the simulation.
+        Thus, the report must be created and attached to the simulation before starting it.
 
         Examples
         --------
@@ -200,12 +205,17 @@ class SimulationReport(SimulationEventReceiver):
 
         The ``report`` object is now attached to the simulation and it will be notified about the
         events.
+
+        See Also
+        --------
+        gossipy.Sizeable
         """
 
         self.clear()
     
     def clear(self) -> None:
-        """Clear the report."""
+        """Clears the report."""
+
         self._sent_messages = 0
         self._total_size = 0
         self._failed_messages = 0
@@ -262,6 +272,31 @@ class GossipSimulator(SimulationEventSender):
                  delay: Delay=ConstantDelay(0),
                  sampling_eval: float=0., # [0, 1] - percentage of nodes to evaluate
                 ):
+        """Class that implements a *vanilla* gossip learning simulation.
+
+        TODO
+
+        Parameters
+        ----------
+        nodes : dict[int, GossipNode]
+            The nodes participating in the simulation. The keys are the node ids, and the values
+            are the corresponding nodes (instances of the class :class:`GossipNode`).
+        data_dispatcher : DataDispatcher
+            The data dispatcher. Useful if the evaluation is performed on a separate test set, i.e.,
+            not on the nodes.
+        delta : int
+            The number of timesteps of a round.
+        protocol : AntiEntropyProtocol
+            The protocol of the gossip simulation.
+        drop_prob : float, default=0.
+            The probability of a message being dropped.
+        online_prob : float, default=1.
+            The probability of a node to be online.
+        delay : Delay, default=ConstantDelay(0)
+            The (potential) function delay of the messages.
+        sampling_eval : float, default=0.
+            The percentage of nodes to use during evaluate. If 0 or 1, all nodes are considered.
+        """
         
         assert 0 <= drop_prob <= 1, "drop_prob must be in the range [0,1]."
         assert 0 <= online_prob <= 1, "online_prob must be in the range [0,1]."
@@ -280,6 +315,17 @@ class GossipSimulator(SimulationEventSender):
         
 
     def init_nodes(self, seed:int=98765) -> None:
+        """Initializes the nodes.
+
+        The initialization of the nodes usually involves the initialization of the local model
+        (see :meth:`GossipNode.init_model`).
+
+        Parameters
+        ----------
+        seed : int, default=98765
+            The seed for the random number generator.
+        """
+
         self.initialized = True
         for _, node in self.nodes.items():
             node.init_model()
@@ -294,6 +340,18 @@ class GossipSimulator(SimulationEventSender):
 
 
     def start(self, n_rounds: int=100) -> None:
+        """Starts the simulation.
+
+        The simulation handles the messages exchange between the nodes for ``n_rounds`` rounds.
+        If attached to a :class:`SimulationReport`, the report is updated at each time step, 
+        sent/fail message and evaluation.
+
+        Parameters
+        ----------
+        n_rounds : int, default=100
+            The number of rounds of the simulation.
+        """
+
         assert self.initialized, \
                "The simulator is not inizialized. Please, call the method 'init_nodes'."
         LOG.info("Simulation started.")
@@ -373,6 +431,14 @@ class GossipSimulator(SimulationEventSender):
         return
     
     def save(self, filename) -> None:
+        """Saves the state of the simulator (including the models' cache).
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to save the state.
+        """
+
         dump = {
             "simul": self,
             "cache": CACHE.get_cache()
@@ -382,6 +448,19 @@ class GossipSimulator(SimulationEventSender):
 
     @classmethod
     def load(cls, filename) -> GossipSimulator:
+        """Loads the state of the simulator (including the models' cache).
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to load the state.
+        
+        Returns
+        -------
+        GossipSimulator
+            The simulator loaded from the file.
+        """
+
         with open(filename, 'rb') as f:
             loaded = dill.load(f)
             CACHE.load(loaded["cache"])

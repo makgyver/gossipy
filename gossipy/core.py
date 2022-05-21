@@ -34,7 +34,7 @@ class CreateModelMode(Enum):
     """Update the model with the local data."""
 
     MERGE_UPDATE = 2
-    """Merge the models and then make an update."""
+    """Merge the models and then make an update using the local data."""
 
     UPDATE_MERGE = 3
     """Update the models with the local data and then merge the models."""
@@ -71,7 +71,7 @@ class MessageType(Enum):
 
     PUSH_PULL = 4
     """The message contains the model (and possibly additional information) and also asks for the \
-        model."""
+        model to the receiver."""
 
 
 class Message(Sizeable):
@@ -95,8 +95,8 @@ class Message(Sizeable):
         type : MessageType
             The message type.
         value : tuple[Any, ...] or None
-            The message's payload. The typical payload is a single item tuple containing the model (handler).
-            If the value is None, the message represents an ACK.
+            The message's payload. The typical payload is a single item tuple containing the model
+            (handler). If the value is None, the message represents an ACK.
         """
 
         self.timestamp: int = timestamp
@@ -154,7 +154,7 @@ class Message(Sizeable):
 class Delay(ABC):
     """A class representing a delay.
 
-    The delay is a function that takes a message and returns the delay in simulation time units.
+    The delay is a function of a message and returns the delay in simulation time units.
     """
 
     @abstractmethod
@@ -265,9 +265,9 @@ class LinearDelay(Delay):
     def __init__(self, timexunit: float, overhead: int):
         """A class representing a linear delay.
 
-        | The linear delay is computed as a fixed overhead plus a quantity proportional to the message's size.
-        | :class:`LinearDelay` can mimic the behavior both the standard :class:`Delay`, i.e.,
-        | LinearDelay(0, x) is equivalent to Delay(x).
+        | The linear delay is computed as a fixed overhead plus a quantity proportional to 
+        | the message's size. :class:`LinearDelay` can mimic the behavior of  
+        | :class:`ConstantDelay`, i.e., LinearDelay(0, x) is equivalent to ConstantDelay(x).
 
         Parameters
         ----------
@@ -285,7 +285,7 @@ class LinearDelay(Delay):
         """Returns the delay for the specified message.
 
         | The delay is linear with respect to the message's size and it is computed as follows:
-        | delay = floor(timexunit * size(msg)) + overhead.
+        | `delay = floor(timexunit * size(msg)) + overhead`.
         | This type of delay allows to simulate the transmission time which is a linear function
         | of the size of the message.
 
@@ -312,6 +312,17 @@ class P2PNetwork(ABC):
     _num_nodes: int
 
     def __init__(self, num_nodes: int, topology: Optional[Union[np.ndarray, csr_matrix]]=None):
+        """Abstract class representing a network topology.
+
+        Parameters
+        ----------
+        num_nodes : int
+            The number of nodes in the network.
+        topology : Optional[Union[np.ndarray, csr_matrix]], default=None
+            The adjacency matrix of the network topology. If None, the network is considered
+            to be a fully connected network.
+        """
+
         if topology is None: assert num_nodes > 0, "The number of nodes must be positive!"
         else: num_nodes == topology.shape[0], \
             "The number of nodes must match the number of rows of the topology!"

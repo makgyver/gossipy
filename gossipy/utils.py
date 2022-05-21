@@ -156,13 +156,15 @@ def plot_evaluation(evals: List[List[Dict]],
     Parameters
     ----------
     evals : list of list of dict
-        This argument is meant to contain the results of a repeated experiment (outer list: each element an experiment).
-        For each experiment, the inner list contains the results of the evaluations performed during the 
-        simulation. The results are stored in a dictionary where the keys are the names of the metrics and the
-        values are the corresponding performance.
+        This argument is meant to contain the results of a repeated experiment (outer list:
+        each element an experiment). For each experiment, the inner list contains the results of
+        the evaluations performed during the simulation. The results are stored in a dictionary
+        where the keys are the names of the metrics and the values are the
+        corresponding performance.
     title : str, default="Untitled plot"
         Title of the plot.
     """
+
     if not evals or not evals[0] or not evals[0][0]: return
     fig = plt.figure()
     fig.canvas.manager.set_window_title(title)
@@ -181,7 +183,7 @@ def plot_evaluation(evals: List[List[Dict]],
     plt.show()
 
 
-# Undocumented
+# Undocumented class
 class StringEncoder(JSONEncoder):
     def default(self, o) -> str:
         return str(o)

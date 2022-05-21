@@ -46,7 +46,8 @@ class GossipNode():
         represents the idle time. The node can be either synchronous or asynchronous. In the former case,
         the node will time out exactly :math:`\Delta` time steps into the round. Thus it is assumed that 
         :math:`0 < \Delta <` `round_len`. In the latter case, the node will time out to every 
-        :math:`\Delta` time steps. 
+        :math:`\Delta` time steps. In the synchronous case, :math:`\Delta \sim U(0, R)`, otherwise 
+        :math:`\Delta \sim \mathcal{N}(R, R/10)` where :math:`R` is the round length.
 
         Parameters
         ----------
@@ -62,12 +63,13 @@ class GossipNode():
         model_handler : ModelHandler
             The object that handles the model learning/inference.
         p2p_net: P2PNetwork
-            The perr2peer network that provides the list of reachable nodes according to the network
-            topology.
+            The peer-to-peer network that provides the list of reachable nodes according to the 
+            network topology.
         sync : bool, default=True
             Whether the node is synchronous with the round's length. In this case, the node will regularly time out 
             at the same point in the round. If `False`, the node will time out with a fixed delay. 
         """
+
         self.idx: int = idx
         self.data:  Union[Tuple[Tensor, Optional[Tensor]], Tuple[ndarray, Optional[ndarray]]] = data
         self.round_len: int = round_len
@@ -82,8 +84,10 @@ class GossipNode():
         Parameters
         ----------
         local_train : bool, default=True
-            Whether the local model should be trained for with the local data after the initialization.
+            Whether the local model should be trained for with the local data after the
+            initialization.
         """
+
         self.model_handler.init()
         if local_train:
             self.model_handler._update(self.data[0])
@@ -96,6 +100,7 @@ class GossipNode():
         int
             The index of the randomly selected peer.
         """
+
         peers = self.p2p_net.get_peers(self.idx)
         return random.choice(peers) if peers else choice_not_n(0, self.p2p_net.size(), self.idx)
         
@@ -112,6 +117,7 @@ class GossipNode():
         bool
             Whether the node has timed out.
         """
+
         return ((t % self.round_len) == self.delta) if self.sync else ((t % self.delta) == 0)
 
     def send(self,
@@ -207,6 +213,7 @@ class GossipNode():
             The evaluation results. The keys are the names of the metrics and the values are
             the corresponding values.
         """
+
         if ext_data is None:
             return self.model_handler.evaluate(self.data[1])
         else:
@@ -221,6 +228,7 @@ class GossipNode():
         bool
             Whether the node has a test set.
         """
+
         if isinstance(self.data, tuple):
             return self.data[1] is not None
         else: return True
@@ -241,6 +249,26 @@ class GossipNode():
                  round_len: int,
                  sync: bool,
                  **kwargs) -> Dict[int, GossipNode]:
+        """Generates a set of nodes.
+
+        Parameters
+        ----------
+        data_dispatcher : DataDispatcher
+            The data dispatcher used to distribute the data among the nodes.
+        p2p_net : P2PNetwork
+            The peer-to-peer network topology.
+        model_proto : ModelHandler
+            The model handler prototype.
+        round_len : int
+            The length of a round in time units.
+        sync : bool
+            Whether the nodes are synchronized with the round length or not.
+
+        Returns
+        -------
+        Dict[int, GossipNode]
+            The generated nodes.
+        """
         
         nodes = {}
         for idx in range(p2p_net.size()):
@@ -580,7 +608,7 @@ class PENSNode(GossipNode):
             if self.step == 1:
                 self.selected[peer] += 1
             return peer
-            
+
         return random.choice(self.best_nodes)
 
     def send(self,
