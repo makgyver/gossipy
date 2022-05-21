@@ -46,8 +46,7 @@ print("K-means NMI:", nmi(y.numpy(), P))
 km = KMeans(n_clusters=2, n_init=1, random_state=98765).fit(X)
 print("Sklearn K-means NMI:", nmi(y.numpy(), km.labels_))
 
-data_dispatcher = DataDispatcher(data_handler, eval_on_user=False)
-data_dispatcher.assign()
+data_dispatcher = DataDispatcher(data_handler, eval_on_user=False, auto_assign=True)
 
 nodes = GossipNode.generate(
     data_dispatcher=data_dispatcher,

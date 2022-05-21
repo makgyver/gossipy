@@ -58,12 +58,12 @@ class DataHandler(ABC):
         A :class:`DataHandler` class provides attributes and methods to manage a dataset.
         A subclass of :class:`DataHandler` must implement the following methods:
 
-        - __getitem__(self, idx)
-        - at(self, idx, eval_set=False)
-        - size(self, dim: int=0)
-        - get_eval_set(self)
-        - get_train_set(self)
-        - eval_size(self)
+        - :meth:`__getitem__`
+        - :meth:`at`
+        - :meth:`size`
+        - :meth:`get_eval_set`
+        - :meth:`get_train_set`
+        - :meth:`eval_size`
         """
 
         pass

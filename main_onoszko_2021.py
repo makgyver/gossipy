@@ -88,8 +88,8 @@ test_set = torch.cat((Xte[:half_te], rotated_Xte[half_te:])), torch.cat((yte[:ha
 data_handler = ClassificationDataHandler(train_set[0], train_set[1],
                                          test_set[0], test_set[1])
 
-data_dispatcher = CustomDataDispatcher(data_handler, n=5, eval_on_user=False)
-data_dispatcher.assign()
+data_dispatcher = CustomDataDispatcher(data_handler, n=5, eval_on_user=False, auto_assign=True)
+
 nodes = PENSNode.generate(
     data_dispatcher=data_dispatcher,
     p2p_net=StaticP2PNetwork(5),

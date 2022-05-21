@@ -26,9 +26,7 @@ X, y = load_classification_dataset("spambase", as_tensor=True)
 y = 2*y - 1 #convert 0/1 labels to -1/1
 data_handler = ClassificationDataHandler(X, y, test_size=.1)
 
-data_dispatcher = DataDispatcher(data_handler, eval_on_user=False)
-data_dispatcher.assign()
-
+data_dispatcher = DataDispatcher(data_handler, eval_on_user=False, auto_assign=True)
 topology = StaticP2PNetwork(data_dispatcher.size())
 
 nodes = GossipNode.generate(

@@ -28,11 +28,9 @@ __status__ = "Development"
 set_seed(98765)
 X, y = load_classification_dataset("spambase", as_tensor=True)
 data_handler = ClassificationDataHandler(X, y, test_size=.1)
-dispatcher = DataDispatcher(data_handler, n=100, eval_on_user=False)
+dispatcher = DataDispatcher(data_handler, n=100, eval_on_user=False, auto_assign=True)
 topology = StaticP2PNetwork(100, to_numpy_matrix(random_regular_graph(20, 100, seed=42)))
 net = LogisticRegression(data_handler.Xtr.shape[1], 2)
-
-dispatcher.assign()
 
 nodes = PartitioningBasedNode.generate(
     data_dispatcher=dispatcher,
