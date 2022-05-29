@@ -308,6 +308,18 @@ class RecSysDataDispatcher(DataDispatcher):
     from .handler import RecSysDataHandler
     def __init__(self,
                  data_handler: RecSysDataHandler):
+        """RecSysDataDispatcher is responsible for assigning recommendation data to clients.
+
+        Differently from the DataDispatcher, the assignment is done by assigning a single
+        example to each client. It is assumed that the :class:`RecSysDataHandler` contains the
+        user-item rating matrix, thus a client is a row of the matrix.
+
+        Parameters
+        ----------
+        data_handler : RecSysDataHandler
+            The data handler that contains the data to be distributed.
+        """
+
         self.data_handler = data_handler
         self.n = self.data_handler.n_users
         self.eval_on_user = True
@@ -502,7 +514,7 @@ def get_CIFAR10(path: str="./data",
 def get_FashionMNIST(path: str="./data",
                      as_tensor: bool=True) -> Union[Tuple[Tuple[np.ndarray, list], Tuple[np.ndarray, list]],
                                                           Tuple[Tuple[Tensor, Tensor], Tuple[Tensor, Tensor]]]:
-    r"""Returns the FashionMNIST dataset.
+    """Returns the FashionMNIST dataset.
 
     The method downloads the dataset if it is not already present in `path`.
 
@@ -538,7 +550,7 @@ def get_FashionMNIST(path: str="./data",
 
     return train_set, test_set
 
-
+#UNDOCUMENTED
 def get_FEMNIST(path: str="./data") -> Tuple[Tuple[torch.Tensor, torch.Tensor, List[int]], \
                                              Tuple[torch.Tensor, torch.Tensor, List[int]]]:
     url = 'https://raw.githubusercontent.com/tao-shen/FEMNIST_pytorch/master/femnist.tar.gz'

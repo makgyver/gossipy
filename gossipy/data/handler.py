@@ -134,9 +134,19 @@ class ClassificationDataHandler(DataHandler):
 class ClusteringDataHandler(ClassificationDataHandler):
     def __init__(self,
                  X: Union[np.ndarray, torch.Tensor],
-                 y: Union[np.ndarray, torch.Tensor],
-                 seed: int=42):
-        super(ClusteringDataHandler, self).__init__(X, y, 0, seed)
+                 y: Union[np.ndarray, torch.Tensor]):
+        """Handler for clustering (unsupervised) data.
+
+        The handlers provides methods to access the data. The evaluation set is the training set.
+
+        Parameters
+        ----------
+        X : Union[np.ndarray, torch.Tensor]
+            The data set examples matrix.
+        y : Union[np.ndarray, torch.Tensor]
+            The data set labels.
+        """
+        super(ClusteringDataHandler, self).__init__(X, y, 0)
 
     def get_eval_set(self) -> Tuple[Any, Any]:
         return self.get_train_set()
@@ -150,6 +160,8 @@ class ClusteringDataHandler(ClassificationDataHandler):
 # Same as ClassificationDataHandler but with float labels
 # Alternative: creating a unique DataHandler class for both classification and regression
 class RegressionDataHandler(ClassificationDataHandler):
+    """Same as :class:`ClassificationDataHandler` but with float labels."""
+
     def __getitem__(self, idx: Union[int, List[int]]) -> Tuple[np.ndarray, float]:
         return self.Xtr[idx, :], self.ytr[idx]
     
@@ -166,6 +178,25 @@ class RecSysDataHandler(DataHandler):
                  n_items: int,
                  test_size: float=0.2,
                  seed: int=42):
+        """Handler for recommendation system data.
+
+        The handlers provides methods to access the rating data.
+
+        Parameters
+        ----------
+        ratings : Dict[int, List[Tuple[int, float]]]
+            The user-item ratings.
+        n_users : int
+            The number of users.
+        n_items : int
+            The number of items.
+        test_size : float, default=0.2
+            The size of the evaluation set as a fraction of the data set. The division is performed
+            user-wise, i.e., for each user a subset of its ratings is selected as the evaluation set.
+        seed : int, default=42
+            The seed used to split the data set into training and evaluation set.
+        """
+
         self.ratings = ratings
         self.n_users = n_users
         self.n_items = n_items

@@ -31,8 +31,8 @@ Python module for simulating gossip learning and decentralized federated learnin
 - [ ] Models cache[[Ormandi 2013]](#1) [[Giaretta 2019]](#4) (partially implemented)
 - [ ] Perfect matching [[Ormandi 2013]](#1)
 - [ ] More realistic online behaviour (currently it is a worst case scenario)
-- [x] Message transmission time: currently modelled as a delay independent from the size of the message
-- [x] PENS [[Onoszko 2021]](#8) (partially implemented)
+- [x] Message transmission time
+- [x] PENS [[Onoszko 2021]](#8)
 - [ ] DFL [[Liu 2022]](#10)
 - [ ] Segmented GL [[Hu 2019]](#5)
 - [ ] CMFL [[Che 2021]](#9)
