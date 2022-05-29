@@ -24,19 +24,34 @@ __all__ = ["TorchPerceptron",
            "LogisticRegression"]
 
 class TorchPerceptron(TorchModel):
-    def __init__(self, dim: int):
+    def __init__(self,
+                 dim: int,
+                 activation: torch.nn.modules.activation=Sigmoid,
+                 bias: bool=True):
         """Perceptron model.
+
+        Implementation of the perceptron model by Rosenblatt [1]_.
 
         Parameters
         ----------
         dim : int
             The number of input features.
+        activation : torch.nn.modules.activation, default=Sigmoid()
+            The activation function of the output neuron.
+        bias : bool, optional
+            Whether to add a bias term to the output neuron.
+        
+        References
+        ----------
+        .. [1] Rosenblatt, Frank. "The perceptron: a probabilistic model for information storage and 
+           organization in the brain". Psychological review 65 6 (1958): 386-408.
         """
+
         super(TorchPerceptron, self).__init__()
         self.input_dim = dim
         self.model = Sequential(OrderedDict({
-            "linear" : Linear(self.input_dim, 1), 
-            "sigmoid" : Sigmoid()
+            "linear" : Linear(self.input_dim, 1, bias=bias), 
+            "sigmoid" : activation()
         }))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -58,6 +73,24 @@ class TorchMLP(TorchModel):
                  output_dim: int,
                  hidden_dims: Tuple[int]=(100,),
                  activation: Module=ReLU):
+        """Multi-layer perceptron model.
+
+        Implementation of the multi-layer perceptron model. The model is composed of a sequence of
+        linear layers with the specified activation function (same activation for all layers but the
+        last one).
+
+        Parameters
+        ----------
+        input_dim : int
+            The number of input features.
+        output_dim : int
+            The number of output neurons.
+        hidden_dims : Tuple[int], default=(100,)
+            The number of hidden neurons in each hidden layer.
+        activation : torch.nn.modules.activation, default=ReLU
+            The activation function of the hidden layers.
+        """
+
         super(TorchMLP, self).__init__()
         dims = [input_dim] + list(hidden_dims)
         layers = OrderedDict()
@@ -83,6 +116,24 @@ class TorchMLP(TorchModel):
 
 class AdaLine(TorchModel):
     def __init__(self, dim: int):
+        """The Adaline perceptron model.
+
+        Implementation of the AdaLine perceptron model [1]_ [2]_.
+        The model is a simple perceptron with a linear activation function.
+
+        Parameters
+        ----------
+        dim : int
+            The number of input features.
+        
+        References
+        ----------
+        .. [1] Bernard Widrow and Marcian E. Hoff. 1988. Adaptive switching circuits.
+           Neurocomputing: foundations of research. MIT Press, Cambridge, MA, USA, 123–134.
+        .. [2] Ormándi, R., Hegedűs, I. and Jelasity, M. (2013), Gossip learning with linear models 
+           on fully distributed data. Concurrency Computat.: Pract. Exper., 25: 556-571.
+           https://doi.org/10.1002/cpe.2858
+        """
         super(AdaLine, self).__init__()
         self.input_dim = dim
         self.model = torch.nn.Parameter(torch.zeros(self.input_dim), requires_grad=False)
@@ -97,12 +148,20 @@ class AdaLine(TorchModel):
         pass
 
 
-class Pegasos(AdaLine):
-    pass
-
 
 class LogisticRegression(TorchModel):
     def __init__(self, input_dim: int, output_dim: int):
+        """Logistic regression model.
+        
+        Implementation of the logistic regression model.
+        
+        Parameters
+        ----------
+        input_dim : int
+            The number of input features.
+        output_dim : int
+            The number of output neurons.
+        """
         super(LogisticRegression, self).__init__()
         self.model = torch.nn.Linear(input_dim, output_dim)
 

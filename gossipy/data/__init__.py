@@ -169,7 +169,7 @@ class DataDispatcher():
         """DataDispatcher is responsible for assigning data to clients.
 
         The assignment is done by shuffling the data and assigning it uniformly to the clients.
-        If a specific assignment is required, use the `set_assignments` method.
+        If a specific assignment is required, use the :meth:`set_assignments` method.
 
         Parameters
         ----------
@@ -204,14 +204,14 @@ class DataDispatcher():
 
         Parameters
         ----------
-        tr_assignments : list[int]
+        tr_assignments : list of int
             The list of assignments for the training set.
-        te_assignments : list[int], default=None
+        te_assignments : list of int, default=None
             The list of assignments for the test set. If None, the test set is not assigned.
         """
 
         assert len(tr_assignments) == self.n
-        assert len(te_assignments) == self.n or not te_assignments
+        assert not te_assignments or len(te_assignments) == self.n
         self.tr_assignments = tr_assignments
         if te_assignments:
             self.te_assignments = te_assignments
@@ -257,11 +257,6 @@ class DataDispatcher():
         -------
         Any
             The data to assign to the specified client.
-        
-        Raises
-        ------
-        AssertionError
-            If the index is out of range, i.e., no clients has the specified index.
         """
 
         assert 0 <= idx < self.n, "Index %d out of range." %idx
@@ -269,7 +264,7 @@ class DataDispatcher():
                self.data_handler.at(self.te_assignments[idx], True)
     
     def size(self) -> int:
-        """Return the number of clients.
+        """Returns the number of clients.
 
         Returns
         -------
@@ -344,9 +339,9 @@ def load_classification_dataset(name_or_path: str,
                                 normalize: bool=True,
                                 as_tensor: bool=True) -> Union[Tuple[torch.Tensor, torch.Tensor],
                                                                Tuple[np.ndarray, np.ndarray]]:
-    """Load a classification dataset.
+    """Loads a classification dataset.
 
-    Dataset can be load from *svmlight* file or can be one of the following:
+    A dataset can be loaded from *svmlight* file or can be one of the following:
     iris, breast, digits, wine, reuters, spambase, sonar, ionosphere, abalone, banknote.
 
     Parameters

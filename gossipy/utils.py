@@ -41,7 +41,7 @@ __all__ = ["choice_not_n",
 def choice_not_n(mn: int,
                  mx: int,
                  notn: int) -> int:
-    r"""Draws from the uniform distribution an integer between ``mn`` and ``mx``, excluding ``notn``.
+    """Draws from the uniform distribution an integer between ``mn`` and ``mx``, excluding ``notn``.
     
     Parameters
     ----------
@@ -50,7 +50,7 @@ def choice_not_n(mn: int,
     mx : int
         Highest integer to be drawn from the uniform distribution.
     notn : int
-        The value to exclude.
+        The integer value to exclude.
 
     Returns
     -------

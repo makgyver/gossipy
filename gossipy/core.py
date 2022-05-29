@@ -351,6 +351,21 @@ class P2PNetwork(ABC):
 
 
 class StaticP2PNetwork(P2PNetwork):
+    def __init__(self, num_nodes: int, topology: Optional[Union[np.ndarray, csr_matrix]]=None):
+        """A class representing a static network topology.
+
+        A static network topology is a network topology where the adjacency matrix is fixed.
+
+        Parameters
+        ----------
+        num_nodes : int
+            The number of nodes in the network.
+        topology : Optional[Union[np.ndarray, csr_matrix]], default=None
+            The adjacency matrix of the network topology. If None, the network is considered
+            to be a fully connected network.
+        """
+        super().__init__(num_nodes, topology)
+
     def get_peers(self, node_id: int) -> List[int]:
         assert 0 <= node_id < self._num_nodes
         return self._topology[node_id]

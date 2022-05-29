@@ -260,6 +260,9 @@ class SimulationReport(SimulationEventReceiver):
         else:
             return self._global_evaluations
 
+    def update_timestep(self, t: int):
+        pass
+
 
 class GossipSimulator(SimulationEventSender):
     def __init__(self,

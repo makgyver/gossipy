@@ -1,11 +1,10 @@
 import networkx as nx
 from networkx.generators.trees import random_tree
 from gossipy import set_seed
-from gossipy import data
 from gossipy.core import AntiEntropyProtocol, CreateModelMode, StaticP2PNetwork
 from gossipy.node import GossipNode
 from gossipy.model.handler import PegasosHandler
-from gossipy.model.nn import Pegasos
+from gossipy.model.nn import AdaLine
 from gossipy.data import load_classification_dataset, DataDispatcher
 from gossipy.data.handler import ClassificationDataHandler
 from gossipy.simul import GossipSimulator, SimulationReport
@@ -33,7 +32,7 @@ nodes = GossipNode.generate(
     data_dispatcher=data_dispatcher,
     p2p_net=topology,
     model_proto=PegasosHandler(
-        net=Pegasos(data_handler.size(1)),
+        net=AdaLine(data_handler.size(1)),
         lam=.01,
         create_model_mode=CreateModelMode.MERGE_UPDATE),
     round_len=100,

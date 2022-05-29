@@ -24,8 +24,8 @@ class TorchModel(torch.nn.Module, Sizeable, ABC):
         """Abstract class for a torch model.
 
         TorchModel is an abstract class that wraps a torch module and provide
-        an interface to easily access the number parameters of the module as well as
-        to easily initialize the weights of the module.
+        an interface to easily access the number of parameters of the module as well as
+        to easily initialize the weights.
         """
 
         super(TorchModel, self).__init__()
