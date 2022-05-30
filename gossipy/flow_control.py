@@ -93,9 +93,11 @@ class PurelyProactiveTokenAccount(TokenAccount):
 
         pass
 
+    # docstr-coverage:inherited
     def proactive(self) -> float:
         return 1
 
+    # docstr-coverage:inherited
     def reactive(self, utility: int) -> int:
         return 0
 
@@ -116,9 +118,11 @@ class PurelyReactiveTokenAccount(TokenAccount):
         super(PurelyReactiveTokenAccount, self).__init__()
         self.k = k
 
+    # docstr-coverage:inherited
     def proactive(self) -> float:
         return 0
 
+    # docstr-coverage:inherited
     def reactive(self, utility: int) -> int:
         return int(utility * self.k)
 
@@ -141,9 +145,11 @@ class SimpleTokenAccount(TokenAccount):
         assert C >= 1, "The capacity C must be strictly positive."
         self.capacity = C
     
+    # docstr-coverage:inherited
     def proactive(self) -> float:
         return int(self.n_tokens >= self.capacity)
 
+    # docstr-coverage:inherited
     def reactive(self, utility: int) -> int:
         return int(self.n_tokens > 0)
 
@@ -177,6 +183,7 @@ class GeneralizedTokenAccount(SimpleTokenAccount):
         assert A <= C, "The capacity C must be greater or equal than the reactivity A."
         self.reactivity = A
 
+    # docstr-coverage:inherited
     def reactive(self, utility: int) -> int:
         num = self.reactivity + self.n_tokens - 1
         return int(num / self.reactivity if utility > 0 else num / (2 * self.reactivity))
@@ -212,6 +219,7 @@ class RandomizedTokenAccount(GeneralizedTokenAccount):
 
         super(RandomizedTokenAccount, self).__init__(C, A)
     
+    # docstr-coverage:inherited
     def proactive(self) -> float:
         if self.n_tokens < self.reactivity - 1:
             return 0
@@ -220,6 +228,7 @@ class RandomizedTokenAccount(GeneralizedTokenAccount):
         else:
             return 1
 
+    # docstr-coverage:inherited
     def reactive(self, utility: int) -> int:
         if utility > 0:
             r = self.n_tokens / self.reactivity

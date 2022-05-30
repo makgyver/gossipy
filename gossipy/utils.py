@@ -183,7 +183,7 @@ def plot_evaluation(evals: List[List[Dict]],
     plt.show()
 
 
-# Undocumented class
 class StringEncoder(JSONEncoder):
+    # docstr-coverage:excused `internal class to handle logging`
     def default(self, o) -> str:
         return str(o)

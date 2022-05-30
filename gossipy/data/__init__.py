@@ -329,17 +329,21 @@ class RecSysDataDispatcher(DataDispatcher):
         self.assignments = torch.randperm(self.data_handler.size()).tolist()
 
 
+    # docstr-coverage:inherited
     def __getitem__(self, idx: int) -> Any:
         assert(0 <= idx < self.n), "Index %d out of range." %idx
         return self.data_handler.at(self.assignments[idx]), \
                self.data_handler.at(self.assignments[idx], True)
     
+    # docstr-coverage:inherited
     def size(self) -> int:
         return self.n
 
+    # docstr-coverage:inherited
     def get_eval_set(self) -> Tuple[Any, Any]:
         return None
     
+    # docstr-coverage:inherited
     def has_test(self) -> bool:
         return False
     

@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score, roc_auc_score, recall_score, f1_scor
 from sklearn.metrics.cluster import normalized_mutual_info_score as nmi
 from scipy.optimize import linear_sum_assignment as hungarian
 
-from .. import CACHE, LOG, CacheKey, Sizeable, EqualityMixin
+from .. import CACHE, LOG, CacheKey, Sizeable
 from ..core import CreateModelMode
 from . import TorchModel
 from .sampling import TorchModelPartition, TorchModelSampling
@@ -38,8 +38,24 @@ __all__ = [
     "KMeansHandler"
 ]
 
+# Undocumented class
+class ModelEqualityMixin(object):
+    
+    # docstr-coverage:excused `internal class to handle equality between models`
+    def __init__(self):
+        pass
 
-class ModelHandler(Sizeable, EqualityMixin, ABC):
+    # docstr-coverage:excused `internal class to handle equality between models`
+    def __eq__(self, other: Any) -> bool:
+        return (isinstance(other, self.__class__) and self.__dict__ == other.__dict__)
+
+    # docstr-coverage:excused `internal class to handle equality between models`
+    def __ne__(self, other: Any) -> bool:
+        return not self.__eq__(other)
+
+
+
+class ModelHandler(Sizeable, ModelEqualityMixin, ABC):
     def __init__(self,
                  create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
                  *args, **kwargs):

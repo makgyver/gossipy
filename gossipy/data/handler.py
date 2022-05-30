@@ -109,15 +109,19 @@ class ClassificationDataHandler(DataHandler):
             else: return None
         else: return self[idx]
 
+    # docstr-coverage:inherited
     def size(self, dim: int=0) -> int:
         return self.Xtr.shape[dim]
     
+    # docstr-coverage:inherited
     def get_train_set(self) -> Tuple[Any, Any]:
         return self.Xtr, self.ytr
 
+    # docstr-coverage:inherited
     def get_eval_set(self) -> Tuple[Any, Any]:
         return self.Xte, self.yte
     
+    # docstr-coverage:inherited
     def eval_size(self) -> int:
         return self.Xte.shape[0] if self.Xte is not None else 0
     
@@ -148,9 +152,11 @@ class ClusteringDataHandler(ClassificationDataHandler):
         """
         super(ClusteringDataHandler, self).__init__(X, y, 0)
 
+    # docstr-coverage:inherited
     def get_eval_set(self) -> Tuple[Any, Any]:
         return self.get_train_set()
     
+    # docstr-coverage:inherited
     def eval_size(self) -> int:
         return self.size()
     
@@ -165,6 +171,7 @@ class RegressionDataHandler(ClassificationDataHandler):
     def __getitem__(self, idx: Union[int, List[int]]) -> Tuple[np.ndarray, float]:
         return self.Xtr[idx, :], self.ytr[idx]
     
+    # docstr-coverage:inherited
     def at(self, 
            idx: Union[int, List[int]],
            eval_set=False) -> Tuple[np.ndarray, float]:
@@ -209,6 +216,7 @@ class RecSysDataHandler(DataHandler):
     def __getitem__(self, idx: int) -> List[Tuple[int, float]]:
         return self.ratings[idx][:self.test_id[idx]]
 
+    # docstr-coverage:inherited
     def at(self, 
            idx: int,
            eval_set: bool=False) -> List[Tuple[int, float]]:
@@ -216,15 +224,19 @@ class RecSysDataHandler(DataHandler):
             return self.ratings[idx][self.test_id[idx]:]
         else: return self[idx]
 
+    # docstr-coverage:inherited
     def size(self) -> int:
         return self.n_users
     
+    # docstr-coverage:inherited
     def get_train_set(self) -> Tuple[Any, Any]:
         return {u : self[u] for u in range(self.n_users)}
 
+    # docstr-coverage:inherited
     def get_eval_set(self) -> Tuple[Any, Any]:
         return {u : self.at(u, True) for u in range(self.n_users)}
     
+    # docstr-coverage:inherited
     def eval_size(self) -> int:
         return 0
     

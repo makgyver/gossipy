@@ -213,6 +213,7 @@ class SimulationReport(SimulationEventReceiver):
 
         self.clear()
     
+    # docstr-coverage:inherited
     def clear(self) -> None:
         """Clears the report."""
 
@@ -222,6 +223,7 @@ class SimulationReport(SimulationEventReceiver):
         self._global_evaluations = []
         self._local_evaluations = []
     
+    # docstr-coverage:inherited
     def update_message(self, failed: bool, msg: Optional[Message]=None) -> None:
         if failed:
             self._failed_messages += 1
@@ -230,6 +232,7 @@ class SimulationReport(SimulationEventReceiver):
             self._sent_messages += 1
             self._total_size += msg.get_size()
     
+    # docstr-coverage:inherited
     def update_evaluation(self,
                           round: int,
                           on_user: bool,
@@ -240,6 +243,7 @@ class SimulationReport(SimulationEventReceiver):
         else:
             self._global_evaluations.append((round, ev))
     
+    # docstr-coverage:inherited
     def update_end(self) -> None:
         LOG.info("# Sent messages: %d" %self._sent_messages)
         LOG.info("# Failed messages: %d" %self._failed_messages)
@@ -254,12 +258,14 @@ class SimulationReport(SimulationEventReceiver):
             res[k] = np.mean(res[k])
         return res
     
+    # docstr-coverage:inherited
     def get_evaluation(self, local: bool=False):
         if local:
             return self._local_evaluations
         else:
             return self._global_evaluations
 
+    # docstr-coverage:inherited
     def update_timestep(self, t: int):
         pass
 
@@ -551,11 +557,12 @@ class TokenizedGossipSimulator(GossipSimulator):
         self.token_account_proto = token_account
         self.accounts = {}
     
+    # docstr-coverage:inherited
     def init_nodes(self, seed: int=98765) -> None:
         super().init_nodes(seed)
         self.accounts = {i: deepcopy(self.token_account_proto) for i in range(self.n_nodes)}
         
-    
+    # docstr-coverage:inherited
     def start(self, n_rounds: int=100) -> Tuple[List[float], List[float]]:
         node_ids = np.arange(self.n_nodes)
         pbar = track(range(n_rounds * self.delta), description="Simulating...")

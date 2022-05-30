@@ -54,9 +54,11 @@ class TorchPerceptron(TorchModel):
             "sigmoid" : activation()
         }))
 
+    # docstr-coverage:inherited
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
 
+    # docstr-coverage:inherited
     def init_weights(self) -> None:
         xavier_uniform_(self.model._modules['linear'].weight)
     
@@ -101,9 +103,11 @@ class TorchMLP(TorchModel):
         #layers["softmax"] = Softmax(1)
         self.model = Sequential(layers)
 
+    # docstr-coverage:inherited
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
 
+    # docstr-coverage:inherited
     def init_weights(self) -> None:
         def _init_weights(m: Module):
             if type(m) == Linear:
@@ -134,17 +138,20 @@ class AdaLine(TorchModel):
            on fully distributed data. Concurrency Computat.: Pract. Exper., 25: 556-571.
            https://doi.org/10.1002/cpe.2858
         """
-        
+
         super(AdaLine, self).__init__()
         self.input_dim = dim
         self.model = torch.nn.Parameter(torch.zeros(self.input_dim), requires_grad=False)
 
+    # docstr-coverage:inherited
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model @ x.T
 
+    # docstr-coverage:inherited
     def get_size(self) -> int:
         return self.input_dim
 
+    # docstr-coverage:inherited
     def init_weights(self) -> None:
         pass
 
@@ -167,9 +174,11 @@ class LogisticRegression(TorchModel):
         super(LogisticRegression, self).__init__()
         self.model = torch.nn.Linear(input_dim, output_dim)
 
+    # docstr-coverage:inherited
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
     
+    # docstr-coverage:inherited
     def init_weights(self) -> None:
         pass
     

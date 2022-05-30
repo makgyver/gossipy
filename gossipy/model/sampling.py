@@ -51,6 +51,7 @@ class TorchModelSampling:
             A dictionary containing the indices of the parameters to be sampled. The keys are the indices of the
             layers, and the values are the indices of the parameters to be sampled in that layer.
         """
+
         assert 0 < size <= 1, "size must be in the range (0, 1]."
         if size >= 0.9:
             LOG.warning("You are using a high sample size (=%.2f) which can impact "\
@@ -88,6 +89,7 @@ class TorchModelSampling:
         reduce : {'mean', 'sum'}
             The reduction method to be used.
         """
+        
         assert str(net1) == str(net2), "net1 and net2 must have the same architecture."
         assert reduce in {"mean", "sum"}, "reduce must be either 'sum' or 'mean'."
 

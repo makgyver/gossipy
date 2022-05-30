@@ -35,9 +35,11 @@ __all__ = ["LOG",
 
 # Undocumented class
 class DuplicateFilter(object):
+    # docstr-coverage:excused `internal class to handle logging`
     def __init__(self):
         self.msgs = set()
 
+    # docstr-coverage:excused `internal class to handle logging`
     def filter(self, record):
         rv = record.msg not in self.msgs
         self.msgs.add(record.msg)
@@ -70,18 +72,6 @@ def set_seed(seed=0) -> None:
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-
-
-# Undocumented class
-class EqualityMixin(object):
-    def __init__(self):
-        pass
-
-    def __eq__(self, other: Any) -> bool:
-        return (isinstance(other, self.__class__) and self.__dict__ == other.__dict__)
-
-    def __ne__(self, other: Any) -> bool:
-        return not self.__eq__(other)
 
 
 class Sizeable(ABC):
@@ -126,6 +116,7 @@ class CacheKey(Sizeable):
 
         return self.key
     
+    # docstr-coverage:inherited
     def get_size(self) -> int:
         val = CACHE[self]
         if isinstance(val, (float, int, bool)): return 1
@@ -195,6 +186,7 @@ class CacheItem(Sizeable):
 
         return self._refs > 0
     
+    # docstr-coverage:inherited
     def get_size(self) -> int:
         if isinstance(self._value, (tuple, list)):
             sz: int = 0

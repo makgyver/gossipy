@@ -340,6 +340,7 @@ class P2PNetwork(ABC):
         else:
             self._topology = {i: None for i in range(num_nodes)}
 
+    # docstr-coverage:inherited
     def size(self, node: Optional[int]=None) -> int:
         if node:
             return len(self._topology[node]) if self._topology[node] else self._num_nodes - 1
@@ -347,6 +348,14 @@ class P2PNetwork(ABC):
 
     @abstractmethod
     def get_peers(self, node_id: int):
+        """Abstract method to get the peers of a node.
+
+        Parameters
+        ----------
+        node_id : int
+            The node identifier.
+        """
+
         pass
 
 
@@ -367,5 +376,12 @@ class StaticP2PNetwork(P2PNetwork):
         super().__init__(num_nodes, topology)
 
     def get_peers(self, node_id: int) -> List[int]:
+        """Returns the peers of a node according to the static network topology.
+
+        Parameters
+        ----------
+        node_id : int
+            The node identifier.
+        """
         assert 0 <= node_id < self._num_nodes
         return self._topology[node_id]
