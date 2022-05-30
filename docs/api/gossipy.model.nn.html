@@ -274,13 +274,24 @@
 <dt class="sig sig-object py" id="gossipy.model.nn.AdaLine">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.nn.</span></span><span class="sig-name descname"><span class="pre">AdaLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.nn.AdaLine" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.TorchModel</span></code></a></p>
-<p>Abstract class for a torch model.</p>
-<p>TorchModel is an abstract class that wraps a torch module and provide
-an interface to easily access the number of parameters of the module as well as
-to easily initialize the weights.</p>
+<p>The Adaline perceptron model.</p>
+<p>Implementation of the AdaLine perceptron model <a href="#id7"><span class="problematic" id="id1">[1]_</span></a> <a class="footnote-reference brackets" href="#id4" id="id2">2</a>.
+The model is a simple perceptron with a linear activation function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of input features.</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id3"><span class="brackets">1</span></dt>
+<dd><p>Bernard Widrow and Marcian E. Hoff. 1988. Adaptive switching circuits.
+Neurocomputing: foundations of research. MIT Press, Cambridge, MA, USA, 123–134.</p>
+</dd>
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>Ormándi, R., Hegedűs, I. and Jelasity, M. (2013), Gossip learning with linear models
+on fully distributed data. Concurrency Computat.: Pract. Exper., 25: 556-571.
+<a class="reference external" href="https://doi.org/10.1002/cpe.2858">https://doi.org/10.1002/cpe.2858</a></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -336,15 +347,13 @@ registered hooks while the latter silently ignores them.</p>
 <dt class="sig sig-object py" id="gossipy.model.nn.LogisticRegression">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.nn.</span></span><span class="sig-name descname"><span class="pre">LogisticRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.nn.LogisticRegression" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.TorchModel</span></code></a></p>
-<p>Abstract class for a torch model.</p>
-<p>TorchModel is an abstract class that wraps a torch module and provide
-an interface to easily access the number of parameters of the module as well as
-to easily initialize the weights.</p>
+<p>Logistic regression model.</p>
+<p>Implementation of the logistic regression model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>output_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>input_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of input features.</p></li>
+<li><p><strong>output_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of output neurons.</p></li>
 </ul>
 </dd>
 </dl>
@@ -384,35 +393,20 @@ registered hooks while the latter silently ignores them.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="gossipy.model.nn.Pegasos">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.nn.</span></span><span class="sig-name descname"><span class="pre">Pegasos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.nn.Pegasos" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#gossipy.model.nn.AdaLine" title="gossipy.model.nn.AdaLine"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.nn.AdaLine</span></code></a></p>
-<p>Abstract class for a torch model.</p>
-<p>TorchModel is an abstract class that wraps a torch module and provide
-an interface to easily access the number of parameters of the module as well as
-to easily initialize the weights.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="gossipy.model.nn.TorchMLP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.nn.</span></span><span class="sig-name descname"><span class="pre">TorchMLP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dims=(100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation=&lt;class</span> <span class="pre">'torch.nn.modules.activation.ReLU'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.nn.TorchMLP" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.TorchModel</span></code></a></p>
-<p>Abstract class for a torch model.</p>
-<p>TorchModel is an abstract class that wraps a torch module and provide
-an interface to easily access the number of parameters of the module as well as
-to easily initialize the weights.</p>
+<p>Multi-layer perceptron model.</p>
+<p>Implementation of the multi-layer perceptron model. The model is composed of a sequence of
+linear layers with the specified activation function (same activation for all layers but the
+last one).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>output_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>hidden_dims</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><em>Tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>]</em>) – </p></li>
-<li><p><strong>activation</strong> (<em>torch.nn.modules.module.Module</em>) – </p></li>
+<li><p><strong>input_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of input features.</p></li>
+<li><p><strong>output_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of output neurons.</p></li>
+<li><p><strong>hidden_dims</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>]</em><em>, </em><em>default=</em><em>(</em><em>100</em><em>,</em><em>)</em>) – The number of hidden neurons in each hidden layer.</p></li>
+<li><p><strong>activation</strong> (<em>torch.nn.modules.activation</em><em>, </em><em>default=ReLU</em>) – The activation function of the hidden layers.</p></li>
 </ul>
 </dd>
 </dl>
@@ -453,10 +447,10 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="gossipy.model.nn.TorchPerceptron">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.nn.</span></span><span class="sig-name descname"><span class="pre">TorchPerceptron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Sigmoid()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.nn.TorchPerceptron" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.nn.</span></span><span class="sig-name descname"><span class="pre">TorchPerceptron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation=&lt;class</span> <span class="pre">'torch.nn.modules.activation.Sigmoid'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias=True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.nn.TorchPerceptron" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.TorchModel</span></code></a></p>
 <p>Perceptron model.</p>
-<p>Implementation of the perceptron model by Rosenblatt <a class="footnote-reference brackets" href="#id2" id="id1">1</a>.</p>
+<p>Implementation of the perceptron model by Rosenblatt <a href="#id8"><span class="problematic" id="id5">[1]_</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -468,7 +462,7 @@ registered hooks while the latter silently ignores them.</p>
 </dl>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
-<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="label" id="id6"><span class="brackets">1</span></dt>
 <dd><p>Rosenblatt, Frank. “The perceptron: a probabilistic model for information storage and
 organization in the brain”. Psychological review 65 6 (1958): 386-408.</p>
 </dd>

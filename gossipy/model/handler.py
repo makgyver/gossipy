@@ -14,7 +14,7 @@ from .. import CACHE, LOG, CacheKey, Sizeable, EqualityMixin
 from ..core import CreateModelMode
 from . import TorchModel
 from .sampling import TorchModelPartition, TorchModelSampling
-from .nn import AdaLine, Pegasos
+from .nn import AdaLine
 
 # AUTHORSHIP
 __version__ = "0.0.1"
@@ -56,6 +56,10 @@ class ModelHandler(Sizeable, EqualityMixin, ABC):
         ----------
         create_model_mode : CreateModelMode, default=CreateModelMode.MERGE_UPDATE
             The mode in which the model is created/updated.
+        
+        See Also
+        --------
+        gossipy.core.CreateModelMode
         """
 
         self.model = None
@@ -170,8 +174,35 @@ class TorchModelHandler(ModelHandler):
                  criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
                  local_epochs: int=1,
                  batch_size: int=32,
-                 create_model_mode: CreateModelMode=CreateModelMode.UPDATE,
+                 create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
                  copy_model=True):
+        """Handler for torch models.
+
+        This handler is responsible for the training and evaluation of a pytorch model. Thus it
+        requires a :class:`~gossipy.core.torch.TorchModel` instance that represents the model to
+        be trained, and an optimizer (e.g., :class:`torch.optim.SGD`) with its parameters (a dict).
+        The ``criterion`` is the loss function to be used for the training.
+
+        Parameters
+        ----------
+        net : TorchModel
+            The model to be trained.
+        optimizer : torch.optim.Optimizer
+            The optimizer to be used for the training.
+        optimizer_params : Dict[str, Any]
+            The parameters of the optimizer.
+        criterion : Callable[[torch.Tensor, torch.Tensor], torch.Tensor]
+            The loss function to be used for the training.
+        local_epochs : int, default=1
+            The number of local epochs.
+        batch_size : int, default=32
+            The batch size.
+        create_model_mode : CreateModelMode, default=CreateModelMode.MERGE_UPDATE
+            The mode in which the model is created/updated
+        copy_model : bool, default=True
+            Whether to use a copy of the model (i.e., ``net``) or not.
+        """
+
         super(TorchModelHandler, self).__init__(create_model_mode)
         self.model = copy.deepcopy(net) if copy_model else net
         self.optimizer = optimizer(self.model.parameters(), **optimizer_params)
@@ -229,6 +260,26 @@ class TorchModelHandler(ModelHandler):
 
     def evaluate(self,
                  data: Tuple[torch.Tensor, torch.Tensor]) -> Dict[str, int]:
+        """Evaluates the model on the given data.
+
+        Parameters
+        ----------
+        data : Tuple[torch.Tensor, torch.Tensor]
+            The data to use for the evaluation.
+
+        Returns
+        -------
+        Dict[str, int]
+            The evaluation results. The dictionary keys are the metrics names, and the values are
+            the corresponding scores.
+        
+        Notes
+        -----
+        Currently, only metrics for classification tasks are implemented. Specifically, 
+        the evaluation metrics are: ``accuracy``, ``precision``, ``recall``, ``f1``, and,
+        when possible, ``roc_auc``.
+        """
+
         x, y = data
         self.model.eval()
         scores = self.model(x)
@@ -264,6 +315,20 @@ class AdaLineHandler(ModelHandler):
                  learning_rate: float,
                  create_model_mode: CreateModelMode=CreateModelMode.UPDATE,
                  copy_model: bool=True):
+        """This class implements the AdaLine model handler.
+
+        Parameters
+        ----------
+        net : AdaLine
+            The AdaLine model.
+        learning_rate : float
+            The learning rate.
+        create_model_mode : CreateModelMode, default=CreateModelMode.UPDATE
+            The mode in which the model is created/updated.
+        copy_model : bool, default=True
+            Whether to use a copy of the model (i.e., ``net``) or not.
+        """
+
         super(AdaLineHandler, self).__init__(create_model_mode)
         self.model = copy.deepcopy(net) if copy_model else net
         self.learning_rate = learning_rate
@@ -303,11 +368,25 @@ class AdaLineHandler(ModelHandler):
 
 class PegasosHandler(AdaLineHandler):
     def __init__(self,
-                 net: Pegasos,
-                 lam: float,
+                 net: AdaLine,
+                 learning_rate: float,
                  create_model_mode: CreateModelMode=CreateModelMode.UPDATE,
                  copy_model: bool=True):
-        super(PegasosHandler, self).__init__(net, lam, create_model_mode, copy_model)
+        """This class implements the Pegasos model handler.
+
+        Parameters
+        ----------
+        net : AdaLine
+            The Pegasos (same as AdaLine) model.
+        learning_rate : float
+            The learning rate.
+        create_model_mode : CreateModelMode, default=CreateModelMode.UPDATE
+            The mode in which the model is created/updated.
+        copy_model : bool, default=True
+            Whether to use a copy of the model (i.e., ``net``) or not.
+        """
+
+        super(PegasosHandler, self).__init__(net, learning_rate, create_model_mode, copy_model)
     
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
         x, y = data

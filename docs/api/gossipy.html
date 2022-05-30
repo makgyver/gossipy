@@ -993,7 +993,14 @@ The sending is performed by the simluator and it may be delayed or it can fail.<
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.simul.</span></span><span class="sig-name descname"><span class="pre">GossipSimulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dispatcher</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">online_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ConstantDelay(0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_eval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.GossipSimulator" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.simul.SimulationEventSender" title="gossipy.simul.SimulationEventSender"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.SimulationEventSender</span></code></a></p>
 <p>Class that implements a <em>vanilla</em> gossip learning simulation.</p>
-<p>TODO</p>
+<p>The simulation is divided into “rounds” and each round consists of a <code class="docutils literal notranslate"><span class="pre">delta</span></code> timesteps.
+A single time step represent the time unit of the simulation. At each time step, the nodes
+that timed out act according to the gossip protocol, e.g., in the case of the PUSH protocol,
+the nodes send a message (i.e., its model) to a random neighbor. The message arrives at the
+destination node with a <code class="docutils literal notranslate"><span class="pre">delay</span></code> (see <code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.Delay</span></code>). Messages can also drop
+according to a probability defined by the <code class="docutils literal notranslate"><span class="pre">drop_prob</span></code> parameter. Similarly, nodes can
+drop according to a probability equals to <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">online_prob</span></code>. Nodes are considered in a
+random order even if they time out in the same timestep.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1329,14 +1336,27 @@ events.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationReport.update_timestep">
+<span class="sig-name descname"><span class="pre">update_timestep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationReport.update_timestep" title="Permalink to this definition">#</a></dt>
+<dd><p>Signals the end of the timestep <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The current time step.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="gossipy.simul.TokenizedGossipSimulator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.simul.</span></span><span class="sig-name descname"><span class="pre">TokenizedGossipSimulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dispatcher</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_account</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utility_fun</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">online_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ConstantDelay(0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_eval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.TokenizedGossipSimulator" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.simul.GossipSimulator" title="gossipy.simul.GossipSimulator"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.GossipSimulator</span></code></a></p>
-<p>Class that implements a <em>vanilla</em> gossip learning simulation.</p>
-<p>TODO</p>
+<p>Class that implements a gossip learning simulation using token account <span id="id1">[<a class="reference internal" href="#id6" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span>.</p>
+<p>The simulation happens similary to the <a class="reference internal" href="#gossipy.simul.GossipSimulator" title="gossipy.simul.GossipSimulator"><code class="xref py py-class docutils literal notranslate"><span class="pre">GossipSimulator</span></code></a>, but the communication
+pattern is handled by a token account algorithm (see <code class="xref py py-class docutils literal notranslate"><span class="pre">TokenAccount</span></code>).
+Token account based flow control mechanism can be useful in case of bursty communication <span id="id2">[<a class="reference internal" href="#id7" title="István Hegedűs, Gábor Danner, and Márk Jelasity. Decentralized learning works: an empirical comparison of gossip learning and federated learning. Journal of Parallel and Distributed Computing, 148:109-124, 2021. URL: https://www.sciencedirect.com/science/article/pii/S0743731520303890, doi:https://doi.org/10.1016/j.jpdc.2020.10.006.">HegedHusDJ21</a>]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1344,14 +1364,22 @@ events.</p>
 are the corresponding nodes (instances of the class <code class="xref py py-class docutils literal notranslate"><span class="pre">GossipNode</span></code>).</p></li>
 <li><p><strong>data_dispatcher</strong> (<em>DataDispatcher</em>) – The data dispatcher. Useful if the evaluation is performed on a separate test set, i.e.,
 not on the nodes.</p></li>
+<li><p><strong>token_account</strong> (<a class="reference internal" href="#gossipy.flow_control.TokenAccount" title="gossipy.flow_control.TokenAccount"><em>TokenAccount</em></a>) – The token account strategy.</p></li>
+<li><p><strong>utility_fun</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a><em>, </em><a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a><em>, </em><em>Message</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>]</em>) – Function defining the usefulness of a message. The usefulness expresses the notion that
+some messages are more important than others in most applications. For example, in the
+broadcast application, the received message is useful if and only if it contains new
+information for the node.
+The signatue of the function is:
+<code class="docutils literal notranslate"><span class="pre">utility_fun(model_handler_1,</span> <span class="pre">model_handler_2,</span> <span class="pre">msg)</span> <span class="pre">-&gt;</span> <span class="pre">int</span></code>
+where <code class="docutils literal notranslate"><span class="pre">model_handler_1</span></code> and <code class="docutils literal notranslate"><span class="pre">model_handler_2</span></code> are the model handlers of the
+nodes involved in the message exchange, and <code class="docutils literal notranslate"><span class="pre">msg</span></code> is the message.
+The function must return an integer value.</p></li>
 <li><p><strong>delta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of timesteps of a round.</p></li>
 <li><p><strong>protocol</strong> (<em>AntiEntropyProtocol</em>) – The protocol of the gossip simulation.</p></li>
 <li><p><strong>drop_prob</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.</em>) – The probability of a message being dropped.</p></li>
 <li><p><strong>online_prob</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1.</em>) – The probability of a node to be online.</p></li>
 <li><p><strong>delay</strong> (<em>Delay</em><em>, </em><em>default=ConstantDelay</em><em>(</em><em>0</em><em>)</em>) – The (potential) function delay of the messages.</p></li>
 <li><p><strong>sampling_eval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.</em>) – The percentage of nodes to use during evaluate. If 0 or 1, all nodes are considered.</p></li>
-<li><p><strong>token_account</strong> (<a class="reference internal" href="#gossipy.flow_control.TokenAccount" title="gossipy.flow_control.TokenAccount"><em>TokenAccount</em></a>) – </p></li>
-<li><p><strong>utility_fun</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a><em>, </em><a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1398,31 +1426,19 @@ sent/fail message and evaluation.</p>
 <dt class="sig sig-object py" id="gossipy.utils.choice_not_n">
 <span class="sig-prename descclassname"><span class="pre">gossipy.utils.</span></span><span class="sig-name descname"><span class="pre">choice_not_n</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.utils.choice_not_n" title="Permalink to this definition">#</a></dt>
 <dd><p>Draws from the uniform distribution an integer between <code class="docutils literal notranslate"><span class="pre">mn</span></code> and <code class="docutils literal notranslate"><span class="pre">mx</span></code>, excluding <code class="docutils literal notranslate"><span class="pre">notn</span></code>.</p>
-<blockquote>
-<div><dl class="simple">
-<dt>mn<span class="classifier">int</span></dt><dd><p>Lowest integer to be drawn from the uniform distribution.</p>
-</dd>
-<dt>mx<span class="classifier">int</span></dt><dd><p>Highest integer to be drawn from the uniform distribution.</p>
-</dd>
-<dt>notn<span class="classifier">int</span></dt><dd><p>The integer value to exclude.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>int</dt><dd><p>Random integer <span class="math notranslate nohighlight">\(x\)</span> s.t. <code class="docutils literal notranslate"><span class="pre">mn</span></code> <span class="math notranslate nohighlight">\(\leq x \leq\)</span> <code class="docutils literal notranslate"><span class="pre">mx</span></code> and :math:<a href="#id1"><span class="problematic" id="id2">`</span></a>x</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>eq` <code class="docutils literal notranslate"><span class="pre">notn</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
-</dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>mn</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>mx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>notn</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mn</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Lowest integer to be drawn from the uniform distribution.</p></li>
+<li><p><strong>mx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Highest integer to be drawn from the uniform distribution.</p></li>
+<li><p><strong>notn</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The integer value to exclude.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Random integer <span class="math notranslate nohighlight">\(x\)</span> s.t. <code class="docutils literal notranslate"><span class="pre">mn</span></code> <span class="math notranslate nohighlight">\(\leq x \leq\)</span> <code class="docutils literal notranslate"><span class="pre">mx</span></code> and <span class="math notranslate nohighlight">\(x \neq\)</span> <code class="docutils literal notranslate"><span class="pre">notn</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1516,25 +1532,37 @@ corresponding performance.</p></li>
 <dt class="sig sig-object py" id="gossipy.flow_control.GeneralizedTokenAccount">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.flow_control.</span></span><span class="sig-name descname"><span class="pre">GeneralizedTokenAccount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.GeneralizedTokenAccount" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.flow_control.SimpleTokenAccount" title="gossipy.flow_control.SimpleTokenAccount"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.flow_control.SimpleTokenAccount</span></code></a></p>
-<p>Abstract class representing a generic token account.</p>
-<p>The token account framework has been firstly proposed in <span id="id3">[<a class="reference internal" href="#id10" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span></p>
+<p>Generalized token account.</p>
+<p>Implements a generalized simple token account strategy with a reactive function that is able
+to increase the number of messages sent when the number of tokens is high.
+To this end, the proactive function is the same as in <a class="reference internal" href="#gossipy.flow_control.SimpleTokenAccount" title="gossipy.flow_control.SimpleTokenAccount"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleTokenAccount</span></code></a> while the
+reactive function is defined as <span id="id3">[<a class="reference internal" href="#id6" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span>:</p>
+<p><span class="math notranslate nohighlight">\(\operatorname{REACTIVE}(a, u)= \begin{cases}\lfloor(A-1+a) / A\rfloor &amp; \text { if }
+u\\ \lfloor(A-1+a) /(2 A)\rfloor &amp; \text { otherwise }\end{cases}\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(u\)</span> is the account balance, <span class="math notranslate nohighlight">\(C\)</span> is
+the capacity of the token account, and <span class="math notranslate nohighlight">\(A\)</span> is the reactivity of the token account.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>C</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>A</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>C</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The capacity of the token account.</p></li>
+<li><p><strong>A</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The reactivity of the token account.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.GeneralizedTokenAccount.reactive">
 <span class="sig-name descname"><span class="pre">reactive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">utility</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.GeneralizedTokenAccount.reactive" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+<dd><p>Method that along with the <code class="docutils literal notranslate"><span class="pre">proactive</span></code> method defines the token account
+strategy.</p>
+<p>It returns the number of messages that the node will send as a reaction to an incoming
+message, as a function of the account balance and the usefulness (i.e., <code class="docutils literal notranslate"><span class="pre">utility</span></code>) of the
+received message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The utility of the current token.</p>
 </dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1545,14 +1573,20 @@ corresponding performance.</p></li>
 <dt class="sig sig-object py" id="gossipy.flow_control.PurelyProactiveTokenAccount">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.flow_control.</span></span><span class="sig-name descname"><span class="pre">PurelyProactiveTokenAccount</span></span><a class="headerlink" href="#gossipy.flow_control.PurelyProactiveTokenAccount" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.flow_control.TokenAccount" title="gossipy.flow_control.TokenAccount"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.flow_control.TokenAccount</span></code></a></p>
-<p>Abstract class representing a generic token account.</p>
-<p>The token account framework has been firstly proposed in <span id="id4">[<a class="reference internal" href="#id10" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span></p>
+<p>Purely proactive token account.</p>
+<p>This is a special case of the token account framework and it essentially implements a standard
+push gossip algorithm.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.PurelyProactiveTokenAccount.proactive">
 <span class="sig-name descname"><span class="pre">proactive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.PurelyProactiveTokenAccount.proactive" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd><p>Method that along with the <code class="docutils literal notranslate"><span class="pre">reactive</span></code> method defines the token account
+strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The probability of a token being consumed.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1560,12 +1594,17 @@ corresponding performance.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.PurelyProactiveTokenAccount.reactive">
 <span class="sig-name descname"><span class="pre">reactive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">utility</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.PurelyProactiveTokenAccount.reactive" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+<dd><p>Method that along with the <code class="docutils literal notranslate"><span class="pre">proactive</span></code> method defines the token account
+strategy.</p>
+<p>It returns the number of messages that the node will send as a reaction to an incoming
+message, as a function of the account balance and the usefulness (i.e., <code class="docutils literal notranslate"><span class="pre">utility</span></code>) of the
+received message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The utility of the current token.</p>
 </dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1576,19 +1615,25 @@ corresponding performance.</p></li>
 <dt class="sig sig-object py" id="gossipy.flow_control.PurelyReactiveTokenAccount">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.flow_control.</span></span><span class="sig-name descname"><span class="pre">PurelyReactiveTokenAccount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.PurelyReactiveTokenAccount" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.flow_control.TokenAccount" title="gossipy.flow_control.TokenAccount"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.flow_control.TokenAccount</span></code></a></p>
-<p>Abstract class representing a generic token account.</p>
-<p>The token account framework has been firstly proposed in <span id="id5">[<a class="reference internal" href="#id10" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span></p>
+<p>Purely reactive token account.</p>
+<p>Naive reactive token account variants where every message received triggers message
+sending immediately.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1</em>) – The number of messages to send in case of reaction.</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.PurelyReactiveTokenAccount.proactive">
 <span class="sig-name descname"><span class="pre">proactive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.PurelyReactiveTokenAccount.proactive" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd><p>Method that along with the <code class="docutils literal notranslate"><span class="pre">reactive</span></code> method defines the token account
+strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The probability of a token being consumed.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1596,12 +1641,17 @@ corresponding performance.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.PurelyReactiveTokenAccount.reactive">
 <span class="sig-name descname"><span class="pre">reactive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">utility</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.PurelyReactiveTokenAccount.reactive" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+<dd><p>Method that along with the <code class="docutils literal notranslate"><span class="pre">proactive</span></code> method defines the token account
+strategy.</p>
+<p>It returns the number of messages that the node will send as a reaction to an incoming
+message, as a function of the account balance and the usefulness (i.e., <code class="docutils literal notranslate"><span class="pre">utility</span></code>) of the
+received message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The utility of the current token.</p>
 </dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1612,22 +1662,38 @@ corresponding performance.</p></li>
 <dt class="sig sig-object py" id="gossipy.flow_control.RandomizedTokenAccount">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.flow_control.</span></span><span class="sig-name descname"><span class="pre">RandomizedTokenAccount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.RandomizedTokenAccount" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.flow_control.GeneralizedTokenAccount" title="gossipy.flow_control.GeneralizedTokenAccount"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.flow_control.GeneralizedTokenAccount</span></code></a></p>
-<p>Abstract class representing a generic token account.</p>
-<p>The token account framework has been firstly proposed in <span id="id6">[<a class="reference internal" href="#id10" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span></p>
+<p>This token account strategy implements a more fine-grained handling of proactive
+messages. In fact, the proactive function returns 1 when the balance is at least the
+capacity (as always) but it adds some proactive behavior even when this is not the case:
+the returned value is linear starting from A − 1 until C. The starting point of this linear
+segment is A − 1 because if the balance is less than A then the reactive function
+will be able to send less than one messages on average:</p>
+<p><span class="math notranslate nohighlight">\(\operatorname{PROACTIVE}(a)= \begin{cases}0 &amp; \text { if } a&lt;A-1 \\
+\frac{a-A+1}{C-A+1} &amp; \text { if } a \in[A-1, C] \\ 1 &amp; \text { otherwise. }\end{cases}\)</span></p>
+<p>Instad, the reactive function is:</p>
+<p><span class="math notranslate nohighlight">\(\operatorname{REACTIVE}(a, u)= \begin{cases} \text{randRound}(a / A) &amp; \text { if }
+u \\ 0 &amp; \text { otherwise }\end{cases}\)</span></p>
+<p>where the only difference with the <a class="reference internal" href="#gossipy.flow_control.GeneralizedTokenAccount" title="gossipy.flow_control.GeneralizedTokenAccount"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralizedTokenAccount</span></code></a> is that the rounding is
+performed randomly.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>C</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>A</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>C</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The capacity of the token account.</p></li>
+<li><p><strong>A</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The reactivity of the token account.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.RandomizedTokenAccount.proactive">
 <span class="sig-name descname"><span class="pre">proactive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.RandomizedTokenAccount.proactive" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd><p>Method that along with the <code class="docutils literal notranslate"><span class="pre">reactive</span></code> method defines the token account
+strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The probability of a token being consumed.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1635,12 +1701,17 @@ corresponding performance.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.RandomizedTokenAccount.reactive">
 <span class="sig-name descname"><span class="pre">reactive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">utility</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.RandomizedTokenAccount.reactive" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+<dd><p>Method that along with the <code class="docutils literal notranslate"><span class="pre">proactive</span></code> method defines the token account
+strategy.</p>
+<p>It returns the number of messages that the node will send as a reaction to an incoming
+message, as a function of the account balance and the usefulness (i.e., <code class="docutils literal notranslate"><span class="pre">utility</span></code>) of the
+received message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The utility of the current token.</p>
 </dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1651,19 +1722,26 @@ corresponding performance.</p></li>
 <dt class="sig sig-object py" id="gossipy.flow_control.SimpleTokenAccount">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.flow_control.</span></span><span class="sig-name descname"><span class="pre">SimpleTokenAccount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.SimpleTokenAccount" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.flow_control.TokenAccount" title="gossipy.flow_control.TokenAccount"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.flow_control.TokenAccount</span></code></a></p>
-<p>Abstract class representing a generic token account.</p>
-<p>The token account framework has been firstly proposed in <span id="id7">[<a class="reference internal" href="#id10" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span></p>
+<p>Simple token account.</p>
+<p>Implements a “standard” token account strategy where the node will proactively send a
+message if it has at the number of tokens are at least equal to the capacity. It is also
+reactive iff the node has at least one token.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>C</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>C</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1</em>) – The capacity of the token account.</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.SimpleTokenAccount.proactive">
 <span class="sig-name descname"><span class="pre">proactive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.SimpleTokenAccount.proactive" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd><p>Method that along with the <code class="docutils literal notranslate"><span class="pre">reactive</span></code> method defines the token account
+strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The probability of a token being consumed.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1671,12 +1749,17 @@ corresponding performance.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.SimpleTokenAccount.reactive">
 <span class="sig-name descname"><span class="pre">reactive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">utility</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.SimpleTokenAccount.reactive" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+<dd><p>Method that along with the <code class="docutils literal notranslate"><span class="pre">proactive</span></code> method defines the token account
+strategy.</p>
+<p>It returns the number of messages that the node will send as a reaction to an incoming
+message, as a function of the account balance and the usefulness (i.e., <code class="docutils literal notranslate"><span class="pre">utility</span></code>) of the
+received message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The utility of the current token.</p>
 </dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1688,16 +1771,17 @@ corresponding performance.</p></li>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.flow_control.</span></span><span class="sig-name descname"><span class="pre">TokenAccount</span></span><a class="headerlink" href="#gossipy.flow_control.TokenAccount" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
 <p>Abstract class representing a generic token account.</p>
-<p>The token account framework has been firstly proposed in <span id="id8">[<a class="reference internal" href="#id10" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span></p>
+<p>The token account framework has been firstly proposed in <span id="id4">[]</span>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.TokenAccount.add">
 <span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.TokenAccount.add" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd><p>Increases the number of tokens by <code class="docutils literal notranslate"><span class="pre">n</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1</em>) – The number of tokens to add.</p>
 </dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1705,9 +1789,14 @@ corresponding performance.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.TokenAccount.proactive">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">proactive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.TokenAccount.proactive" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd><p>Method that along with the <code class="docutils literal notranslate"><span class="pre">reactive</span></code> method defines the token account
+strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The probability of a token being consumed.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1715,12 +1804,17 @@ corresponding performance.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.TokenAccount.reactive">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reactive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">utility</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.TokenAccount.reactive" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+<dd><p>Method that along with the <code class="docutils literal notranslate"><span class="pre">proactive</span></code> method defines the token account
+strategy.</p>
+<p>It returns the number of messages that the node will send as a reaction to an incoming
+message, as a function of the account balance and the usefulness (i.e., <code class="docutils literal notranslate"><span class="pre">utility</span></code>) of the
+received message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The utility of the current token.</p>
 </dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>utility</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1728,22 +1822,26 @@ corresponding performance.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.TokenAccount.sub">
 <span class="sig-name descname"><span class="pre">sub</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.TokenAccount.sub" title="Permalink to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd><p>Decreases the number of tokens by <code class="docutils literal notranslate"><span class="pre">n</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1</em>) – The number of tokens to remove.</p>
 </dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 </dd></dl>
 
-<div class="docutils container" id="id9">
+<div class="docutils container" id="id5">
 <dl class="citation">
-<dt class="label" id="id10"><span class="brackets">DJ18</span><span class="fn-backref">(<a href="#id3">1</a>,<a href="#id4">2</a>,<a href="#id5">3</a>,<a href="#id6">4</a>,<a href="#id7">5</a>,<a href="#id8">6</a>)</span></dt>
+<dt class="label" id="id6"><span class="brackets">DJ18</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id3">2</a>)</span></dt>
 <dd><p>Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In <em>2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS)</em>, volume, 885–895. 2018. <a class="reference external" href="https://doi.org/10.1109/ICDCS.2018.00090">doi:10.1109/ICDCS.2018.00090</a>.</p>
+</dd>
+<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id2">HegedHusDJ21</a></span></dt>
+<dd><p>István Hegedűs, Gábor Danner, and Márk Jelasity. Decentralized learning works: an empirical comparison of gossip learning and federated learning. <em>Journal of Parallel and Distributed Computing</em>, 148:109–124, 2021. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0743731520303890">https://www.sciencedirect.com/science/article/pii/S0743731520303890</a>, <a class="reference external" href="https://doi.org/https://doi.org/10.1016/j.jpdc.2020.10.006">doi:https://doi.org/10.1016/j.jpdc.2020.10.006</a>.</p>
 </dd>
 </dl>
 </div>

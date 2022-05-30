@@ -8,3 +8,17 @@
   pages={885-895},
   doi={10.1109/ICDCS.2018.00090}
 }
+
+
+@article{Hegedus:2021,
+	abstract = {Machine learning over distributed data stored by many clients has important applications in use cases where data privacy is a key concern or central data storage is not an option. Recently, federated learning was proposed to solve this problem. The assumption is that the data itself is not collected centrally. In a master--worker architecture, the workers perform machine learning over their own data and the master merely aggregates the resulting models without seeing any raw data, not unlike the parameter server approach. Gossip learning is a decentralized alternative to federated learning that does not require an aggregation server or indeed any central component. The natural hypothesis is that gossip learning is strictly less efficient than federated learning due to relying on a more basic infrastructure: only message passing and no cloud resources. In this empirical study, we examine this hypothesis and we present a systematic comparison of the two approaches. The experimental scenarios include a real churn trace collected over mobile phones, continuous and bursty communication patterns, different network sizes and different distributions of the training data over the devices. We also evaluate a number of additional techniques including a compression technique based on sampling, and token account based flow control for gossip learning. We examine the aggregated cost of machine learning in both approaches. Surprisingly, the best gossip variants perform comparably to the best federated learning variants overall, so they offer a fully decentralized alternative to federated learning.},
+	author = {Istv{\'a}n Heged{\H u}s and G{\'a}bor Danner and M{\'a}rk Jelasity},
+	doi = {https://doi.org/10.1016/j.jpdc.2020.10.006},
+	issn = {0743-7315},
+	journal = {Journal of Parallel and Distributed Computing},
+	keywords = {Federated learning, Gossip learning, Decentralized machine learning},
+	pages = {109-124},
+	title = {Decentralized learning works: An empirical comparison of gossip learning and federated learning},
+	volume = {148},
+	year = {2021}
+}

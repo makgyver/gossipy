@@ -134,6 +134,7 @@ class AdaLine(TorchModel):
            on fully distributed data. Concurrency Computat.: Pract. Exper., 25: 556-571.
            https://doi.org/10.1002/cpe.2858
         """
+        
         super(AdaLine, self).__init__()
         self.input_dim = dim
         self.model = torch.nn.Parameter(torch.zeros(self.input_dim), requires_grad=False)
@@ -162,6 +163,7 @@ class LogisticRegression(TorchModel):
         output_dim : int
             The number of output neurons.
         """
+
         super(LogisticRegression, self).__init__()
         self.model = torch.nn.Linear(input_dim, output_dim)
 

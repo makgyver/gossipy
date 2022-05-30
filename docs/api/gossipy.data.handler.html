@@ -280,12 +280,12 @@ training and evaluation sets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set examples matrix. If <code class="docutils literal notranslate"><span class="pre">X_te</span></code> is not None, then the
+<li><p><strong>X</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a>) – The data set examples matrix. If <code class="docutils literal notranslate"><span class="pre">X_te</span></code> is not None, then the
 data set is assumed to be already splitted into training and evaluation set
 (<code class="docutils literal notranslate"><span class="pre">test_size</span></code> will be ignored).</p></li>
-<li><p><strong>y</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set labels.</p></li>
-<li><p><strong>X_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set examples matrix.</p></li>
-<li><p><strong>y_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set labels.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a>) – The data set labels.</p></li>
+<li><p><strong>X_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set examples matrix.</p></li>
+<li><p><strong>y_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set labels.</p></li>
 <li><p><strong>test_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The size of the evaluation set as a fraction of the data set.</p></li>
 <li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=42</em>) – The seed used to split the data set into training and evaluation set.</p></li>
 </ul>
@@ -379,22 +379,15 @@ Otherwise, they are retrieved from the training set.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="gossipy.data.handler.ClusteringDataHandler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.data.handler.</span></span><span class="sig-name descname"><span class="pre">ClusteringDataHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.ClusteringDataHandler" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.data.handler.</span></span><span class="sig-name descname"><span class="pre">ClusteringDataHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.ClusteringDataHandler" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.data.handler.ClassificationDataHandler" title="gossipy.data.handler.ClassificationDataHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.data.handler.ClassificationDataHandler</span></code></a></p>
-<p>Handler for classification data.</p>
-<p>The handlers provides methods to access the data and to split it into
-training and evaluation sets.</p>
+<p>Handler for clustering (unsupervised) data.</p>
+<p>The handlers provides methods to access the data. The evaluation set is the training set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set examples matrix. If <code class="docutils literal notranslate"><span class="pre">X_te</span></code> is not None, then the
-data set is assumed to be already splitted into training and evaluation set
-(<code class="docutils literal notranslate"><span class="pre">test_size</span></code> will be ignored).</p></li>
-<li><p><strong>y</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set labels.</p></li>
-<li><p><strong>X_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set examples matrix.</p></li>
-<li><p><strong>y_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set labels.</p></li>
-<li><p><strong>test_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The size of the evaluation set as a fraction of the data set.</p></li>
-<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=42</em>) – The seed used to split the data set into training and evaluation set.</p></li>
+<li><p><strong>X</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>]</em>) – The data set examples matrix.</p></li>
+<li><p><strong>y</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>]</em>) – The data set labels.</p></li>
 </ul>
 </dd>
 </dl>
@@ -432,25 +425,17 @@ data set is assumed to be already splitted into training and evaluation set
 <dt class="sig sig-object py" id="gossipy.data.handler.RecSysDataHandler">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.data.handler.</span></span><span class="sig-name descname"><span class="pre">RecSysDataHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ratings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_users</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.data.handler.RecSysDataHandler" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gossipy.data.html#gossipy.data.DataHandler" title="gossipy.data.DataHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.data.DataHandler</span></code></a></p>
-<p>Abstract class for data handlers.</p>
-<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">DataHandler</span></code> class provides attributes and methods to manage a dataset.
-A subclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">DataHandler</span></code> must implement the following methods:</p>
-<ul class="simple">
-<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">__getitem__()</span></code></p></li>
-<li><p><a class="reference internal" href="#gossipy.data.handler.RecSysDataHandler.at" title="gossipy.data.handler.RecSysDataHandler.at"><code class="xref py py-meth docutils literal notranslate"><span class="pre">at()</span></code></a></p></li>
-<li><p><a class="reference internal" href="#gossipy.data.handler.RecSysDataHandler.size" title="gossipy.data.handler.RecSysDataHandler.size"><code class="xref py py-meth docutils literal notranslate"><span class="pre">size()</span></code></a></p></li>
-<li><p><a class="reference internal" href="#gossipy.data.handler.RecSysDataHandler.get_eval_set" title="gossipy.data.handler.RecSysDataHandler.get_eval_set"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_eval_set()</span></code></a></p></li>
-<li><p><a class="reference internal" href="#gossipy.data.handler.RecSysDataHandler.get_train_set" title="gossipy.data.handler.RecSysDataHandler.get_train_set"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_train_set()</span></code></a></p></li>
-<li><p><a class="reference internal" href="#gossipy.data.handler.RecSysDataHandler.eval_size" title="gossipy.data.handler.RecSysDataHandler.eval_size"><code class="xref py py-meth docutils literal notranslate"><span class="pre">eval_size()</span></code></a></p></li>
-</ul>
+<p>Handler for recommendation system data.</p>
+<p>The handlers provides methods to access the rating data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ratings</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><em>List</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><em>Tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em><em>]</em><em>]</em>) – </p></li>
-<li><p><strong>n_users</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>n_items</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>test_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
-<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>ratings</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>List</em><em>[</em><em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em><em>]</em><em>]</em>) – The user-item ratings.</p></li>
+<li><p><strong>n_users</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of users.</p></li>
+<li><p><strong>n_items</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of items.</p></li>
+<li><p><strong>test_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The size of the evaluation set as a fraction of the data set. The division is performed
+user-wise, i.e., for each user a subset of its ratings is selected as the evaluation set.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=42</em>) – The seed used to split the data set into training and evaluation set.</p></li>
 </ul>
 </dd>
 </dl>
@@ -545,12 +530,12 @@ training and evaluation sets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set examples matrix. If <code class="docutils literal notranslate"><span class="pre">X_te</span></code> is not None, then the
+<li><p><strong>X</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a>) – The data set examples matrix. If <code class="docutils literal notranslate"><span class="pre">X_te</span></code> is not None, then the
 data set is assumed to be already splitted into training and evaluation set
 (<code class="docutils literal notranslate"><span class="pre">test_size</span></code> will be ignored).</p></li>
-<li><p><strong>y</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a>) – The data set labels.</p></li>
-<li><p><strong>X_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set examples matrix.</p></li>
-<li><p><strong>y_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set labels.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a>) – The data set labels.</p></li>
+<li><p><strong>X_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set examples matrix.</p></li>
+<li><p><strong>y_te</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>, </em><em>default=None</em>) – The evaluation set labels.</p></li>
 <li><p><strong>test_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.2</em>) – The size of the evaluation set as a fraction of the data set.</p></li>
 <li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=42</em>) – The seed used to split the data set into training and evaluation set.</p></li>
 </ul>

@@ -277,7 +277,14 @@ class GossipSimulator(SimulationEventSender):
                 ):
         """Class that implements a *vanilla* gossip learning simulation.
 
-        TODO
+        The simulation is divided into "rounds" and each round consists of a ``delta`` timesteps.
+        A single time step represent the time unit of the simulation. At each time step, the nodes
+        that timed out act according to the gossip protocol, e.g., in the case of the PUSH protocol,
+        the nodes send a message (i.e., its model) to a random neighbor. The message arrives at the
+        destination node with a ``delay`` (see :class:`gossipy.simul.Delay`). Messages can also drop
+        according to a probability defined by the ``drop_prob`` parameter. Similarly, nodes can 
+        drop according to a probability equals to ``1 - online_prob``. Nodes are considered in a 
+        random order even if they time out in the same timestep.
 
         Parameters
         ----------
@@ -484,7 +491,7 @@ class TokenizedGossipSimulator(GossipSimulator):
                  nodes: Dict[int, GossipNode],
                  data_dispatcher: DataDispatcher,
                  token_account: TokenAccount,
-                 utility_fun: Callable[[ModelHandler, ModelHandler], int],
+                 utility_fun: Callable[[ModelHandler, ModelHandler, Message], int],
                  delta: int,
                  protocol: AntiEntropyProtocol,
                  drop_prob: float=0., # [0,1] - probability of a message being dropped
@@ -492,6 +499,46 @@ class TokenizedGossipSimulator(GossipSimulator):
                  delay: Delay=ConstantDelay(0),
                  sampling_eval: float=0., # [0, 1] - percentage of nodes to evaluate
                  ):
+        """Class that implements a gossip learning simulation using token account :cite:p:`Danner:2018`.
+
+        The simulation happens similary to the :class:`GossipSimulator`, but the communication 
+        pattern is handled by a token account algorithm (see :class:`TokenAccount`).
+        Token account based flow control mechanism can be useful in case of bursty communication :cite:p:`Hegedus:2021`.
+
+        Parameters
+        ----------
+        nodes : dict[int, GossipNode]
+            The nodes participating in the simulation. The keys are the node ids, and the values
+            are the corresponding nodes (instances of the class :class:`GossipNode`).
+        data_dispatcher : DataDispatcher
+            The data dispatcher. Useful if the evaluation is performed on a separate test set, i.e.,
+            not on the nodes.
+        token_account : TokenAccount
+            The token account strategy.
+        utility_fun : Callable[[ModelHandler, ModelHandler, Message], int]
+            Function defining the usefulness of a message. The usefulness expresses the notion that 
+            some messages are more important than others in most applications. For example, in the 
+            broadcast application, the received message is useful if and only if it contains new 
+            information for the node.
+            The signatue of the function is:
+            ``utility_fun(model_handler_1, model_handler_2, msg) -> int``
+            where ``model_handler_1`` and ``model_handler_2`` are the model handlers of the
+            nodes involved in the message exchange, and ``msg`` is the message.
+            The function must return an integer value.
+        delta : int
+            The number of timesteps of a round.
+        protocol : AntiEntropyProtocol
+            The protocol of the gossip simulation.
+        drop_prob : float, default=0.
+            The probability of a message being dropped.
+        online_prob : float, default=1.
+            The probability of a node to be online.
+        delay : Delay, default=ConstantDelay(0)
+            The (potential) function delay of the messages.
+        sampling_eval : float, default=0.
+            The percentage of nodes to use during evaluate. If 0 or 1, all nodes are considered.
+        """
+
         super(TokenizedGossipSimulator, self).__init__(nodes,
                                                        data_dispatcher,
                                                        delta,
@@ -554,7 +601,7 @@ class TokenizedGossipSimulator(GossipSimulator):
 
                         if not reply:
                             utility = self.utility_fun(self.nodes[msg.receiver].model_handler,
-                                                       sender_mh)#msg.value[0])
+                                                       sender_mh, msg)
                             reaction = self.accounts[msg.receiver].reactive(utility)
                             if reaction:
                                 self.accounts[msg.receiver].sub(reaction)

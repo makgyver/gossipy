@@ -274,19 +274,14 @@
 <dt class="sig sig-object py" id="gossipy.model.handler.AdaLineHandler">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">AdaLineHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.UPDATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.AdaLineHandler" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.ModelHandler</span></code></a></p>
-<p>The ModelHandler class is the base class for all model handlers.</p>
-<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
-It is also responsible for the merging of two (or more) models according to the
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
-<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
-update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>This class implements the AdaLine model handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
-<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.nn.html#gossipy.model.nn.AdaLine" title="gossipy.model.nn.AdaLine"><em>AdaLine</em></a>) – </p></li>
-<li><p><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
-<li><p><strong>copy_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.nn.html#gossipy.model.nn.AdaLine" title="gossipy.model.nn.AdaLine"><em>AdaLine</em></a>) – The AdaLine model.</p></li>
+<li><p><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The learning rate.</p></li>
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.UPDATE</em>) – The mode in which the model is created/updated.</p></li>
+<li><p><strong>copy_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to use a copy of the model (i.e., <code class="docutils literal notranslate"><span class="pre">net</span></code>) or not.</p></li>
 </ul>
 </dd>
 </dl>
@@ -299,7 +294,7 @@ update according to the <code class="xref py py-attr docutils literal notranslat
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><em>Tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em>) – </p>
+<dd class="field-even"><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><em>Tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>]</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -338,6 +333,10 @@ update according to the <code class="xref py py-attr docutils literal notranslat
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gossipy.core.CreateModelMode</span></code></p>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.model.handler.KMeansHandler.evaluate">
 <span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.KMeansHandler.evaluate" title="Permalink to this definition">#</a></dt>
@@ -400,6 +399,10 @@ update according to the <code class="xref py py-attr docutils literal notranslat
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gossipy.core.CreateModelMode</span></code></p>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.model.handler.MFModelHandler.evaluate">
 <span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ratings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.MFModelHandler.evaluate" title="Permalink to this definition">#</a></dt>
@@ -459,6 +462,10 @@ update according to the <code class="xref py py-attr docutils literal notranslat
 <dd class="field-odd"><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gossipy.core.CreateModelMode</span></code></p>
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.model.handler.ModelHandler.caching">
 <span class="sig-name descname"><span class="pre">caching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.ModelHandler.caching" title="Permalink to this definition">#</a></dt>
@@ -529,23 +536,23 @@ update according to the <code class="xref py py-attr docutils literal notranslat
 <dt class="sig sig-object py" id="gossipy.model.handler.PartitionedTMH">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">PartitionedTMH</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tm_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.MERGE_UPDATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.PartitionedTMH" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.TorchModelHandler" title="gossipy.model.handler.TorchModelHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.TorchModelHandler</span></code></a></p>
-<p>The ModelHandler class is the base class for all model handlers.</p>
-<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
-It is also responsible for the merging of two (or more) models according to the
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
-<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
-update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>Handler for torch models.</p>
+<p>This handler is responsible for the training and evaluation of a pytorch model. Thus it
+requires a <code class="xref py py-class docutils literal notranslate"><span class="pre">TorchModel</span></code> instance that represents the model to
+be trained, and an optimizer (e.g., <a class="reference external" href="https://pytorch.org/docs/master/generated/torch.optim.SGD.html#torch.optim.SGD" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.SGD</span></code></a>) with its parameters (a dict).
+The <code class="docutils literal notranslate"><span class="pre">criterion</span></code> is the loss function to be used for the training.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
-<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><em>TorchModel</em></a>) – </p></li>
+<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><em>TorchModel</em></a>) – The model to be trained.</p></li>
+<li><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/master/optim.html#torch.optim.Optimizer" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.optim.Optimizer</em></a>) – The optimizer to be used for the training.</p></li>
+<li><p><strong>optimizer_params</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>Any</em><em>]</em>) – The parameters of the optimizer.</p></li>
+<li><p><strong>criterion</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>]</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>]</em>) – The loss function to be used for the training.</p></li>
+<li><p><strong>local_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1</em>) – The number of local epochs.</p></li>
+<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=32</em>) – The batch size.</p></li>
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated</p></li>
+<li><p><strong>copy_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to use a copy of the model (i.e., <code class="docutils literal notranslate"><span class="pre">net</span></code>) or not.</p></li>
 <li><p><strong>tm_partition</strong> (<em>TorchModelPartition</em>) – </p></li>
-<li><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/master/optim.html#torch.optim.Optimizer" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.optim.Optimizer</em></a>) – </p></li>
-<li><p><strong>optimizer_params</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>Any</em><em>]</em>) – </p></li>
-<li><p><strong>criterion</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em>) – </p></li>
-<li><p><strong>local_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -570,21 +577,16 @@ update according to the <code class="xref py py-attr docutils literal notranslat
 
 <dl class="py class">
 <dt class="sig sig-object py" id="gossipy.model.handler.PegasosHandler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">PegasosHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.UPDATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.PegasosHandler" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">PegasosHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.UPDATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.PegasosHandler" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.AdaLineHandler" title="gossipy.model.handler.AdaLineHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.AdaLineHandler</span></code></a></p>
-<p>The ModelHandler class is the base class for all model handlers.</p>
-<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
-It is also responsible for the merging of two (or more) models according to the
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
-<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
-update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>This class implements the Pegasos model handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
-<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.nn.html#gossipy.model.nn.Pegasos" title="gossipy.model.nn.Pegasos"><em>Pegasos</em></a>) – </p></li>
-<li><p><strong>lam</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
-<li><p><strong>copy_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.nn.html#gossipy.model.nn.AdaLine" title="gossipy.model.nn.AdaLine"><em>AdaLine</em></a>) – The Pegasos (same as AdaLine) model.</p></li>
+<li><p><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The learning rate.</p></li>
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.UPDATE</em>) – The mode in which the model is created/updated.</p></li>
+<li><p><strong>copy_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to use a copy of the model (i.e., <code class="docutils literal notranslate"><span class="pre">net</span></code>) or not.</p></li>
 </ul>
 </dd>
 </dl>
@@ -594,16 +596,22 @@ update according to the <code class="xref py py-attr docutils literal notranslat
 <dt class="sig sig-object py" id="gossipy.model.handler.SamplingTMH">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">SamplingTMH</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.SamplingTMH" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.TorchModelHandler" title="gossipy.model.handler.TorchModelHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.TorchModelHandler</span></code></a></p>
-<p>The ModelHandler class is the base class for all model handlers.</p>
-<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
-It is also responsible for the merging of two (or more) models according to the
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
-<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
-update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>Handler for torch models.</p>
+<p>This handler is responsible for the training and evaluation of a pytorch model. Thus it
+requires a <code class="xref py py-class docutils literal notranslate"><span class="pre">TorchModel</span></code> instance that represents the model to
+be trained, and an optimizer (e.g., <a class="reference external" href="https://pytorch.org/docs/master/generated/torch.optim.SGD.html#torch.optim.SGD" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.SGD</span></code></a>) with its parameters (a dict).
+The <code class="docutils literal notranslate"><span class="pre">criterion</span></code> is the loss function to be used for the training.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
+<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><em>TorchModel</em></a>) – The model to be trained.</p></li>
+<li><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/master/optim.html#torch.optim.Optimizer" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.optim.Optimizer</em></a>) – The optimizer to be used for the training.</p></li>
+<li><p><strong>optimizer_params</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>Any</em><em>]</em>) – The parameters of the optimizer.</p></li>
+<li><p><strong>criterion</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>]</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>]</em>) – The loss function to be used for the training.</p></li>
+<li><p><strong>local_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1</em>) – The number of local epochs.</p></li>
+<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=32</em>) – The batch size.</p></li>
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated</p></li>
+<li><p><strong>copy_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to use a copy of the model (i.e., <code class="docutils literal notranslate"><span class="pre">net</span></code>) or not.</p></li>
 <li><p><strong>sample_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
 </ul>
 </dd>
@@ -612,39 +620,47 @@ update according to the <code class="xref py py-attr docutils literal notranslat
 
 <dl class="py class">
 <dt class="sig sig-object py" id="gossipy.model.handler.TorchModelHandler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">TorchModelHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.UPDATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.TorchModelHandler" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.handler.</span></span><span class="sig-name descname"><span class="pre">TorchModelHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_model_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CreateModelMode.MERGE_UPDATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.TorchModelHandler" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.handler.ModelHandler</span></code></a></p>
-<p>The ModelHandler class is the base class for all model handlers.</p>
-<p>A ModelHandler class manages the training (i.e., update) and evaluation of a model.
-It is also responsible for the merging of two (or more) models according to the
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
-<p>A ModelHandler is a callable object. Calling a ModelHandler instance will preform the
-update according to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">mode</span></code>.</p>
+<p>Handler for torch models.</p>
+<p>This handler is responsible for the training and evaluation of a pytorch model. Thus it
+requires a <code class="xref py py-class docutils literal notranslate"><span class="pre">TorchModel</span></code> instance that represents the model to
+be trained, and an optimizer (e.g., <a class="reference external" href="https://pytorch.org/docs/master/generated/torch.optim.SGD.html#torch.optim.SGD" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.optim.SGD</span></code></a>) with its parameters (a dict).
+The <code class="docutils literal notranslate"><span class="pre">criterion</span></code> is the loss function to be used for the training.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated.</p></li>
-<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><em>TorchModel</em></a>) – </p></li>
-<li><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/master/optim.html#torch.optim.Optimizer" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.optim.Optimizer</em></a>) – </p></li>
-<li><p><strong>optimizer_params</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>Any</em><em>]</em>) – </p></li>
-<li><p><strong>criterion</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em>) – </p></li>
-<li><p><strong>local_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>net</strong> (<a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><em>TorchModel</em></a>) – The model to be trained.</p></li>
+<li><p><strong>optimizer</strong> (<a class="reference external" href="https://pytorch.org/docs/master/optim.html#torch.optim.Optimizer" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.optim.Optimizer</em></a>) – The optimizer to be used for the training.</p></li>
+<li><p><strong>optimizer_params</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>Any</em><em>]</em>) – The parameters of the optimizer.</p></li>
+<li><p><strong>criterion</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>]</em><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>]</em>) – The loss function to be used for the training.</p></li>
+<li><p><strong>local_epochs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=1</em>) – The number of local epochs.</p></li>
+<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=32</em>) – The batch size.</p></li>
+<li><p><strong>create_model_mode</strong> (<em>CreateModelMode</em><em>, </em><em>default=CreateModelMode.MERGE_UPDATE</em>) – The mode in which the model is created/updated</p></li>
+<li><p><strong>copy_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to use a copy of the model (i.e., <code class="docutils literal notranslate"><span class="pre">net</span></code>) or not.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.model.handler.TorchModelHandler.evaluate">
 <span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.handler.TorchModelHandler.evaluate" title="Permalink to this definition">#</a></dt>
-<dd><p>Evaluate the model.</p>
+<dd><p>Evaluates the model on the given data.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitdfd78bf ))"><em>torch.Tensor</em></a><em>]</em>) – The data to use for the evaluation.</p>
 </dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><em>Tuple</em></a><em>[</em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>, </em><a class="reference external" href="https://pytorch.org/docs/master/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.13.0a0+gitc82fb7a ))"><em>torch.Tensor</em></a><em>]</em>) – </p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The evaluation results. The dictionary keys are the metrics names, and the values are
+the corresponding scores.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a>]</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>Currently, only metrics for classification tasks are implemented. Specifically,
+the evaluation metrics are: <code class="docutils literal notranslate"><span class="pre">accuracy</span></code>, <code class="docutils literal notranslate"><span class="pre">precision</span></code>, <code class="docutils literal notranslate"><span class="pre">recall</span></code>, <code class="docutils literal notranslate"><span class="pre">f1</span></code>, and,
+when possible, <code class="docutils literal notranslate"><span class="pre">roc_auc</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">

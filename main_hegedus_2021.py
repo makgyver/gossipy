@@ -54,7 +54,7 @@ simulator = TokenizedGossipSimulator(
     nodes=nodes,
     data_dispatcher=dispatcher,
     token_account=RandomizedTokenAccount(C=20, A=10),
-    utility_fun=lambda mh1, mh2: 1, #The utility function is always = 1 (i.e., utility is not used)
+    utility_fun=lambda mh1, mh2, msg: 1, #The utility function is always = 1 (i.e., utility is not used)
     delta=100,
     protocol=AntiEntropyProtocol.PUSH, 
     delay=UniformDelay(0, 10),
