@@ -324,6 +324,7 @@ class RecSysDataDispatcher(DataDispatcher):
         self.n = self.data_handler.n_users
         self.eval_on_user = True
     
+    # docstr-coverage:inherited
     def assign(self, seed=42):
         torch.manual_seed(seed)
         self.assignments = torch.randperm(self.data_handler.size()).tolist()

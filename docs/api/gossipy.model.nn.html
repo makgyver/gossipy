@@ -275,23 +275,11 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.nn.</span></span><span class="sig-name descname"><span class="pre">AdaLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.nn.AdaLine" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.TorchModel</span></code></a></p>
 <p>The Adaline perceptron model.</p>
-<p>Implementation of the AdaLine perceptron model <a href="#id7"><span class="problematic" id="id1">[1]_</span></a> <a class="footnote-reference brackets" href="#id4" id="id2">2</a>.
+<p>Implementation of the AdaLine perceptron model <span id="id1">[<a class="reference internal" href="gossipy.html#id9" title="Róbert Ormándi, István Hegedüs, and Márk Jelasity. Gossip learning with linear models on fully distributed data. Concurr. Comput. Pract. Exp., 25(4):556–571, 2013. URL: https://doi.org/10.1002/cpe.2858, doi:10.1002/cpe.2858.">OrmandiHegedusJ13</a>]</span>, <span id="id2">[<a class="reference internal" href="gossipy.html#id10" title="Bernard Widrow and Marcian E. Hoff. Adaptive Switching Circuits, pages 123–134. MIT Press, Cambridge, MA, USA, 1988.">WH88</a>]</span>.
 The model is a simple perceptron with a linear activation function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of input features.</p>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<dl class="footnote brackets">
-<dt class="label" id="id3"><span class="brackets">1</span></dt>
-<dd><p>Bernard Widrow and Marcian E. Hoff. 1988. Adaptive switching circuits.
-Neurocomputing: foundations of research. MIT Press, Cambridge, MA, USA, 123–134.</p>
-</dd>
-<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
-<dd><p>Ormándi, R., Hegedűs, I. and Jelasity, M. (2013), Gossip learning with linear models
-on fully distributed data. Concurrency Computat.: Pract. Exper., 25: 556-571.
-<a class="reference external" href="https://doi.org/10.1002/cpe.2858">https://doi.org/10.1002/cpe.2858</a></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -450,7 +438,7 @@ registered hooks while the latter silently ignores them.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.nn.</span></span><span class="sig-name descname"><span class="pre">TorchPerceptron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation=&lt;class</span> <span class="pre">'torch.nn.modules.activation.Sigmoid'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias=True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.nn.TorchPerceptron" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.TorchModel</span></code></a></p>
 <p>Perceptron model.</p>
-<p>Implementation of the perceptron model by Rosenblatt <a href="#id8"><span class="problematic" id="id5">[1]_</span></a>.</p>
+<p>Implementation of the perceptron model by Rosenblatt <span id="id3">[<a class="reference internal" href="gossipy.html#id8" title="Frank Rosenblatt. The perceptron: a probabilistic model for information storage and organization in the brain. Psychological review, 65 6:386-408, 1958.">Ros58</a>]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -458,13 +446,6 @@ registered hooks while the latter silently ignores them.</p>
 <li><p><strong>activation</strong> (<em>torch.nn.modules.activation</em><em>, </em><em>default=Sigmoid</em><em>(</em><em>)</em>) – The activation function of the output neuron.</p></li>
 <li><p><strong>bias</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to add a bias term to the output neuron.</p></li>
 </ul>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<dl class="footnote brackets">
-<dt class="label" id="id6"><span class="brackets">1</span></dt>
-<dd><p>Rosenblatt, Frank. “The perceptron: a probabilistic model for information storage and
-organization in the brain”. Psychological review 65 6 (1958): 386-408.</p>
 </dd>
 </dl>
 <dl class="py method">

@@ -66,8 +66,9 @@ class GossipNode():
             The peer-to-peer network that provides the list of reachable nodes according to the 
             network topology.
         sync : bool, default=True
-            Whether the node is synchronous with the round's length. In this case, the node will regularly time out 
-            at the same point in the round. If `False`, the node will time out with a fixed delay. 
+            Whether the node is synchronous with the round's length. In this case, the node will 
+            regularly time out at the same point in the round. If `False`, the node will time out 
+            with a fixed delay. 
         """
 
         self.idx: int = idx
@@ -233,7 +234,6 @@ class GossipNode():
             return self.data[1] is not None
         else: return True
     
-
     def __repr__(self) -> str:
         return str(self)
     
@@ -292,6 +292,40 @@ class PassThroughNode(GossipNode):
                  model_handler: ModelHandler, #object that handles the model learning/inference
                  p2p_net: P2PNetwork,
                  sync=True):
+        r"""Node implementing the pass-through gossiping protocol.
+        
+        This type of (gossiping) node has been introdued in cite:p:`Giaretta et al. 2019`.
+        This pass-through approach consist in making some nodes (in particular hub nodes
+        "bridges" between (low-degree) nodes. This should allow the low-degree nodes to indirectly 
+        gossip each other and thus hiding the possible power-law structure of the network. 
+        In practice, when node :math:`j` receives a message from :math:`i`, it only performs the 
+        merge and update steps with probability :math:`p(i, j) = \min(1, d_i/d_j)` where :math:`d_i`
+        and :math:`d_j` are the degrees of :math:`i` and :math:`j`, respectively. Thus, if the 
+        sender has lower degree than the receiver, there is a chance the receiver might save 
+        the received model as its current model and later propagate it, without going through the
+        usual update and merge operations. 
+
+        Parameters
+        ----------
+        idx : int
+            The node's index.
+        data : tuple[Tensor, Optional[Tensor]] or tuple[ndarray, Optional[ndarray]]
+            The node's data in the format :math:`(X_\text{train}, y_\text{train}), (X_\text{test}, y_\text{test})`
+            where :math:`y_\text{train}` and :math:`y_\text{test}` can be `None` in the case of unsupervised learning.
+            Similarly, :math:`X_\text{test}` and :math:`y_\text{test}` can be `None` in the case the node does not have
+            a test set. 
+        round_len : int
+            The number of time units in a round.
+        model_handler : ModelHandler
+            The object that handles the model learning/inference.
+        p2p_net: P2PNetwork
+            The peer-to-peer network that provides the list of reachable nodes according to the 
+            network topology.
+        sync : bool, default=True
+            Whether the node is synchronous with the round's length. In this case, the node will 
+            regularly time out at the same point in the round. If `False`, the node will time out 
+            with a fixed delay. 
+        """
         super(PassThroughNode, self).__init__(idx,
                                               data,
                                               round_len,
@@ -300,6 +334,7 @@ class PassThroughNode(GossipNode):
                                               sync)
         self.n_neighs = p2p_net.size(idx)
 
+    # docstr-coverage:inherited
     def send(self,
              t: int,
              peer: int,
@@ -324,6 +359,7 @@ class PassThroughNode(GossipNode):
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
+    # docstr-coverage:inherited
     def receive(self, t:int, msg: Message) -> Union[Message, None]:
         msg_type: MessageType
         recv_model: Any 
@@ -362,6 +398,35 @@ class CacheNeighNode(GossipNode):
                  model_handler: ModelHandler, #object that handles the model learning/inference
                  p2p_net: P2PNetwork,
                  sync: bool=True):
+        r"""
+        As of :class:`PassThroughNode`, this type of (gossiping) node has been introdued in 
+        cite:p:`Giaretta et al. 2019`. A :class:`CacheNeighNode` node has as one model slot 
+        for each of its neighbours. When receiving a model from a neighbour :math:`j`, instead
+        of processing it immediately to update its current model, the node saves it in the 
+        corresponding slot. Only when the time to gossip a new model comes, the node picks a 
+        random slot and uses the model stored there to perform the MERGE-UPDATE steps.
+
+        Parameters
+        ----------
+        idx : int
+            The node's index.
+        data : tuple[Tensor, Optional[Tensor]] or tuple[ndarray, Optional[ndarray]]
+            The node's data in the format :math:`(X_\text{train}, y_\text{train}), (X_\text{test}, y_\text{test})`
+            where :math:`y_\text{train}` and :math:`y_\text{test}` can be `None` in the case of unsupervised learning.
+            Similarly, :math:`X_\text{test}` and :math:`y_\text{test}` can be `None` in the case the node does not have
+            a test set. 
+        round_len : int
+            The number of time units in a round.
+        model_handler : ModelHandler
+            The object that handles the model learning/inference.
+        p2p_net: P2PNetwork
+            The peer-to-peer network that provides the list of reachable nodes according to the 
+            network topology.
+        sync : bool, default=True
+            Whether the node is synchronous with the round's length. In this case, the node will 
+            regularly time out at the same point in the round. If `False`, the node will time out 
+            with a fixed delay. 
+        """
         super(CacheNeighNode, self).__init__(idx,
                                              data,
                                              round_len,
@@ -369,7 +434,8 @@ class CacheNeighNode(GossipNode):
                                              p2p_net,
                                              sync)
         self.local_cache = {}
-                        
+    
+    # docstr-coverage:inherited
     def send(self,
              t: int,
              peer: int,
@@ -404,6 +470,7 @@ class CacheNeighNode(GossipNode):
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
+    # docstr-coverage:inherited
     def receive(self, t: int, msg: Message) -> Union[Message, None]:
         msg_type: MessageType
         recv_model: Any 
@@ -441,7 +508,8 @@ class SamplingBasedNode(GossipNode):
                                                 model_handler,
                                                 p2p_net,
                                                 sync)
-                        
+
+    # docstr-coverage:inherited          
     def send(self,
              t: int,
              peer: int,
@@ -466,6 +534,7 @@ class SamplingBasedNode(GossipNode):
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
+    # docstr-coverage:inherited
     def receive(self, t: int, msg: Message) -> Union[Message, None]:
         msg_type: MessageType
         recv_model: Any 
@@ -500,13 +569,42 @@ class PartitioningBasedNode(GossipNode):
                  model_handler: PartitionedTMH, #object that handles the model learning/inference
                  p2p_net: P2PNetwork,
                  sync=True):
+        r"""Standard :class:`GossipNode` with partitioned model.
+
+        This type of node has been first introduced in :cite:p:`Hegedus:2021`.
+        The only difference with the standard :class:`GossipNode` is that the model stored
+        in the node is partitioned. Thus, both the :meth:`send` and :meth:`receive` methods
+        handle the partitioning.
+
+        Parameters
+        ----------
+        idx : int
+            The node's index.
+        data : tuple[Tensor, Optional[Tensor]] or tuple[ndarray, Optional[ndarray]]
+            The node's data in the format :math:`(X_\text{train}, y_\text{train}), (X_\text{test}, y_\text{test})`
+            where :math:`y_\text{train}` and :math:`y_\text{test}` can be `None` in the case of unsupervised learning.
+            Similarly, :math:`X_\text{test}` and :math:`y_\text{test}` can be `None` in the case the node does not have
+            a test set. 
+        round_len : int
+            The number of time units in a round.
+        model_handler : PartitionedTMH
+            The object that handles the learning/inference of partitioned-based models.
+        p2p_net: P2PNetwork
+            The peer-to-peer network that provides the list of reachable nodes according to the 
+            network topology.
+        sync : bool, default=True
+            Whether the node is synchronous with the round's length. In this case, the node will 
+            regularly time out at the same point in the round. If `False`, the node will time out 
+            with a fixed delay. 
+        """
         super(PartitioningBasedNode, self).__init__(idx,
                                                     data,
                                                     round_len,
                                                     model_handler,
                                                     p2p_net,
                                                     sync)
-                        
+
+    # docstr-coverage:inherited            
     def send(self,
              t: int,
              peer: int,
@@ -533,6 +631,7 @@ class PartitioningBasedNode(GossipNode):
         else:
             raise ValueError("Unknown protocol %s." %protocol)
 
+    # docstr-coverage:inherited
     def receive(self, t: int, msg: Message) -> Union[Message, None]:
         msg_type: MessageType
         recv_model: Any 
@@ -570,6 +669,37 @@ class PENSNode(GossipNode):
                  m_top: int=2, #value from the paper
                  step1_rounds=200,
                  sync: bool=True):
+        """
+        TODO :cite:p:`Onoszko:2021`
+
+        Parameters
+        ----------
+        idx : int
+            The node's index.
+        data : tuple[Tensor, Optional[Tensor]] or tuple[ndarray, Optional[ndarray]]
+            The node's data in the format :math:`(X_\text{train}, y_\text{train}), (X_\text{test}, y_\text{test})`
+            where :math:`y_\text{train}` and :math:`y_\text{test}` can be `None` in the case of unsupervised learning.
+            Similarly, :math:`X_\text{test}` and :math:`y_\text{test}` can be `None` in the case the node does not have
+            a test set. 
+        round_len : int
+            The number of time units in a round.
+        model_handler : ModelHandler
+            The object that handles the model learning/inference.
+        p2p_net: P2PNetwork
+            The peer-to-peer network that provides the list of reachable nodes according to the 
+            network topology.
+        n_sampled : int, default=10
+            The number of sampled nodes to be used in the PEN algorithm.
+        m_top : int, default=2
+            The number of top nodes to be used in the PEN algorithm.
+        step1_rounds : int, default=200
+            The number of rounds in the first step of the PEN algorithm.
+        sync : bool, default=True
+            Whether the node is synchronous with the round's length. In this case, the node will 
+            regularly time out at the same point in the round. If `False`, the node will time out 
+            with a fixed delay. 
+        """
+
         super(PENSNode, self).__init__(idx,
                                        data,
                                        round_len,
@@ -596,12 +726,14 @@ class PENSNode(GossipNode):
             if cnt > self.selected[i] * (self.m_top / self.n_sampled):
                 self.best_nodes.append(i)
     
+    # docstr-coverage:inherited
     def timed_out(self, t: int) -> int:
         if self.step == 1 and (t // self.round_len) >= self.step1_rounds:
             self.step = 2
             self._select_neighbors()
         return super().timed_out(t)
-        
+    
+    # docstr-coverage:inherited
     def get_peer(self) -> int:
         if self.step == 1 or not self.best_nodes:
             peer = super().get_peer()
@@ -611,6 +743,7 @@ class PENSNode(GossipNode):
 
         return random.choice(self.best_nodes)
 
+    # docstr-coverage:inherited
     def send(self,
              t: int,
              peer: int,
@@ -622,7 +755,7 @@ class PENSNode(GossipNode):
         key = self.model_handler.caching(self.idx)
         return Message(t, self.idx, peer, MessageType.PUSH, (key,))
         
-
+    # docstr-coverage:inherited
     def receive(self, t: int, msg: Message) -> Union[Message, None]:
         msg_type: MessageType
         recv_model: Any 

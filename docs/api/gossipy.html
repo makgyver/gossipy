@@ -357,13 +357,12 @@
 <dt class="sig sig-object py" id="gossipy.node.CacheNeighNode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.node.</span></span><span class="sig-name descname"><span class="pre">CacheNeighNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2p_net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sync</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.node.CacheNeighNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.node.GossipNode" title="gossipy.node.GossipNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.node.GossipNode</span></code></a></p>
-<p>Class that represents a generic node in a gossip network.</p>
-<p>A node is identified by its index and it is initialized with a fixed delay <span class="math notranslate nohighlight">\(\Delta\)</span> that
-represents the idle time. The node can be either synchronous or asynchronous. In the former case,
-the node will time out exactly <span class="math notranslate nohighlight">\(\Delta\)</span> time steps into the round. Thus it is assumed that
-<span class="math notranslate nohighlight">\(0 &lt; \Delta &lt;\)</span> <cite>round_len</cite>. In the latter case, the node will time out to every
-<span class="math notranslate nohighlight">\(\Delta\)</span> time steps. In the synchronous case, <span class="math notranslate nohighlight">\(\Delta \sim U(0, R)\)</span>, otherwise
-<span class="math notranslate nohighlight">\(\Delta \sim \mathcal{N}(R, R/10)\)</span> where <span class="math notranslate nohighlight">\(R\)</span> is the round length.</p>
+<p>As of <a class="reference internal" href="#gossipy.node.PassThroughNode" title="gossipy.node.PassThroughNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">PassThroughNode</span></code></a>, this type of (gossiping) node has been introdued in
+cite:p:<cite>Giaretta et al. 2019</cite>. A <a class="reference internal" href="#gossipy.node.CacheNeighNode" title="gossipy.node.CacheNeighNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">CacheNeighNode</span></code></a> node has as one model slot
+for each of its neighbours. When receiving a model from a neighbour <span class="math notranslate nohighlight">\(j\)</span>, instead
+of processing it immediately to update its current model, the node saves it in the
+corresponding slot. Only when the time to gossip a new model comes, the node picks a
+random slot and uses the model stored there to perform the MERGE-UPDATE steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -376,8 +375,9 @@ a test set.</p></li>
 <li><p><strong>model_handler</strong> (<a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a>) – The object that handles the model learning/inference.</p></li>
 <li><p><strong>p2p_net</strong> (<em>P2PNetwork</em>) – The peer-to-peer network that provides the list of reachable nodes according to the
 network topology.</p></li>
-<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will regularly time out
-at the same point in the round. If <cite>False</cite>, the node will time out with a fixed delay.</p></li>
+<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will
+regularly time out at the same point in the round. If <cite>False</cite>, the node will time out
+with a fixed delay.</p></li>
 </ul>
 </dd>
 </dl>
@@ -459,8 +459,9 @@ a test set.</p></li>
 <li><p><strong>model_handler</strong> (<a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a>) – The object that handles the model learning/inference.</p></li>
 <li><p><strong>p2p_net</strong> (<em>P2PNetwork</em>) – The peer-to-peer network that provides the list of reachable nodes according to the
 network topology.</p></li>
-<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will regularly time out
-at the same point in the round. If <cite>False</cite>, the node will time out with a fixed delay.</p></li>
+<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will
+regularly time out at the same point in the round. If <cite>False</cite>, the node will time out
+with a fixed delay.</p></li>
 </ul>
 </dd>
 </dl>
@@ -624,29 +625,25 @@ The sending is performed by the simluator and it may be delayed or it can fail.<
 <dt class="sig sig-object py" id="gossipy.node.PENSNode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.node.</span></span><span class="sig-name descname"><span class="pre">PENSNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2p_net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_sampled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step1_rounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sync</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.node.PENSNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.node.GossipNode" title="gossipy.node.GossipNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.node.GossipNode</span></code></a></p>
-<p>Class that represents a generic node in a gossip network.</p>
-<p>A node is identified by its index and it is initialized with a fixed delay <span class="math notranslate nohighlight">\(\Delta\)</span> that
-represents the idle time. The node can be either synchronous or asynchronous. In the former case,
-the node will time out exactly <span class="math notranslate nohighlight">\(\Delta\)</span> time steps into the round. Thus it is assumed that
-<span class="math notranslate nohighlight">\(0 &lt; \Delta &lt;\)</span> <cite>round_len</cite>. In the latter case, the node will time out to every
-<span class="math notranslate nohighlight">\(\Delta\)</span> time steps. In the synchronous case, <span class="math notranslate nohighlight">\(\Delta \sim U(0, R)\)</span>, otherwise
-<span class="math notranslate nohighlight">\(\Delta \sim \mathcal{N}(R, R/10)\)</span> where <span class="math notranslate nohighlight">\(R\)</span> is the round length.</p>
+<p><span id="id1">[<a class="reference internal" href="#id14" title="Noa Onoszko, Gustav Karlsson Olof Mogren and Edvin Listo Zec. Decentralized federated learning of deep neural networks on non-iid data. In International Workshop on Federated Learning for User Privacy and Data Confidentiality in Conjunction with ICML (FL-ICML'21). 2021.">NOZ21</a>]</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The node’s index.</p></li>
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><em>Tensor</em><em>, </em><em>Optional</em><em>[</em><em>Tensor</em><em>]</em><em>] or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><em>ndarray</em><em>, </em><em>Optional</em><em>[</em><em>ndarray</em><em>]</em><em>]</em>) – The node’s data in the format <span class="math notranslate nohighlight">\((X_\text{train}, y_\text{train}), (X_\text{test}, y_\text{test})\)</span>
-where <span class="math notranslate nohighlight">\(y_\text{train}\)</span> and <span class="math notranslate nohighlight">\(y_\text{test}\)</span> can be <cite>None</cite> in the case of unsupervised learning.
-Similarly, <span class="math notranslate nohighlight">\(X_\text{test}\)</span> and <span class="math notranslate nohighlight">\(y_\text{test}\)</span> can be <cite>None</cite> in the case the node does not have
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><em>Tensor</em><em>, </em><em>Optional</em><em>[</em><em>Tensor</em><em>]</em><em>] or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em>[</em><em>ndarray</em><em>, </em><em>Optional</em><em>[</em><em>ndarray</em><em>]</em><em>]</em>) – The node’s data in the format <span class="math notranslate nohighlight">\((X_    ext{train}, y_  ext{train}), (X_        ext{test}, y_   ext{test})\)</span>
+where <span class="math notranslate nohighlight">\(y_     ext{train}\)</span> and <span class="math notranslate nohighlight">\(y_       ext{test}\)</span> can be <cite>None</cite> in the case of unsupervised learning.
+Similarly, <span class="math notranslate nohighlight">\(X_        ext{test}\)</span> and <span class="math notranslate nohighlight">\(y_        ext{test}\)</span> can be <cite>None</cite> in the case the node does not have
 a test set.</p></li>
 <li><p><strong>round_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of time units in a round.</p></li>
 <li><p><strong>model_handler</strong> (<a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a>) – The object that handles the model learning/inference.</p></li>
 <li><p><strong>p2p_net</strong> (<em>P2PNetwork</em>) – The peer-to-peer network that provides the list of reachable nodes according to the
 network topology.</p></li>
-<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will regularly time out
-at the same point in the round. If <cite>False</cite>, the node will time out with a fixed delay.</p></li>
-<li><p><strong>n_sampled</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
-<li><p><strong>m_top</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>n_sampled</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=10</em>) – The number of sampled nodes to be used in the PEN algorithm.</p></li>
+<li><p><strong>m_top</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=2</em>) – The number of top nodes to be used in the PEN algorithm.</p></li>
+<li><p><strong>step1_rounds</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=200</em>) – The number of rounds in the first step of the PEN algorithm.</p></li>
+<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will
+regularly time out at the same point in the round. If <cite>False</cite>, the node will time out
+with a fixed delay.</p></li>
 </ul>
 </dd>
 </dl>
@@ -740,13 +737,11 @@ The sending is performed by the simluator and it may be delayed or it can fail.<
 <dt class="sig sig-object py" id="gossipy.node.PartitioningBasedNode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.node.</span></span><span class="sig-name descname"><span class="pre">PartitioningBasedNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2p_net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sync</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.node.PartitioningBasedNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.node.GossipNode" title="gossipy.node.GossipNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.node.GossipNode</span></code></a></p>
-<p>Class that represents a generic node in a gossip network.</p>
-<p>A node is identified by its index and it is initialized with a fixed delay <span class="math notranslate nohighlight">\(\Delta\)</span> that
-represents the idle time. The node can be either synchronous or asynchronous. In the former case,
-the node will time out exactly <span class="math notranslate nohighlight">\(\Delta\)</span> time steps into the round. Thus it is assumed that
-<span class="math notranslate nohighlight">\(0 &lt; \Delta &lt;\)</span> <cite>round_len</cite>. In the latter case, the node will time out to every
-<span class="math notranslate nohighlight">\(\Delta\)</span> time steps. In the synchronous case, <span class="math notranslate nohighlight">\(\Delta \sim U(0, R)\)</span>, otherwise
-<span class="math notranslate nohighlight">\(\Delta \sim \mathcal{N}(R, R/10)\)</span> where <span class="math notranslate nohighlight">\(R\)</span> is the round length.</p>
+<p>Standard <a class="reference internal" href="#gossipy.node.GossipNode" title="gossipy.node.GossipNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">GossipNode</span></code></a> with partitioned model.</p>
+<p>This type of node has been first introduced in <span id="id2">[<a class="reference internal" href="#id9" title="István Hegedűs, Gábor Danner, and Márk Jelasity. Decentralized learning works: an empirical comparison of gossip learning and federated learning. Journal of Parallel and Distributed Computing, 148:109-124, 2021. doi:https://doi.org/10.1016/j.jpdc.2020.10.006.">HegedHusDJ21</a>]</span>.
+The only difference with the standard <a class="reference internal" href="#gossipy.node.GossipNode" title="gossipy.node.GossipNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">GossipNode</span></code></a> is that the model stored
+in the node is partitioned. Thus, both the <a class="reference internal" href="#gossipy.node.PartitioningBasedNode.send" title="gossipy.node.PartitioningBasedNode.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> and <a class="reference internal" href="#gossipy.node.PartitioningBasedNode.receive" title="gossipy.node.PartitioningBasedNode.receive"><code class="xref py py-meth docutils literal notranslate"><span class="pre">receive()</span></code></a> methods
+handle the partitioning.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -756,11 +751,12 @@ where <span class="math notranslate nohighlight">\(y_\text{train}\)</span> and <
 Similarly, <span class="math notranslate nohighlight">\(X_\text{test}\)</span> and <span class="math notranslate nohighlight">\(y_\text{test}\)</span> can be <cite>None</cite> in the case the node does not have
 a test set.</p></li>
 <li><p><strong>round_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of time units in a round.</p></li>
-<li><p><strong>model_handler</strong> (<a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a>) – The object that handles the model learning/inference.</p></li>
+<li><p><strong>model_handler</strong> (<a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.PartitionedTMH" title="gossipy.model.handler.PartitionedTMH"><em>PartitionedTMH</em></a>) – The object that handles the learning/inference of partitioned-based models.</p></li>
 <li><p><strong>p2p_net</strong> (<em>P2PNetwork</em>) – The peer-to-peer network that provides the list of reachable nodes according to the
 network topology.</p></li>
-<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will regularly time out
-at the same point in the round. If <cite>False</cite>, the node will time out with a fixed delay.</p></li>
+<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will
+regularly time out at the same point in the round. If <cite>False</cite>, the node will time out
+with a fixed delay.</p></li>
 </ul>
 </dd>
 </dl>
@@ -823,13 +819,17 @@ The sending is performed by the simluator and it may be delayed or it can fail.<
 <dt class="sig sig-object py" id="gossipy.node.PassThroughNode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.node.</span></span><span class="sig-name descname"><span class="pre">PassThroughNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2p_net</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sync</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.node.PassThroughNode" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.node.GossipNode" title="gossipy.node.GossipNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.node.GossipNode</span></code></a></p>
-<p>Class that represents a generic node in a gossip network.</p>
-<p>A node is identified by its index and it is initialized with a fixed delay <span class="math notranslate nohighlight">\(\Delta\)</span> that
-represents the idle time. The node can be either synchronous or asynchronous. In the former case,
-the node will time out exactly <span class="math notranslate nohighlight">\(\Delta\)</span> time steps into the round. Thus it is assumed that
-<span class="math notranslate nohighlight">\(0 &lt; \Delta &lt;\)</span> <cite>round_len</cite>. In the latter case, the node will time out to every
-<span class="math notranslate nohighlight">\(\Delta\)</span> time steps. In the synchronous case, <span class="math notranslate nohighlight">\(\Delta \sim U(0, R)\)</span>, otherwise
-<span class="math notranslate nohighlight">\(\Delta \sim \mathcal{N}(R, R/10)\)</span> where <span class="math notranslate nohighlight">\(R\)</span> is the round length.</p>
+<p>Node implementing the pass-through gossiping protocol.</p>
+<p>This type of (gossiping) node has been introdued in cite:p:<cite>Giaretta et al. 2019</cite>.
+This pass-through approach consist in making some nodes (in particular hub nodes
+“bridges” between (low-degree) nodes. This should allow the low-degree nodes to indirectly
+gossip each other and thus hiding the possible power-law structure of the network.
+In practice, when node <span class="math notranslate nohighlight">\(j\)</span> receives a message from <span class="math notranslate nohighlight">\(i\)</span>, it only performs the
+merge and update steps with probability <span class="math notranslate nohighlight">\(p(i, j) = \min(1, d_i/d_j)\)</span> where <span class="math notranslate nohighlight">\(d_i\)</span>
+and <span class="math notranslate nohighlight">\(d_j\)</span> are the degrees of <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>, respectively. Thus, if the
+sender has lower degree than the receiver, there is a chance the receiver might save
+the received model as its current model and later propagate it, without going through the
+usual update and merge operations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -842,8 +842,9 @@ a test set.</p></li>
 <li><p><strong>model_handler</strong> (<a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a>) – The object that handles the model learning/inference.</p></li>
 <li><p><strong>p2p_net</strong> (<em>P2PNetwork</em>) – The peer-to-peer network that provides the list of reachable nodes according to the
 network topology.</p></li>
-<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will regularly time out
-at the same point in the round. If <cite>False</cite>, the node will time out with a fixed delay.</p></li>
+<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will
+regularly time out at the same point in the round. If <cite>False</cite>, the node will time out
+with a fixed delay.</p></li>
 </ul>
 </dd>
 </dl>
@@ -925,8 +926,9 @@ a test set.</p></li>
 <li><p><strong>model_handler</strong> (<a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a>) – The object that handles the model learning/inference.</p></li>
 <li><p><strong>p2p_net</strong> (<em>P2PNetwork</em>) – The peer-to-peer network that provides the list of reachable nodes according to the
 network topology.</p></li>
-<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will regularly time out
-at the same point in the round. If <cite>False</cite>, the node will time out with a fixed delay.</p></li>
+<li><p><strong>sync</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether the node is synchronous with the round’s length. In this case, the node will
+regularly time out at the same point in the round. If <cite>False</cite>, the node will time out
+with a fixed delay.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1001,6 +1003,14 @@ destination node with a <code class="docutils literal notranslate"><span class="
 according to a probability defined by the <code class="docutils literal notranslate"><span class="pre">drop_prob</span></code> parameter. Similarly, nodes can
 drop according to a probability equals to <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">online_prob</span></code>. Nodes are considered in a
 random order even if they time out in the same timestep.</p>
+<p>The simulator implements the design pattern Observer (actually Event Receiver) extending
+the <a class="reference internal" href="#gossipy.simul.SimulationEventSender" title="gossipy.simul.SimulationEventSender"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.SimulationEventSender</span></code></a> class. The events are:</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_message()</span></code>: a message has been sent or dropped;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_evaluation()</span></code>: an evaluation has been computed;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_timestep()</span></code>: a timestep has been performed;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_end()</span></code>: the simulation has ended.</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1353,10 +1363,19 @@ events.</p>
 <dt class="sig sig-object py" id="gossipy.simul.TokenizedGossipSimulator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.simul.</span></span><span class="sig-name descname"><span class="pre">TokenizedGossipSimulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dispatcher</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_account</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utility_fun</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">online_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ConstantDelay(0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_eval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.TokenizedGossipSimulator" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#gossipy.simul.GossipSimulator" title="gossipy.simul.GossipSimulator"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.GossipSimulator</span></code></a></p>
-<p>Class that implements a gossip learning simulation using token account <span id="id1">[<a class="reference internal" href="#id6" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span>.</p>
+<p>Class that implements a gossip learning simulation using token account <span id="id3">[<a class="reference internal" href="#id8" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span>.</p>
 <p>The simulation happens similary to the <a class="reference internal" href="#gossipy.simul.GossipSimulator" title="gossipy.simul.GossipSimulator"><code class="xref py py-class docutils literal notranslate"><span class="pre">GossipSimulator</span></code></a>, but the communication
 pattern is handled by a token account algorithm (see <code class="xref py py-class docutils literal notranslate"><span class="pre">TokenAccount</span></code>).
-Token account based flow control mechanism can be useful in case of bursty communication <span id="id2">[<a class="reference internal" href="#id7" title="István Hegedűs, Gábor Danner, and Márk Jelasity. Decentralized learning works: an empirical comparison of gossip learning and federated learning. Journal of Parallel and Distributed Computing, 148:109-124, 2021. URL: https://www.sciencedirect.com/science/article/pii/S0743731520303890, doi:https://doi.org/10.1016/j.jpdc.2020.10.006.">HegedHusDJ21</a>]</span>.</p>
+Token account based flow control mechanism can be useful in case of bursty communication
+<span id="id4">[<a class="reference internal" href="#id9" title="István Hegedűs, Gábor Danner, and Márk Jelasity. Decentralized learning works: an empirical comparison of gossip learning and federated learning. Journal of Parallel and Distributed Computing, 148:109-124, 2021. doi:https://doi.org/10.1016/j.jpdc.2020.10.006.">HegedHusDJ21</a>]</span>.</p>
+<p>The simulator implements the design pattern Observer (actually Event Receiver) extending
+the <a class="reference internal" href="#gossipy.simul.SimulationEventSender" title="gossipy.simul.SimulationEventSender"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.SimulationEventSender</span></code></a> class. The events are:</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_message()</span></code>: a message has been sent or dropped;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_evaluation()</span></code>: an evaluation has been computed;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_timestep()</span></code>: a timestep has been performed;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_end()</span></code>: the simulation has ended.</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1536,7 +1555,7 @@ corresponding performance.</p></li>
 <p>Implements a generalized simple token account strategy with a reactive function that is able
 to increase the number of messages sent when the number of tokens is high.
 To this end, the proactive function is the same as in <a class="reference internal" href="#gossipy.flow_control.SimpleTokenAccount" title="gossipy.flow_control.SimpleTokenAccount"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleTokenAccount</span></code></a> while the
-reactive function is defined as <span id="id3">[<a class="reference internal" href="#id6" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span>:</p>
+reactive function is defined as <span id="id5">[<a class="reference internal" href="#id8" title="Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In 2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS), volume, 885-895. 2018. doi:10.1109/ICDCS.2018.00090.">DJ18</a>]</span>:</p>
 <p><span class="math notranslate nohighlight">\(\operatorname{REACTIVE}(a, u)= \begin{cases}\lfloor(A-1+a) / A\rfloor &amp; \text { if }
 u\\ \lfloor(A-1+a) /(2 A)\rfloor &amp; \text { otherwise }\end{cases}\)</span></p>
 <p>where <span class="math notranslate nohighlight">\(u\)</span> is the account balance, <span class="math notranslate nohighlight">\(C\)</span> is
@@ -1771,7 +1790,7 @@ received message.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.flow_control.</span></span><span class="sig-name descname"><span class="pre">TokenAccount</span></span><a class="headerlink" href="#gossipy.flow_control.TokenAccount" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
 <p>Abstract class representing a generic token account.</p>
-<p>The token account framework has been firstly proposed in <span id="id4">[]</span>.</p>
+<p>The token account framework has been firstly proposed in <span id="id6">[]</span>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="gossipy.flow_control.TokenAccount.add">
 <span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.flow_control.TokenAccount.add" title="Permalink to this definition">#</a></dt>
@@ -1835,13 +1854,25 @@ received message.</p>
 
 </dd></dl>
 
-<div class="docutils container" id="id5">
+<div class="docutils container" id="id7">
 <dl class="citation">
-<dt class="label" id="id6"><span class="brackets">DJ18</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id3">2</a>)</span></dt>
+<dt class="label" id="id8"><span class="brackets">DJ18</span><span class="fn-backref">(<a href="#id3">1</a>,<a href="#id5">2</a>)</span></dt>
 <dd><p>Gábor Danner and Márk Jelasity. Token account algorithms: the best of the proactive and reactive worlds. In <em>2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS)</em>, volume, 885–895. 2018. <a class="reference external" href="https://doi.org/10.1109/ICDCS.2018.00090">doi:10.1109/ICDCS.2018.00090</a>.</p>
 </dd>
-<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id2">HegedHusDJ21</a></span></dt>
-<dd><p>István Hegedűs, Gábor Danner, and Márk Jelasity. Decentralized learning works: an empirical comparison of gossip learning and federated learning. <em>Journal of Parallel and Distributed Computing</em>, 148:109–124, 2021. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0743731520303890">https://www.sciencedirect.com/science/article/pii/S0743731520303890</a>, <a class="reference external" href="https://doi.org/https://doi.org/10.1016/j.jpdc.2020.10.006">doi:https://doi.org/10.1016/j.jpdc.2020.10.006</a>.</p>
+<dt class="label" id="id9"><span class="brackets">HegedHusDJ21</span><span class="fn-backref">(<a href="#id2">1</a>,<a href="#id4">2</a>)</span></dt>
+<dd><p>István Hegedűs, Gábor Danner, and Márk Jelasity. Decentralized learning works: an empirical comparison of gossip learning and federated learning. <em>Journal of Parallel and Distributed Computing</em>, 148:109–124, 2021. <a class="reference external" href="https://doi.org/https://doi.org/10.1016/j.jpdc.2020.10.006">doi:https://doi.org/10.1016/j.jpdc.2020.10.006</a>.</p>
+</dd>
+<dt class="label" id="id14"><span class="brackets"><a class="fn-backref" href="#id1">NOZ21</a></span></dt>
+<dd><p>Noa Onoszko, Gustav Karlsson Olof Mogren and Edvin Listo Zec. Decentralized federated learning of deep neural networks on non-iid data. In <em>International Workshop on Federated Learning for User Privacy and Data Confidentiality in Conjunction with ICML (FL-ICML'21)</em>. 2021.</p>
+</dd>
+<dt class="label" id="id11"><span class="brackets">OrmandiHegedusJ13</span></dt>
+<dd><p>Róbert Ormándi, István Hegedüs, and Márk Jelasity. Gossip learning with linear models on fully distributed data. <em>Concurr. Comput. Pract. Exp.</em>, 25(4):556–571, 2013. URL: <a class="reference external" href="https://doi.org/10.1002/cpe.2858">https://doi.org/10.1002/cpe.2858</a>, <a class="reference external" href="https://doi.org/10.1002/cpe.2858">doi:10.1002/cpe.2858</a>.</p>
+</dd>
+<dt class="label" id="id10"><span class="brackets">Ros58</span></dt>
+<dd><p>Frank Rosenblatt. The perceptron: a probabilistic model for information storage and organization in the brain. <em>Psychological review</em>, 65 6:386–408, 1958.</p>
+</dd>
+<dt class="label" id="id12"><span class="brackets">WH88</span></dt>
+<dd><p>Bernard Widrow and Marcian E. Hoff. <em>Adaptive Switching Circuits</em>, pages 123–134. MIT Press, Cambridge, MA, USA, 1988.</p>
 </dd>
 </dl>
 </div>

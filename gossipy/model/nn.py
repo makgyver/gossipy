@@ -30,7 +30,7 @@ class TorchPerceptron(TorchModel):
                  bias: bool=True):
         """Perceptron model.
 
-        Implementation of the perceptron model by Rosenblatt [1]_.
+        Implementation of the perceptron model by Rosenblatt :cite:p:`Rosenblatt1958ThePA`.
 
         Parameters
         ----------
@@ -40,11 +40,6 @@ class TorchPerceptron(TorchModel):
             The activation function of the output neuron.
         bias : bool, optional
             Whether to add a bias term to the output neuron.
-        
-        References
-        ----------
-        .. [1] Rosenblatt, Frank. "The perceptron: a probabilistic model for information storage and 
-           organization in the brain". Psychological review 65 6 (1958): 386-408.
         """
 
         super(TorchPerceptron, self).__init__()
@@ -122,21 +117,13 @@ class AdaLine(TorchModel):
     def __init__(self, dim: int):
         """The Adaline perceptron model.
 
-        Implementation of the AdaLine perceptron model [1]_ [2]_.
+        Implementation of the AdaLine perceptron model :cite:p:`Ormandi:2013`, :cite:p:`Widrow:1988`.
         The model is a simple perceptron with a linear activation function.
 
         Parameters
         ----------
         dim : int
             The number of input features.
-        
-        References
-        ----------
-        .. [1] Bernard Widrow and Marcian E. Hoff. 1988. Adaptive switching circuits.
-           Neurocomputing: foundations of research. MIT Press, Cambridge, MA, USA, 123–134.
-        .. [2] Ormándi, R., Hegedűs, I. and Jelasity, M. (2013), Gossip learning with linear models 
-           on fully distributed data. Concurrency Computat.: Pract. Exper., 25: 556-571.
-           https://doi.org/10.1002/cpe.2858
         """
 
         super(AdaLine, self).__init__()

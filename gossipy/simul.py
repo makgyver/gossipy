@@ -292,6 +292,14 @@ class GossipSimulator(SimulationEventSender):
         drop according to a probability equals to ``1 - online_prob``. Nodes are considered in a 
         random order even if they time out in the same timestep.
 
+        The simulator implements the design pattern Observer (actually Event Receiver) extending
+        the :class:`gossipy.simul.SimulationEventSender` class. The events are:
+        
+        - :meth:`update_message`: a message has been sent or dropped;
+        - :meth:`update_evaluation`: an evaluation has been computed;
+        - :meth:`update_timestep`: a timestep has been performed;
+        - :meth:`update_end`: the simulation has ended.
+
         Parameters
         ----------
         nodes : dict[int, GossipNode]
@@ -509,7 +517,16 @@ class TokenizedGossipSimulator(GossipSimulator):
 
         The simulation happens similary to the :class:`GossipSimulator`, but the communication 
         pattern is handled by a token account algorithm (see :class:`TokenAccount`).
-        Token account based flow control mechanism can be useful in case of bursty communication :cite:p:`Hegedus:2021`.
+        Token account based flow control mechanism can be useful in case of bursty communication 
+        :cite:p:`Hegedus:2021`.
+
+        The simulator implements the design pattern Observer (actually Event Receiver) extending
+        the :class:`gossipy.simul.SimulationEventSender` class. The events are:
+
+        - :meth:`update_message`: a message has been sent or dropped;
+        - :meth:`update_evaluation`: an evaluation has been computed;
+        - :meth:`update_timestep`: a timestep has been performed;
+        - :meth:`update_end`: the simulation has ended.
 
         Parameters
         ----------

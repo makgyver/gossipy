@@ -48,8 +48,9 @@ class TorchModelSampling:
         Returns
         -------
         Dict[int, Optional[Tuple[LongTensor, ...]]]
-            A dictionary containing the indices of the parameters to be sampled. The keys are the indices of the
-            layers, and the values are the indices of the parameters to be sampled in that layer.
+            A dictionary containing the indices of the parameters to be sampled. The keys are the 
+            indices of the layers, and the values are the indices of the parameters to be 
+            sampled in that layer.
         """
 
         assert 0 < size <= 1, "size must be in the range (0, 1]."
@@ -70,7 +71,7 @@ class TorchModelSampling:
                 
         return samples
     
-    # FIXME: is this correct?
+
     @classmethod
     def merge(cls, sample: Dict[int, Optional[Tuple[LongTensor, ...]]],
                    net1: TorchModel,
@@ -89,7 +90,7 @@ class TorchModelSampling:
         reduce : {'mean', 'sum'}
             The reduction method to be used.
         """
-        
+
         assert str(net1) == str(net2), "net1 and net2 must have the same architecture."
         assert reduce in {"mean", "sum"}, "reduce must be either 'sum' or 'mean'."
 
@@ -108,6 +109,26 @@ class TorchModelSampling:
 
 class TorchModelPartition:
     def __init__(self, net_proto: TorchModel, n_parts: int):
+        """Class that manages the partitioning of a pytorch model.
+
+        TorchModelPartition handles how to partition a pytorch model as well as the merge of 
+        partitioned models. The partitioning is deterministic. It divides the parameters of the 
+        model in ``n_parts`` parts of equal size starting from the first layer and going to the 
+        last layer.
+        The created partition is stored in the ``partitions`` attribute which is a dictionary
+        containing the indices of the parameters to be sampled in each layer.
+
+        Parameters
+        ----------
+        net_proto : TorchModel
+            The prototype of the model to be partitioned.
+        n_parts : int
+            The number of partitions to be created.
+        
+        Notes
+        -----
+        Partitioning is only supported for neural networks with at most 3D layers.
+        """
         self._check(net_proto)
         self.str_arch = str(net_proto)
         self.n_parts = min(n_parts, net_proto.get_size())
@@ -181,6 +202,22 @@ class TorchModelPartition:
                     net1: TorchModel,
                     net2: TorchModel,
                     weights: Optional[Tuple[int, int]]=None) -> None:
+        """Merges the partition with id ``id_part`` of two models.
+
+        Parameters
+        ----------
+        id_part : int
+            The index of the partition to be merged.
+        net1 : TorchModel
+            The first model to be merged.
+        net2 : TorchModel  
+            The second model to be merged.
+        weights : Optional[Tuple[int, int]], default=None
+            This tuple represents the relative weights of the two models to be merged.
+            If None, the weights are assumed to be equal, thus the merge is the average of the 
+            parameters.
+        """
+        
         assert str(net1) == self.str_arch, "net1 is not compatible."
         assert str(net2) == self.str_arch, "net2 is not compatible."
         
