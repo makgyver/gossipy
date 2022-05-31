@@ -18,8 +18,6 @@
 [![GitHub latest commit](https://img.shields.io/github/last-commit/makgyver/gossipy?style=for-the-badge)](https://github.com/makgyver/gossipy/commit/)
 
 
-# :warning: UNDER DEVELOPMENT :warning:
-
 # gossipy 
 Python module for simulating gossip learning and decentralized federated learning.
 

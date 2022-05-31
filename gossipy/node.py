@@ -689,11 +689,11 @@ class PENSNode(GossipNode):
             The peer-to-peer network that provides the list of reachable nodes according to the 
             network topology.
         n_sampled : int, default=10
-            The number of sampled nodes to be used in the PEN algorithm.
+            TODO
         m_top : int, default=2
-            The number of top nodes to be used in the PEN algorithm.
+            TODO
         step1_rounds : int, default=200
-            The number of rounds in the first step of the PEN algorithm.
+            TODO
         sync : bool, default=True
             Whether the node is synchronous with the round's length. In this case, the node will 
             regularly time out at the same point in the round. If `False`, the node will time out 
