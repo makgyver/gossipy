@@ -14,7 +14,7 @@ from gossipy.model.nn import TorchModel
 __version__ = "0.0.1"
 __author__ = "Mirko Polato"
 __copyright__ = "Copyright 2022, gossipy"
-__license__ = "MIT"
+__license__ = "Apache License, Version 2.0"
 __maintainer__ = "Mirko Polato, PhD"
 __email__ = "mak1788@gmail.com"
 __status__ = "Development"
@@ -217,7 +217,7 @@ class TorchModelPartition:
             If None, the weights are assumed to be equal, thus the merge is the average of the 
             parameters.
         """
-        
+
         assert str(net1) == self.str_arch, "net1 is not compatible."
         assert str(net2) == self.str_arch, "net2 is not compatible."
         
