@@ -21,6 +21,13 @@
 # gossipy 
 Python module for simulating gossip learning and decentralized federated learning.
 
+## Install
+**gossipy** is available as a [PyPI](https://pypi.org) module and it can be installed using `pip`:
+
+```console
+$ pip install gossipy-dfl
+```
+
 ## TODOs
 
 ### Features
