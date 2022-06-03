@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>gossipy.data package &#8212; gossipy 0.0.1 documentation</title>
+    <title>gossipy.data module &#8212; gossipy 0.0.1 documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -36,7 +36,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="gossipy.data.handler module" href="gossipy.data.handler.html" />
-    <link rel="prev" title="gossipy package" href="gossipy.html" />
+    <link rel="prev" title="gossipy.core module" href="gossipy.core.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -118,68 +118,17 @@
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
   <div class="bd-toc-item active">
     <ul class="current nav bd-sidenav">
- <li class="toctree-l1 current active has-children">
-  <a class="reference internal" href="gossipy.html">
-   gossipy package
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.core.html">
+   gossipy.core module
   </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul class="current">
-   <li class="toctree-l2 current active has-children">
-    <a class="current reference internal" href="#">
-     gossipy.data package
-    </a>
-    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-    <label for="toctree-checkbox-2">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="gossipy.data.handler.html">
-       gossipy.data.handler module
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="gossipy.model.html">
-     gossipy.model module
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
-    <label for="toctree-checkbox-3">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="gossipy.model.handler.html">
-       gossipy.model.handler module
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="gossipy.model.nn.html">
-       gossipy.model.nn module
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="gossipy.model.sampling.html">
-       gossipy.model.sampling module
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
  </li>
  <li class="toctree-l1 current active has-children">
   <a class="current reference internal" href="#">
-   gossipy.data package
+   gossipy.data module
   </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
-  <label for="toctree-checkbox-4">
+  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
    <i class="fas fa-chevron-down">
    </i>
   </label>
@@ -191,12 +140,17 @@
    </li>
   </ul>
  </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.flow_control.html">
+   gossipy.flow_control module
+  </a>
+ </li>
  <li class="toctree-l1 has-children">
   <a class="reference internal" href="gossipy.model.html">
    gossipy.model module
   </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-  <label for="toctree-checkbox-5">
+  <input checked class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
    <i class="fas fa-chevron-down">
    </i>
   </label>
@@ -217,6 +171,21 @@
     </a>
    </li>
   </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.node.html">
+   gossipy.node module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.simul.html">
+   gossipy.simul module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.utils.html">
+   gossipy.utils
+  </a>
  </li>
 </ul>
 
@@ -242,13 +211,13 @@
 <nav id="bd-toc-nav">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-gossipy.data">
-   Module contents
+  <a class="reference internal nav-link" href="#submodules">
+   Submodules
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#submodules">
-   Submodules
+  <a class="reference internal nav-link" href="#module-gossipy.data">
+   Module contents
   </a>
  </li>
 </ul>
@@ -272,8 +241,16 @@
               
               <div>
                 
-  <section id="gossipy-data-package">
-<h1>gossipy.data package<a class="headerlink" href="#gossipy-data-package" title="Permalink to this headline">#</a></h1>
+  <section id="gossipy-data-module">
+<h1>gossipy.data module<a class="headerlink" href="#gossipy-data-module" title="Permalink to this headline">#</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="gossipy.data.handler.html">gossipy.data.handler module</a></li>
+</ul>
+</div>
+</section>
 <section id="module-gossipy.data">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-gossipy.data" title="Permalink to this headline">#</a></h2>
 <p>This module contains functions and classes to manage datasets loading and dispatching.</p>
@@ -466,19 +443,29 @@ Ratings are represented as a dictionary mapping user ids to a list of tuples (it
 </dd></dl>
 
 </section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">#</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="gossipy.data.handler.html">gossipy.data.handler module</a></li>
-</ul>
-</div>
-</section>
 </section>
 
 
               </div>
               
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="gossipy.core.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">gossipy.core module</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="gossipy.data.handler.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">gossipy.data.handler module</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
               
           </main>
           

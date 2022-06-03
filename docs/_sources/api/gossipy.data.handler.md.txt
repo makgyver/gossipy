@@ -1,9 +1,9 @@
-# gossipy module
-   
+# gossipy.data.handler module
+
 ### Module contents
 
 ```{eval-rst}
-.. automodule:: gossipy
+.. automodule:: gossipy.data.handler
    :members:
    :show-inheritance:
 ```

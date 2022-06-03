@@ -117,68 +117,17 @@
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
   <div class="bd-toc-item active">
     <ul class="current nav bd-sidenav">
- <li class="toctree-l1 current active has-children">
-  <a class="reference internal" href="gossipy.html">
-   gossipy package
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.core.html">
+   gossipy.core module
   </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul class="current">
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="gossipy.data.html">
-     gossipy.data package
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-    <label for="toctree-checkbox-2">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="gossipy.data.handler.html">
-       gossipy.data.handler module
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2 current active has-children">
-    <a class="reference internal" href="gossipy.model.html">
-     gossipy.model module
-    </a>
-    <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
-    <label for="toctree-checkbox-3">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul class="current">
-     <li class="toctree-l3">
-      <a class="reference internal" href="gossipy.model.handler.html">
-       gossipy.model.handler module
-      </a>
-     </li>
-     <li class="toctree-l3 current active">
-      <a class="current reference internal" href="#">
-       gossipy.model.nn module
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="gossipy.model.sampling.html">
-       gossipy.model.sampling module
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
  </li>
  <li class="toctree-l1 has-children">
   <a class="reference internal" href="gossipy.data.html">
-   gossipy.data package
+   gossipy.data module
   </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
-  <label for="toctree-checkbox-4">
+  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
    <i class="fas fa-chevron-down">
    </i>
   </label>
@@ -190,12 +139,17 @@
    </li>
   </ul>
  </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.flow_control.html">
+   gossipy.flow_control module
+  </a>
+ </li>
  <li class="toctree-l1 current active has-children">
   <a class="reference internal" href="gossipy.model.html">
    gossipy.model module
   </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-  <label for="toctree-checkbox-5">
+  <input checked class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
    <i class="fas fa-chevron-down">
    </i>
   </label>
@@ -216,6 +170,21 @@
     </a>
    </li>
   </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.node.html">
+   gossipy.node module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.simul.html">
+   gossipy.simul module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.utils.html">
+   gossipy.utils
+  </a>
  </li>
 </ul>
 
@@ -275,7 +244,7 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.nn.</span></span><span class="sig-name descname"><span class="pre">AdaLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.nn.AdaLine" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.TorchModel</span></code></a></p>
 <p>The Adaline perceptron model.</p>
-<p>Implementation of the AdaLine perceptron model <span id="id1">[<a class="reference internal" href="gossipy.html#id9" title="Róbert Ormándi, István Hegedüs, and Márk Jelasity. Gossip learning with linear models on fully distributed data. Concurr. Comput. Pract. Exp., 25(4):556–571, 2013. URL: https://doi.org/10.1002/cpe.2858, doi:10.1002/cpe.2858.">OrmandiHegedusJ13</a>]</span>, <span id="id2">[<a class="reference internal" href="gossipy.html#id10" title="Bernard Widrow and Marcian E. Hoff. Adaptive Switching Circuits, pages 123–134. MIT Press, Cambridge, MA, USA, 1988.">WH88</a>]</span>.
+<p>Implementation of the AdaLine perceptron model <span id="id1">[]</span>, <span id="id2">[]</span>.
 The model is a simple perceptron with a linear activation function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -438,7 +407,7 @@ registered hooks while the latter silently ignores them.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.model.nn.</span></span><span class="sig-name descname"><span class="pre">TorchPerceptron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation=&lt;class</span> <span class="pre">'torch.nn.modules.activation.Sigmoid'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias=True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.model.nn.TorchPerceptron" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="gossipy.model.html#gossipy.model.TorchModel" title="gossipy.model.TorchModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.model.TorchModel</span></code></a></p>
 <p>Perceptron model.</p>
-<p>Implementation of the perceptron model by Rosenblatt <span id="id3">[<a class="reference internal" href="gossipy.html#id8" title="Frank Rosenblatt. The perceptron: a probabilistic model for information storage and organization in the brain. Psychological review, 65 6:386-408, 1958.">Ros58</a>]</span>.</p>
+<p>Implementation of the perceptron model by Rosenblatt <span id="id3">[]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -489,6 +458,24 @@ registered hooks while the latter silently ignores them.</p>
 
               </div>
               
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="gossipy.model.handler.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">gossipy.model.handler module</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="gossipy.model.sampling.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">gossipy.model.sampling module</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
               
           </main>
           

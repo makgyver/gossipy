@@ -58,7 +58,7 @@ simulator = TokenizedGossipSimulator(
     delta=100,
     protocol=AntiEntropyProtocol.PUSH, 
     delay=UniformDelay(0, 10),
-    online_prob=.2, #Approximates the average online rate of the STUNner's smartphone traces
+    #online_prob=.2, #Approximates the average online rate of the STUNner's smartphone traces
     #drop_prob=.1, #Simulates the possibility of message dropping
     sampling_eval=.1
 )

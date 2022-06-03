@@ -16,6 +16,5 @@
 ```{eval-rst}
 .. automodule:: gossipy.model
    :members:
-   :undoc-members:
    :show-inheritance:
 ```

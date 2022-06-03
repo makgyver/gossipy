@@ -1,5 +1,5 @@
 from gossipy import set_seed
-from gossipy.core import AntiEntropyProtocol, CreateModelMode, StaticP2PNetwork
+from gossipy.core import AntiEntropyProtocol, CreateModelMode, StaticP2PNetwork, UniformDelay
 from gossipy.node import GossipNode
 from gossipy.model.handler import PegasosHandler
 from gossipy.model.nn import AdaLine
@@ -26,7 +26,7 @@ data_handler = ClassificationDataHandler(X, y, test_size=.1)
 data_dispatcher = DataDispatcher(data_handler, eval_on_user=False, auto_assign=True)
 topology = StaticP2PNetwork(data_dispatcher.size(), None)
 model_handler = PegasosHandler(net=AdaLine(data_handler.size(1)),
-                               lam=.01,
+                               learning_rate=.01,
                                create_model_mode=CreateModelMode.MERGE_UPDATE)
 
 # For loop to repeat the simulation
@@ -41,6 +41,9 @@ simulator = GossipSimulator(
     data_dispatcher=data_dispatcher,
     delta=100,
     protocol=AntiEntropyProtocol.PUSH,
+    delay=UniformDelay(0,10),
+    online_prob=.2, #Approximates the average online rate of the STUNner's smartphone traces
+    drop_prob=.1, #Simulate the possibility of message dropping,
     sampling_eval=.1
 )
 

@@ -1,4 +1,4 @@
-# gossipy.model module
+# gossipy.data module
 
 ### Submodules
 
@@ -6,15 +6,13 @@
 .. toctree::
    :maxdepth: 1
 
-   gossipy.model.handler
-   gossipy.model.nn
-   gossipy.model.sampling
+   gossipy.data.handler
 ```
 
 ### Module contents
 
 ```{eval-rst}
-.. automodule:: gossipy.model
+.. automodule:: gossipy.data
    :members:
    :show-inheritance:
 ```

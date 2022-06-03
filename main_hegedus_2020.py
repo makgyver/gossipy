@@ -20,7 +20,7 @@ __status__ = "Development"
 #
 
 set_seed(98765)
-ratings, nu, ni = load_recsys_dataset("ml-100k")
+ratings, nu, ni = load_recsys_dataset("ml-1m")
 data_handler = RecSysDataHandler(ratings, nu, ni, .1, seed=42)
 dispatcher = RecSysDataDispatcher(data_handler)
 topology = StaticP2PNetwork(nu, to_scipy_sparse_array(random_regular_graph(20, nu, seed=42)))

@@ -7,16 +7,16 @@ API documentation
 =================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   gossipy
-   gossipy.core
-   gossipy.node
+   gossipy.md
+   gossipy.core.md
    gossipy.data
-   gossipy.flow_control
+   gossipy.flow_control.md
    gossipy.model.md
-   gossipy.simul
-   gossipy.util
+   gossipy.node.md
+   gossipy.simul.md
+   gossipy.utils.md
 
 
 Indices and tables

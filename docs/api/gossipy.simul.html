@@ -1,0 +1,730 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>gossipy.simul module &#8212; gossipy 0.0.1 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gossipy.utils" href="gossipy.utils.html" />
+    <link rel="prev" title="gossipy.node module" href="gossipy.node.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">gossipy</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../getting_started.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  API documentation
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/makgyver/gossipy" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.core.html">
+   gossipy.core module
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="gossipy.data.html">
+   gossipy.data module
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="gossipy.data.handler.html">
+     gossipy.data.handler module
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.flow_control.html">
+   gossipy.flow_control module
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="gossipy.model.html">
+   gossipy.model module
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="gossipy.model.handler.html">
+     gossipy.model.handler module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="gossipy.model.nn.html">
+     gossipy.model.nn module
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="gossipy.model.sampling.html">
+     gossipy.model.sampling module
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.node.html">
+   gossipy.node module
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   gossipy.simul module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="gossipy.utils.html">
+   gossipy.utils
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-gossipy.simul">
+   Module contents
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="gossipy-simul-module">
+<h1>gossipy.simul module<a class="headerlink" href="#gossipy-simul-module" title="Permalink to this headline">#</a></h1>
+<section id="module-gossipy.simul">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-gossipy.simul" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.simul.GossipSimulator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.simul.</span></span><span class="sig-name descname"><span class="pre">GossipSimulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dispatcher</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">online_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ConstantDelay(0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_eval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.GossipSimulator" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.simul.SimulationEventSender" title="gossipy.simul.SimulationEventSender"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.SimulationEventSender</span></code></a></p>
+<p>Class that implements a <em>vanilla</em> gossip learning simulation.</p>
+<p>The simulation is divided into “rounds” and each round consists of a <code class="docutils literal notranslate"><span class="pre">delta</span></code> timesteps.
+A single time step represent the time unit of the simulation. At each time step, the nodes
+that timed out act according to the gossip protocol, e.g., in the case of the PUSH protocol,
+the nodes send a message (i.e., its model) to a random neighbor. The message arrives at the
+destination node with a <code class="docutils literal notranslate"><span class="pre">delay</span></code> (see <code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.Delay</span></code>). Messages can also drop
+according to a probability defined by the <code class="docutils literal notranslate"><span class="pre">drop_prob</span></code> parameter. Similarly, nodes can
+drop according to a probability equals to <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">online_prob</span></code>. Nodes are considered in a
+random order even if they time out in the same timestep.</p>
+<p>The simulator implements the design pattern Observer (actually Event Receiver) extending
+the <a class="reference internal" href="#gossipy.simul.SimulationEventSender" title="gossipy.simul.SimulationEventSender"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.SimulationEventSender</span></code></a> class. The events are:</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_message()</span></code>: a message has been sent or dropped;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_evaluation()</span></code>: an evaluation has been computed;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_timestep()</span></code>: a timestep has been performed;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_end()</span></code>: the simulation has ended.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>GossipNode</em><em>]</em>) – The nodes participating in the simulation. The keys are the node ids, and the values
+are the corresponding nodes (instances of the class <code class="xref py py-class docutils literal notranslate"><span class="pre">GossipNode</span></code>).</p></li>
+<li><p><strong>data_dispatcher</strong> (<em>DataDispatcher</em>) – The data dispatcher. Useful if the evaluation is performed on a separate test set, i.e.,
+not on the nodes.</p></li>
+<li><p><strong>delta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of timesteps of a round.</p></li>
+<li><p><strong>protocol</strong> (<a class="reference internal" href="gossipy.core.html#gossipy.core.AntiEntropyProtocol" title="gossipy.core.AntiEntropyProtocol"><em>AntiEntropyProtocol</em></a>) – The protocol of the gossip simulation.</p></li>
+<li><p><strong>drop_prob</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.</em>) – The probability of a message being dropped.</p></li>
+<li><p><strong>online_prob</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1.</em>) – The probability of a node to be online.</p></li>
+<li><p><strong>delay</strong> (<a class="reference internal" href="gossipy.core.html#gossipy.core.Delay" title="gossipy.core.Delay"><em>Delay</em></a><em>, </em><em>default=ConstantDelay</em><em>(</em><em>0</em><em>)</em>) – The (potential) function delay of the messages.</p></li>
+<li><p><strong>sampling_eval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.</em>) – The percentage of nodes to use during evaluate. If 0 or 1, all nodes are considered.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.GossipSimulator.init_nodes">
+<span class="sig-name descname"><span class="pre">init_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">98765</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.GossipSimulator.init_nodes" title="Permalink to this definition">#</a></dt>
+<dd><p>Initializes the nodes.</p>
+<p>The initialization of the nodes usually involves the initialization of the local model
+(see <code class="xref py py-meth docutils literal notranslate"><span class="pre">GossipNode.init_model()</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=98765</em>) – The seed for the random number generator.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.GossipSimulator.load">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.GossipSimulator.load" title="Permalink to this definition">#</a></dt>
+<dd><p>Loads the state of the simulator (including the models’ cache).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The name of the file to load the state.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The simulator loaded from the file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#gossipy.simul.GossipSimulator" title="gossipy.simul.GossipSimulator">GossipSimulator</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.GossipSimulator.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.GossipSimulator.save" title="Permalink to this definition">#</a></dt>
+<dd><p>Saves the state of the simulator (including the models’ cache).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The name of the file to save the state.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.GossipSimulator.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_rounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.GossipSimulator.start" title="Permalink to this definition">#</a></dt>
+<dd><p>Starts the simulation.</p>
+<p>The simulation handles the messages exchange between the nodes for <code class="docutils literal notranslate"><span class="pre">n_rounds</span></code> rounds.
+If attached to a <a class="reference internal" href="#gossipy.simul.SimulationReport" title="gossipy.simul.SimulationReport"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimulationReport</span></code></a>, the report is updated at each time step,
+sent/fail message and evaluation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n_rounds</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=100</em>) – The number of rounds of the simulation.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventReceiver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.simul.</span></span><span class="sig-name descname"><span class="pre">SimulationEventReceiver</span></span><a class="headerlink" href="#gossipy.simul.SimulationEventReceiver" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>The event receiver interface declares all the update methods, used by the event sender.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventReceiver.update_end">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationEventReceiver.update_end" title="Permalink to this definition">#</a></dt>
+<dd><p>Receives an update about the end of the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventReceiver.update_evaluation">
+<span class="sig-name descname"><span class="pre">update_evaluation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">round</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationEventReceiver.update_evaluation" title="Permalink to this definition">#</a></dt>
+<dd><p>Receives an update about an evaluation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>round</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The round number.</p></li>
+<li><p><strong>on_user</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the evaluation set is store on the clients/users or on the server.</p></li>
+<li><p><strong>evaluation</strong> (<em>list of dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em>) – The evaluation metrics computed on each client.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventReceiver.update_message">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">failed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationEventReceiver.update_message" title="Permalink to this definition">#</a></dt>
+<dd><p>Receives an update about a sent or a failed message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>falied</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the message was sent (False) or not (True).</p></li>
+<li><p><strong>msg_size</strong> (<a class="reference internal" href="gossipy.core.html#gossipy.core.Message" title="gossipy.core.Message"><em>Message</em></a><em> or </em><em>None</em><em>, </em><em>default=None</em>) – The message.</p></li>
+<li><p><strong>failed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference internal" href="gossipy.core.html#gossipy.core.Message" title="gossipy.core.Message"><em>gossipy.core.Message</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventReceiver.update_timestep">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_timestep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationEventReceiver.update_timestep" title="Permalink to this definition">#</a></dt>
+<dd><p>Signals the end of the timestep <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The current time step.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventSender">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.simul.</span></span><span class="sig-name descname"><span class="pre">SimulationEventSender</span></span><a class="headerlink" href="#gossipy.simul.SimulationEventSender" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>The event sender interface declares methods for managing receviers.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventSender.add_receiver">
+<span class="sig-name descname"><span class="pre">add_receiver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">receiver</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationEventSender.add_receiver" title="Permalink to this definition">#</a></dt>
+<dd><p>Attaches an event receiver to the event sender.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>receiver</strong> (<a class="reference internal" href="#gossipy.simul.SimulationEventReceiver" title="gossipy.simul.SimulationEventReceiver"><em>SimulationEventReceiver</em></a>) – The receiver to attach.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventSender.notify_end">
+<span class="sig-name descname"><span class="pre">notify_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationEventSender.notify_end" title="Permalink to this definition">#</a></dt>
+<dd><p>Notifies all receivers about the end of the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventSender.notify_evaluation">
+<span class="sig-name descname"><span class="pre">notify_evaluation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">round</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationEventSender.notify_evaluation" title="Permalink to this definition">#</a></dt>
+<dd><p>Notifies all receivers about a performed evaluation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>round</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The round number.</p></li>
+<li><p><strong>on_user</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the evaluation set is store on the clients/users or on the server.</p></li>
+<li><p><strong>evaluation</strong> (<em>list of dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em>) – The evaluation metrics computed on each client.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventSender.notify_message">
+<span class="sig-name descname"><span class="pre">notify_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">falied</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationEventSender.notify_message" title="Permalink to this definition">#</a></dt>
+<dd><p>Notifies all receivers about a sent message or a failed message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>falied</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the message was sent or not.</p></li>
+<li><p><strong>msg_size</strong> (<a class="reference internal" href="gossipy.core.html#gossipy.core.Message" title="gossipy.core.Message"><em>Message</em></a><em> or </em><em>None</em><em>, </em><em>default=None</em>) – The message.</p></li>
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference internal" href="gossipy.core.html#gossipy.core.Message" title="gossipy.core.Message"><em>gossipy.core.Message</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventSender.notify_timestep">
+<span class="sig-name descname"><span class="pre">notify_timestep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationEventSender.notify_timestep" title="Permalink to this definition">#</a></dt>
+<dd><p>Notifies all receivers that a timestep has happened.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The timestep number.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationEventSender.remove_receiver">
+<span class="sig-name descname"><span class="pre">remove_receiver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">receiver</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationEventSender.remove_receiver" title="Permalink to this definition">#</a></dt>
+<dd><p>Detaches an event receiver from the event sender.</p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">receiver</span></code> is not attached to the event sender, nothing happens.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>receiver</strong> (<a class="reference internal" href="#gossipy.simul.SimulationEventReceiver" title="gossipy.simul.SimulationEventReceiver"><em>SimulationEventReceiver</em></a>) – The receiver to detach.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationReport">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.simul.</span></span><span class="sig-name descname"><span class="pre">SimulationReport</span></span><a class="headerlink" href="#gossipy.simul.SimulationReport" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.simul.SimulationEventReceiver" title="gossipy.simul.SimulationEventReceiver"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.SimulationEventReceiver</span></code></a></p>
+<p>Class that implements a basic simulation report.</p>
+<p>The report traces the number of sent messages, the number of failed messages,
+the total size of the sent messages, and the evaluation metrics (both global and local).</p>
+<p>The report is updated according to the design pattern Observer (actually Event Receiver).
+Thus, the report must be created and attached to the simulation before starting it.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gossipy.simul</span> <span class="kn">import</span> <span class="n">SimulationReport</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gossipy.simul</span> <span class="kn">import</span> <span class="n">GossipSimulator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">GossipSimulator</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span> <span class="o">=</span> <span class="n">SimulationReport</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span><span class="o">.</span><span class="n">add_receiver</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">report</span></code> object is now attached to the simulation and it will be notified about the
+events.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gossipy.Sizeable</span></code></p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationReport.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationReport.clear" title="Permalink to this definition">#</a></dt>
+<dd><p>Clears the report.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationReport.update_end">
+<span class="sig-name descname"><span class="pre">update_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationReport.update_end" title="Permalink to this definition">#</a></dt>
+<dd><p>Receives an update about the end of the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationReport.update_evaluation">
+<span class="sig-name descname"><span class="pre">update_evaluation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">round</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationReport.update_evaluation" title="Permalink to this definition">#</a></dt>
+<dd><p>Receives an update about an evaluation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>round</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The round number.</p></li>
+<li><p><strong>on_user</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the evaluation set is store on the clients/users or on the server.</p></li>
+<li><p><strong>evaluation</strong> (<em>list of dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>]</em>) – The evaluation metrics computed on each client.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationReport.update_message">
+<span class="sig-name descname"><span class="pre">update_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">failed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationReport.update_message" title="Permalink to this definition">#</a></dt>
+<dd><p>Receives an update about a sent or a failed message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>falied</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the message was sent (False) or not (True).</p></li>
+<li><p><strong>msg_size</strong> (<a class="reference internal" href="gossipy.core.html#gossipy.core.Message" title="gossipy.core.Message"><em>Message</em></a><em> or </em><em>None</em><em>, </em><em>default=None</em>) – The message.</p></li>
+<li><p><strong>failed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+<li><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference internal" href="gossipy.core.html#gossipy.core.Message" title="gossipy.core.Message"><em>gossipy.core.Message</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.SimulationReport.update_timestep">
+<span class="sig-name descname"><span class="pre">update_timestep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.SimulationReport.update_timestep" title="Permalink to this definition">#</a></dt>
+<dd><p>Signals the end of the timestep <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The current time step.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.simul.TokenizedGossipSimulator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.simul.</span></span><span class="sig-name descname"><span class="pre">TokenizedGossipSimulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dispatcher</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_account</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utility_fun</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">online_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ConstantDelay(0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_eval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.TokenizedGossipSimulator" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.simul.GossipSimulator" title="gossipy.simul.GossipSimulator"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.GossipSimulator</span></code></a></p>
+<p>Class that implements a gossip learning simulation using token account <span id="id1">[]</span>.</p>
+<p>The simulation happens similary to the <a class="reference internal" href="#gossipy.simul.GossipSimulator" title="gossipy.simul.GossipSimulator"><code class="xref py py-class docutils literal notranslate"><span class="pre">GossipSimulator</span></code></a>, but the communication
+pattern is handled by a token account algorithm (see <code class="xref py py-class docutils literal notranslate"><span class="pre">TokenAccount</span></code>).
+Token account based flow control mechanism can be useful in case of bursty communication
+<span id="id2">[]</span>.</p>
+<p>The simulator implements the design pattern Observer (actually Event Receiver) extending
+the <a class="reference internal" href="#gossipy.simul.SimulationEventSender" title="gossipy.simul.SimulationEventSender"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.simul.SimulationEventSender</span></code></a> class. The events are:</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_message()</span></code>: a message has been sent or dropped;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_evaluation()</span></code>: an evaluation has been computed;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_timestep()</span></code>: a timestep has been performed;</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_end()</span></code>: the simulation has ended.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>GossipNode</em><em>]</em>) – The nodes participating in the simulation. The keys are the node ids, and the values
+are the corresponding nodes (instances of the class <code class="xref py py-class docutils literal notranslate"><span class="pre">GossipNode</span></code>).</p></li>
+<li><p><strong>data_dispatcher</strong> (<em>DataDispatcher</em>) – The data dispatcher. Useful if the evaluation is performed on a separate test set, i.e.,
+not on the nodes.</p></li>
+<li><p><strong>token_account</strong> (<a class="reference internal" href="gossipy.flow_control.html#gossipy.flow_control.TokenAccount" title="gossipy.flow_control.TokenAccount"><em>TokenAccount</em></a>) – The token account strategy.</p></li>
+<li><p><strong>utility_fun</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a><em>, </em><a class="reference internal" href="gossipy.model.handler.html#gossipy.model.handler.ModelHandler" title="gossipy.model.handler.ModelHandler"><em>ModelHandler</em></a><em>, </em><a class="reference internal" href="gossipy.core.html#gossipy.core.Message" title="gossipy.core.Message"><em>Message</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>]</em>) – Function defining the usefulness of a message. The usefulness expresses the notion that
+some messages are more important than others in most applications. For example, in the
+broadcast application, the received message is useful if and only if it contains new
+information for the node.
+The signatue of the function is:
+<code class="docutils literal notranslate"><span class="pre">utility_fun(model_handler_1,</span> <span class="pre">model_handler_2,</span> <span class="pre">msg)</span> <span class="pre">-&gt;</span> <span class="pre">int</span></code>
+where <code class="docutils literal notranslate"><span class="pre">model_handler_1</span></code> and <code class="docutils literal notranslate"><span class="pre">model_handler_2</span></code> are the model handlers of the
+nodes involved in the message exchange, and <code class="docutils literal notranslate"><span class="pre">msg</span></code> is the message.
+The function must return an integer value.</p></li>
+<li><p><strong>delta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of timesteps of a round.</p></li>
+<li><p><strong>protocol</strong> (<a class="reference internal" href="gossipy.core.html#gossipy.core.AntiEntropyProtocol" title="gossipy.core.AntiEntropyProtocol"><em>AntiEntropyProtocol</em></a>) – The protocol of the gossip simulation.</p></li>
+<li><p><strong>drop_prob</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.</em>) – The probability of a message being dropped.</p></li>
+<li><p><strong>online_prob</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=1.</em>) – The probability of a node to be online.</p></li>
+<li><p><strong>delay</strong> (<a class="reference internal" href="gossipy.core.html#gossipy.core.Delay" title="gossipy.core.Delay"><em>Delay</em></a><em>, </em><em>default=ConstantDelay</em><em>(</em><em>0</em><em>)</em>) – The (potential) function delay of the messages.</p></li>
+<li><p><strong>sampling_eval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>default=0.</em>) – The percentage of nodes to use during evaluate. If 0 or 1, all nodes are considered.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.TokenizedGossipSimulator.init_nodes">
+<span class="sig-name descname"><span class="pre">init_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">98765</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.TokenizedGossipSimulator.init_nodes" title="Permalink to this definition">#</a></dt>
+<dd><p>Initializes the nodes.</p>
+<p>The initialization of the nodes usually involves the initialization of the local model
+(see <code class="xref py py-meth docutils literal notranslate"><span class="pre">GossipNode.init_model()</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=98765</em>) – The seed for the random number generator.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.simul.TokenizedGossipSimulator.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_rounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.simul.TokenizedGossipSimulator.start" title="Permalink to this definition">#</a></dt>
+<dd><p>Starts the simulation.</p>
+<p>The simulation handles the messages exchange between the nodes for <code class="docutils literal notranslate"><span class="pre">n_rounds</span></code> rounds.
+If attached to a <a class="reference internal" href="#gossipy.simul.SimulationReport" title="gossipy.simul.SimulationReport"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimulationReport</span></code></a>, the report is updated at each time step,
+sent/fail message and evaluation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n_rounds</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=100</em>) – The number of rounds of the simulation.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="gossipy.node.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">gossipy.node module</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="gossipy.utils.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">gossipy.utils</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022, Mirko Polato.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

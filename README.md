@@ -25,12 +25,9 @@ Python module for simulating gossip learning and decentralized federated learnin
 
 ### Features
 
-- [x] Logger
 - [ ] Models cache[[Ormandi 2013]](#1) [[Giaretta 2019]](#4) (partially implemented)
 - [ ] Perfect matching [[Ormandi 2013]](#1)
 - [ ] More realistic online behaviour (currently it is a worst case scenario)
-- [x] Message transmission time
-- [x] PENS [[Onoszko 2021]](#8)
 - [ ] DFL [[Liu 2022]](#10)
 - [ ] Segmented GL [[Hu 2019]](#5)
 - [ ] CMFL [[Che 2021]](#9)
@@ -39,7 +36,6 @@ Python module for simulating gossip learning and decentralized federated learnin
 
 ### Extras
 
-- [ ] Documentation (partially implemented)
 - [ ] Add 'Weights and Biases' support
 
 

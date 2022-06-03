@@ -102,6 +102,7 @@ html_theme_options = {
     #"use_edit_page_button": True,
     "show_toc_level": 2,
     "show_nav_level": 2,
-    "show_prev_next": False
+    "show_prev_next": True,
+    "use_sidenotes": True,
 }
 
