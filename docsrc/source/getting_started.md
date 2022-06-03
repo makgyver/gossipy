@@ -5,7 +5,7 @@
 **gossipy** is available as a [PyPI](https://pypi.org) module and it can be installed using `pip`:
 
 ```console
-$ pip install gossipy
+$ pip install gossipy-dfl
 ```
 
 ## Introduction
