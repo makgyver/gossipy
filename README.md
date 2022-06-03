@@ -3,7 +3,7 @@
 
 [language]: https://img.shields.io/github/languages/top/makgyver/gossipy?style=for-the-badge
 [issues]: https://img.shields.io/github/issues/makgyver/gossipy?style=for-the-badge
-[license]: https://img.shields.io/badge/mit-blue?style=for-the-badge&logo=opensourceinitiative&color=8a1c06&logoColor=white
+[license]: https://img.shields.io/github/license/makgyver/gossipy?style=for-the-badge
 [version]: https://img.shields.io/badge/python-3.7|3.8|3.9-blue?style=for-the-badge
 
 [![python](https://img.shields.io/badge/PYTHON-blue?style=for-the-badge&logo=python&logoColor=yellow)](https://www.python.org/)
