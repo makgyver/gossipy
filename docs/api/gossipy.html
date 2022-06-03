@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>&lt;no title&gt; &#8212; gossipy 0.0.1 documentation</title>
+    <title>gossipy module &#8212; gossipy 0.0.1 documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -76,7 +76,7 @@
  </a>
 </li>
 
-<li class="toctree-l1 nav-item">
+<li class="toctree-l1 current active nav-item">
  <a class="reference internal nav-link" href="index.html">
   API documentation
  </a>
@@ -116,7 +116,12 @@
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
   <div class="bd-toc-item active">
-    <ul class="nav bd-sidenav">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   gossipy module
+  </a>
+ </li>
  <li class="toctree-l1">
   <a class="reference internal" href="gossipy.core.html">
    gossipy.core module
@@ -208,7 +213,12 @@
 </div>
 
 <nav id="bd-toc-nav">
-    <ul class="simple visible nav section-nav flex-column">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-gossipy">
+   Module contents
+  </a>
+ </li>
 </ul>
 
 </nav>
@@ -230,19 +240,186 @@
               
               <div>
                 
-  <p># gossipy module</p>
-<p>### Module contents</p>
-<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>{eval-rst}
-.. automodule:: gossipy</p>
-<blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd">members</dt>
-<dd class="field-odd"><p></p></dd>
-<dt class="field-even">show-inheritance</dt>
-<dd class="field-even"><p></p></dd>
+  <section id="gossipy-module">
+<h1>gossipy module<a class="headerlink" href="#gossipy-module" title="Permalink to this headline">#</a></h1>
+<section id="module-gossipy">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-gossipy" title="Permalink to this headline">#</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="gossipy.CACHE">
+<span class="sig-prename descclassname"><span class="pre">gossipy.</span></span><span class="sig-name descname"><span class="pre">CACHE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#gossipy.CACHE" title="Permalink to this definition">#</a></dt>
+<dd><p>The models’ cache.</p>
+<p>All models that are exchanged between nodes are temporarely stored in the cache.
+If a model is needed by another node, it is retrieved from the cache and only one copy remains active in memory.
+If a model is not referenced anymore, it is automatically removed from the cache.
+The models contained in the cache are a deep copy of the models stored in the nodes.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.CacheItem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.</span></span><span class="sig-name descname"><span class="pre">CacheItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.CacheItem" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.Sizeable" title="gossipy.Sizeable"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.Sizeable</span></code></a></p>
+<p>The class of an item in the cache.</p>
+<p>The constructor initializes the cache item with the specified value and with a single reference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>Any</em>) – The value of the item.</p>
+</dd>
 </dl>
-</div></blockquote>
-<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.CacheItem.add_ref">
+<span class="sig-name descname"><span class="pre">add_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.CacheItem.add_ref" title="Permalink to this definition">#</a></dt>
+<dd><p>Adds a reference to the item.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.CacheItem.del_ref">
+<span class="sig-name descname"><span class="pre">del_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.CacheItem.del_ref" title="Permalink to this definition">#</a></dt>
+<dd><p>Deletes a reference to the item.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The value of the unreferenced item.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.CacheItem.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.CacheItem.get" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The value of the item.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.CacheItem.get_size">
+<span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.CacheItem.get_size" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the size of the object.</p>
+<p>The size is intended to be the number of “atomic” objects that the object contains.
+For example, a list of integers would have a size of the number of integers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The size of the object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.CacheItem.is_referenced">
+<span class="sig-name descname"><span class="pre">is_referenced</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.CacheItem.is_referenced" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns True if the item is referenced, False otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><cite>True</cite> if the item is referenced at least once, <cite>False</cite> otherwise.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.CacheKey">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.</span></span><span class="sig-name descname"><span class="pre">CacheKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.CacheKey" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gossipy.Sizeable" title="gossipy.Sizeable"><code class="xref py py-class docutils literal notranslate"><span class="pre">gossipy.Sizeable</span></code></a></p>
+<p>The key for a cache item.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.CacheKey.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.CacheKey.get" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the value of the cache item.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The value of the cache item.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.CacheKey.get_size">
+<span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.CacheKey.get_size" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the size of the object.</p>
+<p>The size is intended to be the number of “atomic” objects that the object contains.
+For example, a list of integers would have a size of the number of integers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The size of the object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="gossipy.LOG">
+<span class="sig-prename descclassname"><span class="pre">gossipy.</span></span><span class="sig-name descname"><span class="pre">LOG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Logger</span> <span class="pre">rich</span> <span class="pre">(INFO)&gt;</span></em><a class="headerlink" href="#gossipy.LOG" title="Permalink to this definition">#</a></dt>
+<dd><p>The logging handler that filters out duplicate messages.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="gossipy.Sizeable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">gossipy.</span></span><span class="sig-name descname"><span class="pre">Sizeable</span></span><a class="headerlink" href="#gossipy.Sizeable" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>The interface for objects that can be sized.</p>
+<p>Each class that implements this interface must define the method <a class="reference internal" href="#gossipy.Sizeable.get_size" title="gossipy.Sizeable.get_size"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_size()</span></code></a>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="gossipy.Sizeable.get_size">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.Sizeable.get_size" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the size of the object.</p>
+<p>The size is intended to be the number of “atomic” objects that the object contains.
+For example, a list of integers would have a size of the number of integers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The size of the object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="gossipy.set_seed">
+<span class="sig-prename descclassname"><span class="pre">gossipy.</span></span><span class="sig-name descname"><span class="pre">set_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gossipy.set_seed" title="Permalink to this definition">#</a></dt>
+<dd><p>Sets the seed for the random number generator.</p>
+<p>The seed is set for numpy, torch and random.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>default=0</em>) – The seed to set.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
 
 
               </div>

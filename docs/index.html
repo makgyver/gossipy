@@ -131,9 +131,19 @@
               
               <div class="toc-item">
                 
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
 
 <nav id="bd-toc-nav">
-    
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#documentation">
+   Documentation
+  </a>
+ </li>
+</ul>
+
 </nav>
               </div>
               
@@ -159,9 +169,13 @@
 <p class="admonition-title">Under construction!</p>
 <p>This documentation is currently under construction.</p>
 </div>
-<p>Some awesome <strong>text</strong> here!</p>
+<p>GossiPy is a python-based open-source framework for performing Gossip Learning (GL) and decentralized federated learning (DFL).
+GossiPy is designed by researchers for researchers and hence the overall architecture aims at being easy to extend but also easy to use off-the-shelf. As far as we know is the first python module for simulating gossip learning and decentralized federated learning.
+GossiPy has been developed following the General Responsibility Assignment Software Principles (GRASP) with a particular focus on Low Coupling and High Cohesion.
+This python module has been written following <a class="reference external" href="https://peps.python.org/pep-0008">PEP 8 – Style Guide for Python Code</a>.</p>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">#</a></h2>
 <div class="toctree-wrapper compound">
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="getting_started.html#installation">Installation</a></li>
@@ -170,6 +184,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api/index.html">API documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/gossipy.html">gossipy module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/gossipy.core.html">gossipy.core module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/gossipy.data.html">gossipy.data module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/gossipy.flow_control.html">gossipy.flow_control module</a></li>
@@ -182,32 +197,7 @@
 <li class="toctree-l1"><a class="reference internal" href="api/index.html#indices-and-tables">Indices and tables</a></li>
 </ul>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">a</span> <span class="kn">import</span> <span class="n">b</span>
-<span class="n">c</span> <span class="o">=</span> <span class="s2">&quot;string&quot;</span>
-</pre></div>
-</div>
-<figure class="align-default" id="test-label">
-<img alt="_images/gl_algorithm.png" src="_images/gl_algorithm.png" />
-<figcaption>
-<p><span class="caption-text">This is a caption for the image</span><a class="headerlink" href="#test-label" title="Permalink to this image">#</a></p>
-</figcaption>
-</figure>
-<div class="mermaid">
-            sequenceDiagram
-   participant Alice
-   participant Bob
-   Alice-&gt;John: Hello John, how are you?
-   loop Healthcheck
-       John-&gt;John: Fight against hypochondria
-   end
-   Note right of John: Rational thoughts &lt;br/&gt;prevail...
-   John--&gt;Alice: Great!
-   John-&gt;Bob: How about you?
-   Bob--&gt;John: Jolly good!
-        </div><div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p>For an introduction to using MyST with Sphinx, see <span class="xref myst"></span>.</p>
-</div>
+</section>
 </section>
 
 

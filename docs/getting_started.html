@@ -274,7 +274,7 @@ of the network. In this case, we use a fully connected network, thus a clique to
 <p>It is called <em>static</em> because the topology is fixed throughout the simulation. Before setting up the
 simulation, we need to create the nodes participating in the simulation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model_handler</span> <span class="o">=</span> <span class="n">PegasosHandler</span><span class="p">(</span><span class="n">net</span><span class="o">=</span><span class="n">Pegasos</span><span class="p">(</span><span class="n">data_handler</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span>
-                               <span class="n">lam</span><span class="o">=</span><span class="mf">.01</span><span class="p">,</span>
+                               <span class="n">learning_rate</span><span class="o">=</span><span class="mf">.01</span><span class="p">,</span>
                                <span class="n">create_model_mode</span><span class="o">=</span><span class="n">CreateModelMode</span><span class="o">.</span><span class="n">MERGE_UPDATE</span><span class="p">)</span>
 
 <span class="n">nodes</span> <span class="o">=</span> <span class="n">GossipNode</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">data_dispatcher</span><span class="o">=</span><span class="n">data_dispatcher</span><span class="p">,</span>

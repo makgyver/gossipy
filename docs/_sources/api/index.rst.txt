@@ -9,7 +9,7 @@ API documentation
 .. toctree::
    :maxdepth: 1
 
-   gossipy.md
+   gossipy
    gossipy.core.md
    gossipy.data
    gossipy.flow_control.md

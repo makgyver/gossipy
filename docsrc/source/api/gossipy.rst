@@ -1,9 +1,9 @@
-# gossipy module
+gossipy module
+==============
    
-### Module contents
+Module contents
+---------------
 
-```{eval-rst}
 .. automodule:: gossipy
    :members:
    :show-inheritance:
-```

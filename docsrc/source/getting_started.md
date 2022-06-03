@@ -106,7 +106,7 @@ simulation, we need to create the nodes participating in the simulation.
 
 ```python
 model_handler = PegasosHandler(net=Pegasos(data_handler.size(1)),
-                               lam=.01,
+                               learning_rate=.01,
                                create_model_mode=CreateModelMode.MERGE_UPDATE)
 
 nodes = GossipNode.generate(data_dispatcher=data_dispatcher,
