@@ -25,7 +25,7 @@ __all__ = [
 def generate_nodes(cls,
                    data_dispatcher: DataDispatcher,
                    p2p_net: P2PNetwork,
-                   model_proto: Union[ModelHandler, List[Tuple[int, ModelHandler]]],
+                   model_proto: Union[ModelHandler, List[Union[Tuple[int, ModelHandler], Tuple[int, ModelHandler, bool]]]],
                    round_len: int,
                    sync: bool,
                    to_shuffle: bool = False,
@@ -39,7 +39,7 @@ def generate_nodes(cls,
     p2p_net : P2PNetwork
         The peer-to-peer network topology.
     model_proto : ModelHandler
-        The model handler prototype or a list of tuples (number, ModelHandler)
+        The model handler prototype or a list of tuples (number, ModelHandler) or a list of tuples (number, ModelHandler, data_given)
     round_len : int
         The length of a round in time units.
     sync : bool
@@ -62,15 +62,27 @@ def generate_nodes(cls,
 
     nodes = {}
     idx = 0
+    idx_dispacher = 0
     for nb_type in model_proto:
         for j in range(nb_type[0]):
-            nodes[indices[idx]] = cls(idx=idx,
-                                      data=data_dispatcher[idx],
-                                      round_len=round_len,
-                                      model_handler=nb_type[1].copy(),
-                                      p2p_net=p2p_net,
-                                      sync=sync,
-                                      **kwargs)
+            if (len(nb_type) > 2 and not nb_type[2]):
+                nodes[indices[idx]] = cls(idx=idx,
+                                          # Keep this form, for check of test datast to work
+                                          data=(None, None),
+                                          round_len=round_len,
+                                          model_handler=nb_type[1].copy(),
+                                          p2p_net=p2p_net,
+                                          sync=sync,
+                                          **kwargs)
+            else:
+                nodes[indices[idx]] = cls(idx=idx,
+                                          data=data_dispatcher[idx_dispacher],
+                                          round_len=round_len,
+                                          model_handler=nb_type[1].copy(),
+                                          p2p_net=p2p_net,
+                                          sync=sync,
+                                          **kwargs)
+                idx_dispacher += 1
             idx += 1
     assert(idx == p2p_net.size())
     return nodes

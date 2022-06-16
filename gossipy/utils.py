@@ -32,7 +32,6 @@ __all__ = ["choice_not_n",
            "plot_evaluation"]
 
 
-
 # def print_flush(text: str) -> None:
 #     """Prints a string and flushes the output buffer."""
 #     print(text)
@@ -42,7 +41,7 @@ def choice_not_n(mn: int,
                  mx: int,
                  notn: int) -> int:
     r"""Draws from the uniform distribution an integer between ``mn`` and ``mx``, excluding ``notn``.
-    
+
     Parameters
     ----------
     mn : int
@@ -69,14 +68,14 @@ def torch_models_eq(m1: torch.nn.Module,
     """Checks if two pytorch models are equal.
 
     The equality is defined in terms of the parameters of the models, both architecture and weights.
-    
+
     Parameters
     ----------
     m1 : torch.nn.Module
         First model to compare.
     m2 : torch.nn.Module
         Second model to compare.
-    
+
     Returns
     -------
     bool
@@ -88,35 +87,35 @@ def torch_models_eq(m1: torch.nn.Module,
 
     if len(sd1) != len(sd2):
         return False
-    
+
     for (k1, i1), (k2, i2) in zip(sd1.items(), sd2.items()):
-        if  k1 != k2 or not torch.equal(i1, i2):
+        if k1 != k2 or not torch.equal(i1, i2):
             return False
     return True
 
 
-def download_and_unzip(url: str, extract_to: str='.') -> str:
+def download_and_unzip(url: str, extract_to: str = '.') -> str:
     """Downloads a file from ``url`` and unzips it into ``extract_to``.
-    
+
     Parameters
     ----------
     url : str
         URL of the file to download.
     extract_to : str
         Path to extract the file to.
-    
+
     Returns
     -------
     list of str
         List of names of the extracted files.
     """
 
-    LOG.info("Downloading %s into %s" %(url, extract_to))
+    LOG.info("Downloading %s into %s" % (url, extract_to))
     try:
         http_response = urlopen(url)
     except URLError:
-        # Handle urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] 
-        # certificate verify failed: certificate has expired 
+        # Handle urlopen error [SSL: CERTIFICATE_VERIFY_FAILED]
+        # certificate verify failed: certificate has expired
         import ssl
         ssl._create_default_https_context = ssl._create_unverified_context
         http_response = urlopen(url)
@@ -126,23 +125,23 @@ def download_and_unzip(url: str, extract_to: str='.') -> str:
     return zipfile.namelist()
 
 
-def download_and_untar(url: str, extract_to: str='.') -> List[str]:
+def download_and_untar(url: str, extract_to: str = '.') -> List[str]:
     """Downloads a file from ``url`` and untar it into ``extract_to``.
-    
+
     Parameters
     ----------
     url : str
         URL of the file to download.
     extract_to : str, default="."
         Path to extract the file to.
-    
+
     Returns
     -------
     list of str
         List of names of the extracted files.
     """
 
-    LOG.info("Downloading %s into %s" %(url, extract_to))
+    LOG.info("Downloading %s into %s" % (url, extract_to))
     ftpstream = urlopen(url)
     thetarfile = tarfile.open(fileobj=ftpstream, mode="r|gz")
     thetarfile.extractall(path=extract_to)
@@ -150,7 +149,8 @@ def download_and_untar(url: str, extract_to: str='.') -> List[str]:
 
 
 def plot_evaluation(evals: List[List[Dict]],
-                    title: str="Untitled plot") -> None:
+                    title: str = "Untitled plot",
+                    file: str = None) -> None:
     """Plots the evaluation results.
 
     Parameters
@@ -165,7 +165,8 @@ def plot_evaluation(evals: List[List[Dict]],
         Title of the plot.
     """
 
-    if not evals or not evals[0] or not evals[0][0]: return
+    if not evals or not evals[0] or not evals[0][0]:
+        return
     fig = plt.figure()
     fig.canvas.manager.set_window_title(title)
     ax = fig.add_subplot(111)
@@ -180,7 +181,11 @@ def plot_evaluation(evals: List[List[Dict]],
         plt.plot(range(1, len(mu)+1), mu, label=k)
         LOG.info(f"{k}: {mu[-1]:.2f}")
     ax.legend(loc="lower right")
-    plt.show()
+
+    if file != None:
+        plt.savefig(file)
+    else:
+        plt.show()
 
 
 class StringEncoder(JSONEncoder):

@@ -25,10 +25,12 @@ __all__ = [
 class AvoidReportMixin():
     '''Inheriting objects won't be taken into account in the evaluation when using compatible SimulationReport.
     Usefull to avoir malicious clients voluntarily impacting results.'''
-    pass
+
+    def evaluate(self, *args, **kwargs):
+        return None
 
 
-class RandomAttackMixin(TorchModelHandler, AvoidReportMixin):
+class RandomAttackMixin(AvoidReportMixin, TorchModelHandler):
     def __init__(self, noise: float):
         '''Adds a random vector to the model at each update.
         Acts like a getting a random gradient at each update.
@@ -46,7 +48,7 @@ class RandomAttackMixin(TorchModelHandler, AvoidReportMixin):
                 param.add_(torch.randn(param.size()) * self.noise)
 
 
-class SameValueAttackMixin(ModelHandler, AvoidReportMixin):
+class SameValueAttackMixin(AvoidReportMixin, ModelHandler):
     '''Does nothing at each update.
     Acts like a getting a null gradient at each update.
     '''
@@ -55,7 +57,7 @@ class SameValueAttackMixin(ModelHandler, AvoidReportMixin):
         pass
 
 
-class GradientScalingAttackMixin(TorchModelHandler, AvoidReportMixin):
+class GradientScalingAttackMixin(AvoidReportMixin, TorchModelHandler):
     def __init__(self, scale: float):
         '''Scales the gradient of each update by a factor
 
@@ -64,7 +66,7 @@ class GradientScalingAttackMixin(TorchModelHandler, AvoidReportMixin):
         scale: float
             The scale used.
         '''
-        self.scale = min(scale, 1.0)
+        self.scale = scale
 
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
         x, y = data
