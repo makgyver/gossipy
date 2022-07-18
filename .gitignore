@@ -133,3 +133,6 @@ dmypy.json
 main_test.py
 main_marvel.py
 main.py
+
+results
+data
