@@ -118,13 +118,13 @@ def eval(data_in, prop):
     else:
         plus = ""
 
-    with open("../berta_{strplus}{nb:.0f}%.pickle".format(strplus=plus, nb=prop*100.), "wb") as file:
+    with open("../berta_{strplus}{nb:.0f}%-samevalue.pickle".format(strplus=plus, nb=prop*100.), "wb") as file:
         pickle.dump([[ev for _, ev in report.get_evaluation(False)]], file)
 
     plot_evaluation([[ev for _, ev in report.get_evaluation(False)]],
-                    "Overall test results", "../berta_{strplus}{nb:.0f}%.png".format(strplus=plus, nb=prop*100.))
+                    "Overall test results", "../berta_{strplus}{nb:.0f}%-samevalue.png".format(strplus=plus, nb=prop*100.))
 
 
-for i in [0, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]:
-    for val in [False, True]:
+for i in [0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:  # 0, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.3,
+    for val in [True, False]:
         eval(val, i)
