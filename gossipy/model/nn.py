@@ -23,11 +23,12 @@ __all__ = ["TorchPerceptron",
            "Pegasos",
            "LogisticRegression"]
 
+
 class TorchPerceptron(TorchModel):
     def __init__(self,
                  dim: int,
-                 activation: torch.nn.modules.activation=Sigmoid,
-                 bias: bool=True):
+                 activation: torch.nn.modules.activation = Sigmoid,
+                 bias: bool = True):
         """Perceptron model.
 
         Implementation of the perceptron model by Rosenblatt :cite:p:`Rosenblatt1958ThePA`.
@@ -45,8 +46,8 @@ class TorchPerceptron(TorchModel):
         super(TorchPerceptron, self).__init__()
         self.input_dim = dim
         self.model = Sequential(OrderedDict({
-            "linear" : Linear(self.input_dim, 1, bias=bias), 
-            "sigmoid" : activation()
+            "linear": Linear(self.input_dim, 1, bias=bias),
+            "sigmoid": activation()
         }))
 
     # docstr-coverage:inherited
@@ -56,20 +57,21 @@ class TorchPerceptron(TorchModel):
     # docstr-coverage:inherited
     def init_weights(self) -> None:
         xavier_uniform_(self.model._modules['linear'].weight)
-    
+
     def __repr__(self) -> str:
         return str(self)
-    
+
     def __str__(self) -> str:
-        return "TorchPerceptron(size=%d)\n%s" %(self.get_size(), str(self.model))
+        return "TorchPerceptron(size=%d)\n%s" % (self.get_size(), str(self.model))
 
 
 class TorchMLP(TorchModel):
     def __init__(self,
                  input_dim: int,
                  output_dim: int,
-                 hidden_dims: Tuple[int]=(100,),
-                 activation: Module=ReLU):
+                 hidden_dims: Tuple[int] = (100,),
+                 activation: Module = ReLU,
+                 softmax_layer: bool = False):
         """Multi-layer perceptron model.
 
         Implementation of the multi-layer perceptron model. The model is composed of a sequence of
@@ -92,10 +94,11 @@ class TorchMLP(TorchModel):
         dims = [input_dim] + list(hidden_dims)
         layers = OrderedDict()
         for i in range(len(dims)-1):
-            layers["linear_%d" %(i+1)] = Linear(dims[i], dims[i+1])
-            layers["activ_%d" %(i+1)] = activation()
-        layers["linear_%d" %len(dims)] = Linear(dims[len(dims)-1], output_dim)
-        #layers["softmax"] = Softmax(1)
+            layers["linear_%d" % (i+1)] = Linear(dims[i], dims[i+1])
+            layers["activ_%d" % (i+1)] = activation()
+        layers["linear_%d" % len(dims)] = Linear(dims[len(dims)-1], output_dim)
+        if softmax_layer:
+            layers["softmax"] = Softmax(1)
         self.model = Sequential(layers)
 
     # docstr-coverage:inherited
@@ -110,7 +113,7 @@ class TorchMLP(TorchModel):
         self.model.apply(_init_weights)
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}(size=%d)\n%s" %(self.get_size(), str(self.model))
+        return f"{self.__class__.__name__}(size=%d)\n%s" % (self.get_size(), str(self.model))
 
 
 class AdaLine(TorchModel):
@@ -128,7 +131,8 @@ class AdaLine(TorchModel):
 
         super(AdaLine, self).__init__()
         self.input_dim = dim
-        self.model = torch.nn.Parameter(torch.zeros(self.input_dim), requires_grad=False)
+        self.model = torch.nn.Parameter(
+            torch.zeros(self.input_dim), requires_grad=False)
 
     # docstr-coverage:inherited
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -143,13 +147,12 @@ class AdaLine(TorchModel):
         pass
 
 
-
 class LogisticRegression(TorchModel):
     def __init__(self, input_dim: int, output_dim: int):
         """Logistic regression model.
-        
+
         Implementation of the logistic regression model.
-        
+
         Parameters
         ----------
         input_dim : int
@@ -164,11 +167,11 @@ class LogisticRegression(TorchModel):
     # docstr-coverage:inherited
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
-    
+
     # docstr-coverage:inherited
     def init_weights(self) -> None:
         pass
-    
+
     def __str__(self) -> str:
-        return "LogisticRegression(in_size=%d, out_size=%d)" %(self.model.in_features,
-                                                               self.model.out_features)
+        return "LogisticRegression(in_size=%d, out_size=%d)" % (self.model.in_features,
+                                                                self.model.out_features)
