@@ -1047,7 +1047,6 @@ class PresetEnum(str, Enum):
     BERTA_2014 = "berta2014"
     ORMANDI_2013 = "ormandi2013"
     GIARETTA_2019 = "giaretta2019"
-    HEGEDUS_2020 = "hegedus2020"
 
     def __str__(self):
         return self.value
@@ -1064,9 +1063,6 @@ def preset(preset_name: PresetEnum = typer.Argument(..., help="Name of the prese
     elif preset_name == PresetEnum.GIARETTA_2019:
         run_impl(model_handler_type=ModelHandlerEnum.PEGASOS, learning_rate=0.01, dataset_name=DataSetEnum.SPAMBASE, dataset_widerange=True, dataset_test_proportion=.1,
                  n_rounds=100, round_len=100, delta=100, topology_type=TopologyEnum.BARABASI_ALBERT, barabasi_m=10, sampling_eval=0.1, seed=42, on_device=True, simul_name="giaretta2019")
-    elif preset_name == PresetEnum.HEGEDUS_2020:
-        run_impl(model_handler_type=model_handler_type, create_model_mode=create_model_mode, torch_net=torch_net, torch_activation=torch_activation, torch_criterion=torch_criterion, torch_local_epochs=torch_local_epochs, torch_batch_size=torch_batch_size, torch_hidden_layer_dim=torch_hidden_layer_dim, learning_rate=learning_rate, weight_decay=weight_decay, sample_size=sample_size, n_parts=n_parts, kmeans_k=kmeans_k, kmeans_alpha=kmeans_alpha, kmeans_matching=kmeans_matching, dataset_name=dataset_name, dataset_path=dataset_path, dataset_normalize=dataset_normalize, dataset_widerange=dataset_widerange, dataset_test_proportion=dataset_test_proportion, dataset_use_test=dataset_use_test, topology_type=topology_type, barabasi_m=barabasi_m, erdos_renyi_prob=erdos_renyi_prob, clique_size=clique_size,
-                 n_nodes=n_nodes, n_rounds=n_rounds, node_type=node_type, sync_nodes=sync_nodes, round_len=round_len, pens_n_sample=pens_n_sample, pens_m_top=pens_m_top, pens_step1_rounds=pens_step1_rounds, generation_type=generation_type, simulator_type=simulator_type, delta=delta, anti_entropy_protocol=anti_entropy_protocol, drop_prob=drop_prob, online_prob=online_prob, delay_mode=delay_mode, delay_constant_value=delay_constant_value, delay_min=delay_min, delay_max=delay_max, delay_factor=delay_factor, sampling_eval=sampling_eval, attack_type=attack_type, attack_proportion=attack_proportion, attack_own_data=attack_own_data, attack_scale=attack_scale, attack_mean=attack_mean, attack_pegasos_nb=attack_pegasos_nb, seed=seed, on_device=on_device, result_folder=result_folder, simul_name=simul_name)
     else:
         raise RuntimeError("Wrong name of preset")
 
