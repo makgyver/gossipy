@@ -889,6 +889,7 @@ def run_impl(model_handler_type: ModelHandlerEnum = ModelHandlerEnum.TORCH_MODEL
                     "Overall test results", folder_name + "/" + simul_name + ".png")
 
 
+@app.command()
 def verify_args(model_handler_type: ModelHandlerEnum = ModelHandlerEnum.TORCH_MODEL,
                 create_model_mode: CreateModelModeEnum = CreateModelModeEnum.MERGE_UPDATE,
                 torch_net: Optional[TorchNetEnum] = None,
@@ -995,7 +996,7 @@ def verify_args(model_handler_type: ModelHandlerEnum = ModelHandlerEnum.TORCH_MO
     if topology_type == TopologyEnum.CLIQUES:
         assert clique_size is not None and len(
             clique_size) > 0, "clique_size should be set with that topology_type"
-    elif clique_size is not None:
+    elif clique_size is not None and len(clique_size) > 0:
         print("WARNING : clique_size is set but it wil be useless with that topology_type")
 
     if delay_mode in (DelayEnum.CONSTANT, DelayEnum.LINEAR):
@@ -1024,7 +1025,7 @@ def verify_args(model_handler_type: ModelHandlerEnum = ModelHandlerEnum.TORCH_MO
         print("WARNING : attack_scale is set but it will be useless with that attack_type")
 
     if attack_own_data != True:
-        assert attack_type in (
+        assert attack_type not in (
             AttackEnum.BACKGRADIENT, AttackEnum.GRADIENT_SCALING), "Malicious nodes must own data for this attack_type."
 
     if attack_type == AttackEnum.RANDOM_FULL_MODEL:
