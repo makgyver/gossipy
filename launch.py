@@ -1053,16 +1053,29 @@ class PresetEnum(str, Enum):
 
 
 @app.command()
-def preset(preset_name: PresetEnum = typer.Argument(..., help="Name of the preset", case_sensitive=False)):
+def preset(preset_name: PresetEnum = typer.Argument(..., help="Name of the preset", case_sensitive=False),
+           attack_type: Optional[AttackEnum] = typer.Option(
+    None, help="Type of malicious nodes. Leave it if you don't want to try any byzantine attack and you just want a simulation", case_sensitive=False),
+    attack_proportion: Optional[float] = typer.Option(
+    None, help="Proportion of malicious nodes", case_sensitive=False),
+    attack_own_data: bool = typer.Option(
+    True, help="Wether malicious nodes own data or they are added to the simulation", case_sensitive=False),
+    attack_scale: Optional[float] = typer.Option(
+    None, help="Scale parameters for attacks (depends on attack type)", case_sensitive=False),
+    attack_mean: Optional[float] = typer.Option(
+    None, help="Mean parameters for attacks (depends on attack type)", case_sensitive=False),
+    attack_pegasos_nb: int = typer.Option(
+    1, help="Value added to n_update whith a pegasos attack", case_sensitive=False),
+):
     if preset_name == PresetEnum.BERTA_2014:
         run_impl(model_handler_type=ModelHandlerEnum.KMEANS, kmeans_k=2, kmeans_alpha=0.1, kmeans_matching=KMeansMatchingEnum.HUNGARIAN, dataset_name=DataSetEnum.SPAMBASE, data_handler_type=DataHandlerEnum.CLUSTERING, topology_type=TopologyEnum.PLAIN,
-                 n_rounds=500, sync_nodes=True, round_len=1000, delta=1000, drop_prob=.1, sampling_eval=0.01, simul_name="berta2014", on_device=False)
+                 n_rounds=500, sync_nodes=True, round_len=1000, delta=1000, drop_prob=.1, sampling_eval=0.01, simul_name="berta2014", on_device=False, attack_type=attack_type, attack_proportion=attack_proportion, attack_own_data=attack_own_data, attack_mean=attack_mean, attack_scale=attack_scale, attack_pegasos_nb=attack_pegasos_nb)
     elif preset_name == PresetEnum.ORMANDI_2013:
         run_impl(model_handler_type=ModelHandlerEnum.PEGASOS, learning_rate=0.01, dataset_name=DataSetEnum.SPAMBASE, dataset_widerange=True, dataset_test_proportion=.1,
-                 n_rounds=100, round_len=100, delta=100, drop_prob=.1, online_prob=.2, delay_mode=DelayEnum.UNIFORM, delay_min=0, delay_max=10, sampling_eval=0.1, seed=42, on_device=True, simul_name="ormandi2013")
+                 n_rounds=100, round_len=100, delta=100, drop_prob=.1, online_prob=.2, delay_mode=DelayEnum.UNIFORM, delay_min=0, delay_max=10, sampling_eval=0.1, seed=42, on_device=True, simul_name="ormandi2013", attack_type=attack_type, attack_proportion=attack_proportion, attack_own_data=attack_own_data, attack_mean=attack_mean, attack_scale=attack_scale, attack_pegasos_nb=attack_pegasos_nb)
     elif preset_name == PresetEnum.GIARETTA_2019:
         run_impl(model_handler_type=ModelHandlerEnum.PEGASOS, learning_rate=0.01, dataset_name=DataSetEnum.SPAMBASE, dataset_widerange=True, dataset_test_proportion=.1,
-                 n_rounds=100, round_len=100, delta=100, topology_type=TopologyEnum.BARABASI_ALBERT, barabasi_m=10, sampling_eval=0.1, seed=42, on_device=True, simul_name="giaretta2019")
+                 n_rounds=100, round_len=100, delta=100, topology_type=TopologyEnum.BARABASI_ALBERT, barabasi_m=10, sampling_eval=0.1, seed=42, on_device=True, simul_name="giaretta2019", attack_type=attack_type, attack_proportion=attack_proportion, attack_own_data=attack_own_data, attack_mean=attack_mean, attack_scale=attack_scale, attack_pegasos_nb=attack_pegasos_nb)
     else:
         raise RuntimeError("Wrong name of preset")
 
