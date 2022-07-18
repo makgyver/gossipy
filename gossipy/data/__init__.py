@@ -37,17 +37,18 @@ __all__ = ["DataHandler",
            "load_recsys_dataset",
            "get_CIFAR10",
            "get_FashionMNIST",
-           "get_FEMNIST"]
+           "get_FEMNIST",
+           "get_MNIST"]
 
 UCI_BASE_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/"
 
 UCI_URL_AND_CLASS = {
-    "spambase" : (UCI_BASE_URL + "spambase/spambase.data", 57),
-    "sonar" : (UCI_BASE_URL + "undocumented/connectionist-bench/sonar/sonar.all-data", 60),
-    "ionosphere" : (UCI_BASE_URL + "ionosphere/ionosphere.data", 34),
-    "abalone" : (UCI_BASE_URL + "abalone/abalone.data", 0),
-    "banknote" : (UCI_BASE_URL + "00267/data_banknote_authentication.txt", 4),
-    #"dexter" : (UCI_BASE_URL + "dexter/DEXTER/", -1)
+    "spambase": (UCI_BASE_URL + "spambase/spambase.data", 57),
+    "sonar": (UCI_BASE_URL + "undocumented/connectionist-bench/sonar/sonar.all-data", 60),
+    "ionosphere": (UCI_BASE_URL + "ionosphere/ionosphere.data", 34),
+    "abalone": (UCI_BASE_URL + "abalone/abalone.data", 0),
+    "banknote": (UCI_BASE_URL + "00267/data_banknote_authentication.txt", 4),
+    # "dexter" : (UCI_BASE_URL + "dexter/DEXTER/", -1)
 }
 
 
@@ -67,16 +68,16 @@ class DataHandler(ABC):
         """
 
         pass
-    
+
     @abstractmethod
     def __getitem__(self, idx: Union[int, List[int]]) -> Any:
         """Get a sample (or samples) from the training set.
-        
+
         Parameters
         ----------
         idx : int or list[int]
             The index or indices of the sample(s) to get.
-        
+
         Returns
         -------
         Any
@@ -84,20 +85,20 @@ class DataHandler(ABC):
         """
 
         pass
-    
+
     @abstractmethod
-    def at(self, 
+    def at(self,
            idx: Union[int, List[int]],
-           eval_set: bool=False) -> Any:
+           eval_set: bool = False) -> Any:
         """Get a sample (or samples) from the training/test set.
-        
+
         Parameters
         ----------
         idx : int or list[int]
             The index or indices of the sample(s) to get.
         eval_set : bool, default=False
             Whether to get the sample(s) from the training or the evaluation set.
-        
+
         Returns
         -------
         Any
@@ -107,7 +108,7 @@ class DataHandler(ABC):
         pass
 
     @abstractmethod
-    def size(self, dim: int=0) -> int:
+    def size(self, dim: int = 0) -> int:
         """Get the size of the training set along a given dimension.
 
         Parameters
@@ -134,7 +135,7 @@ class DataHandler(ABC):
         """
 
         ParseSyntaxException
-    
+
     @abstractmethod
     def get_train_set(self) -> Tuple[Any, Any]:
         """Get the training set of the dataset.
@@ -163,9 +164,9 @@ class DataHandler(ABC):
 class DataDispatcher():
     def __init__(self,
                  data_handler: DataHandler,
-                 n: int=0, #number of clients
-                 eval_on_user: bool=True,
-                 auto_assign: bool=True):
+                 n: int = 0,  # number of clients
+                 eval_on_user: bool = True,
+                 auto_assign: bool = True):
         """DataDispatcher is responsible for assigning data to clients.
 
         The assignment is done by shuffling the data and assigning it uniformly to the clients.
@@ -185,7 +186,8 @@ class DataDispatcher():
         """
 
         assert(data_handler.size() >= n)
-        if n <= 1: n = data_handler.size()
+        if n <= 1:
+            n = data_handler.size()
         self.data_handler = data_handler
         self.n = n
         self.eval_on_user = eval_on_user
@@ -193,11 +195,11 @@ class DataDispatcher():
         self.te_assignments = None
         if auto_assign:
             self.assign()
-    
+
     def set_assignments(self, tr_assignments: List[int],
-                              te_assignments: Optional[List[int]]) -> None:
+                        te_assignments: Optional[List[int]]) -> None:
         """Set the specified assignments for the training and test sets.
-        
+
         The assignment must be provided as a list of integers with the same length as the
         number of examples in the training/test set. Each integer is the index of the client
         that will receive the example.
@@ -218,8 +220,7 @@ class DataDispatcher():
         else:
             self.te_assignments = [[] for _ in range(self.n)]
 
-
-    def assign(self, seed: int=42) -> None:
+    def assign(self, seed: int = 42) -> None:
         """Assign the data to the clients.
 
         The assignment is done by shuffling the data and assigning it uniformly to the clients.
@@ -238,12 +239,11 @@ class DataDispatcher():
 
         for i in range(self.data_handler.size()):
             self.tr_assignments[i % self.n].append(iperm[i])
-        
+
         if self.eval_on_user:
             iperm = torch.randperm(self.data_handler.eval_size()).tolist()
             for i in range(self.data_handler.eval_size()):
                 self.te_assignments[i % self.n].append(iperm[i])
-
 
     def __getitem__(self, idx: int) -> Any:
         """Return the data for the specified client.
@@ -252,17 +252,17 @@ class DataDispatcher():
         ----------
         idx : int
             The index of the client.
-        
+
         Returns
         -------
         Any
             The data to assign to the specified client.
         """
 
-        assert 0 <= idx < self.n, "Index %d out of range." %idx
+        assert 0 <= idx < self.n, "Index %d out of range." % idx
         return self.data_handler.at(self.tr_assignments[idx]), \
-               self.data_handler.at(self.te_assignments[idx], True)
-    
+            self.data_handler.at(self.te_assignments[idx], True)
+
     def size(self) -> int:
         """Returns the number of clients.
 
@@ -284,7 +284,7 @@ class DataDispatcher():
         """
 
         return self.data_handler.get_eval_set()
-    
+
     def has_test(self) -> bool:
         """Return True if there is a test set.
 
@@ -295,17 +295,18 @@ class DataDispatcher():
         """
 
         return self.data_handler.eval_size() > 0
-    
+
     def __repr__(self) -> str:
         return str(self)
-    
+
     def __str__(self) -> str:
         return "DataDispatcher(handler=%s, n=%d, eval_on_user=%s)" \
-                %(self.data_handler, self.n, self.eval_on_user)
+            % (self.data_handler, self.n, self.eval_on_user)
 
 
 class RecSysDataDispatcher(DataDispatcher):
     from .handler import RecSysDataHandler
+
     def __init__(self,
                  data_handler: RecSysDataHandler):
         """RecSysDataDispatcher is responsible for assigning recommendation data to clients.
@@ -323,19 +324,19 @@ class RecSysDataDispatcher(DataDispatcher):
         self.data_handler = data_handler
         self.n = self.data_handler.n_users
         self.eval_on_user = True
-    
+
     # docstr-coverage:inherited
     def assign(self, seed=42):
         torch.manual_seed(seed)
         self.assignments = torch.randperm(self.data_handler.size()).tolist()
 
-
     # docstr-coverage:inherited
+
     def __getitem__(self, idx: int) -> Any:
-        assert(0 <= idx < self.n), "Index %d out of range." %idx
+        assert(0 <= idx < self.n), "Index %d out of range." % idx
         return self.data_handler.at(self.assignments[idx]), \
-               self.data_handler.at(self.assignments[idx], True)
-    
+            self.data_handler.at(self.assignments[idx], True)
+
     # docstr-coverage:inherited
     def size(self) -> int:
         return self.n
@@ -343,19 +344,19 @@ class RecSysDataDispatcher(DataDispatcher):
     # docstr-coverage:inherited
     def get_eval_set(self) -> Tuple[Any, Any]:
         return None
-    
+
     # docstr-coverage:inherited
     def has_test(self) -> bool:
         return False
-    
+
     def __str__(self) -> str:
         return f"RecSysDataDispatcher(handler={self.data_handler}, eval_on_user={self.eval_on_user})"
 
 
 def load_classification_dataset(name_or_path: str,
-                                normalize: bool=True,
-                                as_tensor: bool=True) -> Union[Tuple[torch.Tensor, torch.Tensor],
-                                                               Tuple[np.ndarray, np.ndarray]]:
+                                normalize: bool = True,
+                                as_tensor: bool = True) -> Union[Tuple[torch.Tensor, torch.Tensor],
+                                                                 Tuple[np.ndarray, np.ndarray]]:
     """Loads a classification dataset.
 
     A dataset can be loaded from *svmlight* file or can be one of the following:
@@ -369,7 +370,7 @@ def load_classification_dataset(name_or_path: str,
         Whether to normalize (standard scaling) the data or not.
     as_tensor : bool, default=True
         Whether to return the data as a tensor or as a numpy array.
-    
+
     Returns
     -------
     tuple[torch.Tensor, torch.Tensor] or tuple[np.ndarray, np.ndarray]
@@ -393,14 +394,15 @@ def load_classification_dataset(name_or_path: str,
         folder = download_and_untar(url)[0]
         X_tr, y_tr = load_svmlight_file(folder + "/train.dat")
         X_te, y_te = load_svmlight_file(folder + "/test.dat")
-        X_te = np.pad(X_te.toarray(), [(0, 0), (0, 17)], mode='constant', constant_values=0)
+        X_te = np.pad(X_te.toarray(), [(0, 0), (0, 17)],
+                      mode='constant', constant_values=0)
         X = np.vstack([X_tr.toarray(), X_te])
         y = np.concatenate([y_tr, y_te])
         y = LabelEncoder().fit_transform(y)
         shutil.rmtree(folder)
     elif name_or_path in {"sonar", "ionosphere", "abalone", "banknote", "spambase"}:
         url, label_id = UCI_URL_AND_CLASS[name_or_path]
-        LOG.info("Downloading dataset %s from '%s'." %(name_or_path, url))
+        LOG.info("Downloading dataset %s from '%s'." % (name_or_path, url))
         data = pd.read_csv(url, header=None).to_numpy()
         y = LabelEncoder().fit_transform(data[:, label_id])
         X = np.delete(data, [label_id], axis=1).astype('float64')
@@ -413,25 +415,25 @@ def load_classification_dataset(name_or_path: str,
 
     if as_tensor:
         X = torch.tensor(X).float()
-        y = torch.tensor(y).long()#.reshape(y.shape[0], 1)
+        y = torch.tensor(y).long()  # .reshape(y.shape[0], 1)
 
     return X, y
 
 
 # TODO: add other recsys datasets
 def load_recsys_dataset(name: str,
-                        path: str=".") -> Tuple[Dict[int, List[Tuple[int, float]]], int, int]:
+                        path: str = ".") -> Tuple[Dict[int, List[Tuple[int, float]]], int, int]:
     """Load a recsys dataset.
 
     Currently, only the following datasets are supported: ml-100k, ml-1m, ml-10m and ml-20m.
-    
+
     Parameters
     ----------
     name : str
         The name of the dataset.
     path : str, default="."
         The path in which to download the dataset.
-    
+
     Returns
     -------
     tuple[dict[int, list[tuple[int, float]]], int, int]
@@ -441,7 +443,8 @@ def load_recsys_dataset(name: str,
 
     ratings = {}
     if name in {"ml-100k", "ml-1m", "ml-10m", "ml-20m"}:
-        folder = download_and_unzip("https://files.grouplens.org/datasets/movielens/%s.zip" %name)[0]
+        folder = download_and_unzip(
+            "https://files.grouplens.org/datasets/movielens/%s.zip" % name)[0]
         if name == "ml-100k":
             filename = "u.data"
             sep = "\t"
@@ -471,17 +474,17 @@ def load_recsys_dataset(name: str,
 
         shutil.rmtree(folder)
     else:
-        raise ValueError("Unknown dataset %s." %name)
+        raise ValueError("Unknown dataset %s." % name)
     return ratings, ucnt, icnt
 
 
-def get_CIFAR10(path: str="./data",
-                as_tensor: bool=True) -> Union[Tuple[Tuple[np.ndarray, list], Tuple[np.ndarray, list]],
-                                               Tuple[Tuple[Tensor, Tensor], Tuple[Tensor, Tensor]]]:
+def get_CIFAR10(path: str = "./data",
+                as_tensor: bool = True) -> Union[Tuple[Tuple[np.ndarray, list], Tuple[np.ndarray, list]],
+                                                 Tuple[Tuple[Tensor, Tensor], Tuple[Tensor, Tensor]]]:
     """Returns the CIFAR10 dataset.
 
     The method downloads the dataset if it is not already present in `path`.
-    
+
     Parameters
     ----------
     path : str, default="./data"
@@ -490,10 +493,11 @@ def get_CIFAR10(path: str="./data",
         If True, the dataset is returned as a tuple of pytorch tensors.
         Otherwise, the dataset is returned as a tuple of numpy arrays.
         By default, True.
-    
+
     Returns
     -------
-    tuple[tuple[np.ndarray, list], tuple[np.ndarray, list]] or tuple[tuple[Tensor, Tensor], tuple[Tensor, Tensor]]
+    tuple[tuple[np.ndarray, list], tuple[np.ndarray, list]
+        ] or tuple[tuple[Tensor, Tensor], tuple[Tensor, Tensor]]
         Tuple of training and test sets of the form :math:`(X_train, y_train), (X_test, y_test)`.
     """
 
@@ -505,10 +509,10 @@ def get_CIFAR10(path: str="./data",
                                             train=False,
                                             download=download)
     if as_tensor:
-        train_set = tensor(train_set.data).float().permute(0,3,1,2) / 255.,\
-                    tensor(train_set.targets)
-        test_set = tensor(test_set.data).float().permute(0,3,1,2) / 255.,\
-                   tensor(test_set.targets)
+        train_set = tensor(train_set.data).float().permute(0, 3, 1, 2) / 255.,\
+            tensor(train_set.targets)
+        test_set = tensor(test_set.data).float().permute(0, 3, 1, 2) / 255.,\
+            tensor(test_set.targets)
     else:
         train_set = train_set.data, train_set.targets
         test_set = test_set.data, test_set.targets
@@ -516,9 +520,9 @@ def get_CIFAR10(path: str="./data",
     return train_set, test_set
 
 
-def get_FashionMNIST(path: str="./data",
-                     as_tensor: bool=True) -> Union[Tuple[Tuple[np.ndarray, list], Tuple[np.ndarray, list]],
-                                                          Tuple[Tuple[Tensor, Tensor], Tuple[Tensor, Tensor]]]:
+def get_FashionMNIST(path: str = "./data",
+                     as_tensor: bool = True) -> Union[Tuple[Tuple[np.ndarray, list], Tuple[np.ndarray, list]],
+                                                      Tuple[Tuple[Tensor, Tensor], Tuple[Tensor, Tensor]]]:
     """Returns the FashionMNIST dataset.
 
     The method downloads the dataset if it is not already present in `path`.
@@ -534,8 +538,9 @@ def get_FashionMNIST(path: str="./data",
 
     Returns
     -------
-    Tuple[Tuple[np.ndarray, list], Tuple[np.ndarray, list]] or Tuple[Tuple[Tensor, Tensor], Tuple[Tensor, Tensor]]
-        Tuple of training and test sets of the form 
+    Tuple[Tuple[np.ndarray, list], Tuple[np.ndarray, list]
+        ] or Tuple[Tuple[Tensor, Tensor], Tuple[Tensor, Tensor]]
+        Tuple of training and test sets of the form
         :math:`(X_\text{train}, y_\text{train}), (X_\text{test}, y_\text{test})`.
     """
 
@@ -555,9 +560,11 @@ def get_FashionMNIST(path: str="./data",
 
     return train_set, test_set
 
-#UNDOCUMENTED
-def get_FEMNIST(path: str="./data") -> Tuple[Tuple[torch.Tensor, torch.Tensor, List[int]], \
-                                             Tuple[torch.Tensor, torch.Tensor, List[int]]]:
+# UNDOCUMENTED
+
+
+def get_FEMNIST(path: str = "./data") -> Tuple[Tuple[torch.Tensor, torch.Tensor, List[int]],
+                                               Tuple[torch.Tensor, torch.Tensor, List[int]]]:
     url = 'https://raw.githubusercontent.com/tao-shen/FEMNIST_pytorch/master/femnist.tar.gz'
     te_name, tr_name = download_and_untar(url, path)
     Xtr, ytr, ids_tr = torch.load(os.path.join(path, tr_name))
@@ -570,3 +577,60 @@ def get_FEMNIST(path: str="./data") -> Tuple[Tuple[torch.Tensor, torch.Tensor, L
         tr_assignment.append(list(range(sum_tr, sum_tr + ntr)))
         te_assignment.append(list(range(sum_te, sum_te + nte)))
     return (Xtr, ytr, tr_assignment), (Xte, yte, te_assignment)
+
+
+def get_MNIST(path: str = "./data",
+              as_tensor: bool = True,
+              normalize: bool = True) -> Union[Tuple[Tuple[np.ndarray, list], Tuple[np.ndarray, list]],
+                                               Tuple[Tuple[Tensor, Tensor], Tuple[Tensor, Tensor]]]:
+    """Returns the MNIST dataset.
+
+    The method downloads the dataset if it is not already present in `path`.
+
+    Parameters
+    ----------
+    path : str, default="./data"
+        Path to save the dataset, by default "./data".
+    as_tensor : bool, default=True
+        If True, the dataset is returned as a tuple of pytorch tensors.
+        Otherwise, the dataset is returned as a tuple of numpy arrays.
+        By default, True.
+
+    Returns
+    -------
+    Tuple[Tuple[np.ndarray, list], Tuple[np.ndarray, list]
+        ] or Tuple[Tuple[Tensor, Tensor], Tuple[Tensor, Tensor]]
+        Tuple of training and test sets of the form
+        :math:`(X_\text{train}, y_\text{train}), (X_\text{test}, y_\text{test})`.
+    """
+
+    download = not Path(os.path.join(path, "/MNIST/raw/")).is_dir()
+    if normalize:
+        train_set = torchvision.datasets.MNIST(root=path,
+                                               train=True,
+                                               download=download,
+                                               transform=torchvision.transforms.Normalize(
+                                                   (0.1307,), (0.3081,)))
+        test_set = torchvision.datasets.MNIST(root=path,
+                                              train=False,
+                                              download=download,
+                                              transform=torchvision.transforms.Normalize(
+                                                  (0.1307,), (0.3081,)))
+    else:
+        train_set = torchvision.datasets.MNIST(root=path,
+                                               train=True,
+                                               download=download)
+        test_set = torchvision.datasets.MNIST(root=path,
+                                              train=False,
+                                              download=download)
+
+    if as_tensor:
+        tr = train_set.data.reshape(
+            (60000, 28*28)) / 255., train_set.targets
+        te = test_set.data.reshape(
+            (10000, 28*28)) / 255., test_set.targets
+    else:
+        tr = train_set.data.numpy() / 255., train_set.targets.numpy()
+        te = test_set.data.numpy() / 255., test_set.targets.numpy()
+
+    return tr, te
