@@ -44,7 +44,6 @@ class ModelHandlerEnum(str, Enum):
     KMEANS = "kmeans"
     ADALINE = "adaline"
     PEGASOS = "pegasos"
-    MF_MODEL = "mf_model"
     TORCH_MODEL = "torch_model"
     SAMPLING_TMH = "sampling_tmh"
     PARTITIONED_TMH = "partitioned_tmh"
