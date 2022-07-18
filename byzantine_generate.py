@@ -6,6 +6,7 @@ from gossipy.model.handler import ModelHandler
 from gossipy.node import GossipNode
 from gossipy.core import P2PNetwork
 from random import shuffle
+from enum import Enum
 
 # AUTHORSHIP
 __version__ = "0.0.1"
@@ -22,13 +23,20 @@ __all__ = [
 ]
 
 
+class GenerationType(Enum):
+    NORMAL = 0
+    SHUFFLED = 1
+    LOW_DEGREE = 2
+    HIGH_DEGREE = 3
+
+
 def generate_nodes(cls,
                    data_dispatcher: DataDispatcher,
                    p2p_net: P2PNetwork,
                    model_proto: Union[ModelHandler, List[Union[Tuple[int, ModelHandler], Tuple[int, ModelHandler, bool]]]],
                    round_len: int,
                    sync: bool,
-                   to_shuffle: bool = False,
+                   generation_type: GenerationType = GenerationType.NORMAL,
                    **kwargs) -> Dict[int, GossipNode]:
     """Generates a set of nodes.
 
@@ -44,8 +52,8 @@ def generate_nodes(cls,
         The length of a round in time units.
     sync : bool
         Whether the nodes are synchronized with the round length or not.
-    to_shuffle : bool
-        Wether different types of nodes should be shuffled or not
+    generation_type : GenerationType
+        What order should be taken to generate nodes
 
     Returns
     -------
@@ -56,9 +64,13 @@ def generate_nodes(cls,
     if (isinstance(model_proto, ModelHandler)):
         return GossipNode.generate(cls, data_dispatcher, p2p_net, model_proto, round_len, sync, *kwargs)
 
-    indices = list(range(p2p_net.size()))
-    if to_shuffle:
-        shuffle(indices)
+    if (generation_type == GenerationType.HIGH_DEGREE or generation_type == GenerationType.LOW_DEGREE):
+        indices = [x[1] for x in sorted([(len(p2p_net.get_peers(i)), i)
+                                         for i in range(p2p_net.size())], reverse=(generation_type == GenerationType.HIGH_DEGREE))]
+    else:
+        indices = list(range(p2p_net.size()))
+        if generation_type == GenerationType.SHUFFLED:
+            shuffle(indices)
 
     nodes = {}
     idx = 0
@@ -67,7 +79,7 @@ def generate_nodes(cls,
         for j in range(nb_type[0]):
             if (len(nb_type) > 2 and not nb_type[2]):
                 nodes[indices[idx]] = cls(idx=idx,
-                                          # Keep this form, for check of test datast to work
+                                          # Keep this form, for dataset testset check to work
                                           data=(None, None),
                                           round_len=round_len,
                                           model_handler=nb_type[1].copy(),
