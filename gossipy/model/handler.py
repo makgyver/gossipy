@@ -39,8 +39,10 @@ __all__ = [
 ]
 
 # Undocumented class
+
+
 class ModelEqualityMixin(object):
-    
+
     # docstr-coverage:excused `internal class to handle equality between models`
     def __init__(self):
         pass
@@ -54,10 +56,9 @@ class ModelEqualityMixin(object):
         return not self.__eq__(other)
 
 
-
 class ModelHandler(Sizeable, ModelEqualityMixin, ABC):
     def __init__(self,
-                 create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
+                 create_model_mode: CreateModelMode = CreateModelMode.MERGE_UPDATE,
                  *args, **kwargs):
         """The ModelHandler class is the base class for all model handlers.
 
@@ -72,7 +73,7 @@ class ModelHandler(Sizeable, ModelEqualityMixin, ABC):
         ----------
         create_model_mode : CreateModelMode, default=CreateModelMode.MERGE_UPDATE
             The mode in which the model is created/updated.
-        
+
         See Also
         --------
         gossipy.core.CreateModelMode
@@ -87,11 +88,11 @@ class ModelHandler(Sizeable, ModelEqualityMixin, ABC):
         """Initialize the model."""
 
         pass
-    
+
     @abstractmethod
     def _update(self, data: Any, *args, **kwargs) -> None:
         """Update the model.
-        
+
         The update usually consists of a number of training steps/epochs using the provided data.
 
         Parameters
@@ -101,7 +102,7 @@ class ModelHandler(Sizeable, ModelEqualityMixin, ABC):
         """
 
         pass
-    
+
     @abstractmethod
     def _merge(self, other_model_handler: ModelHandler, *args, **kwargs) -> None:
         """Merge the model handler with the provided model handler.
@@ -133,7 +134,7 @@ class ModelHandler(Sizeable, ModelEqualityMixin, ABC):
         elif self.mode == CreateModelMode.PASS:
             self.model = copy.deepcopy(recv_model.model)
         else:
-            raise ValueError("Unknown create model mode %s" %str(self.mode))
+            raise ValueError("Unknown create model mode %s" % str(self.mode))
 
     @abstractmethod
     def evaluate(self, *args, **kwargs) -> Any:
@@ -145,7 +146,7 @@ class ModelHandler(Sizeable, ModelEqualityMixin, ABC):
         """Return a deep copy of the model handler."""
 
         return copy.deepcopy(self)
-    
+
     def get_size(self) -> int:
         """Return the size of the model.
 
@@ -156,7 +157,7 @@ class ModelHandler(Sizeable, ModelEqualityMixin, ABC):
         """
 
         return self.model.get_size() if self.model is not None else 0
-    
+
     def caching(self, owner: int) -> CacheKey:
         """Cache the model handler and return the cache key.
 
@@ -164,7 +165,7 @@ class ModelHandler(Sizeable, ModelEqualityMixin, ABC):
         ----------
         owner : int
             The ID of the client that own of this particular model handler.
-        
+
         Returns
         -------
         CacheKey
@@ -174,13 +175,13 @@ class ModelHandler(Sizeable, ModelEqualityMixin, ABC):
         key = CacheKey(owner, self.n_updates)
         CACHE.push(key, self.copy())
         return key
-    
+
     def __repr__(self) -> str:
         return str(self)
-    
+
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(model={str(self.model)}_{self.n_updates}, mode={self.mode})"
-     
+
 
 class TorchModelHandler(ModelHandler):
     def __init__(self,
@@ -188,10 +189,11 @@ class TorchModelHandler(ModelHandler):
                  optimizer: torch.optim.Optimizer,
                  optimizer_params: Dict[str, Any],
                  criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
-                 local_epochs: int=1,
-                 batch_size: int=32,
-                 create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
-                 copy_model=True):
+                 local_epochs: int = 1,
+                 batch_size: int = 32,
+                 create_model_mode: CreateModelMode = CreateModelMode.MERGE_UPDATE,
+                 copy_model=True,
+                 on_device=False):
         """Handler for torch models.
 
         This handler is responsible for the training and evaluation of a pytorch model. Thus it
@@ -217,6 +219,8 @@ class TorchModelHandler(ModelHandler):
             The mode in which the model is created/updated
         copy_model : bool, default=True
             Whether to use a copy of the model (i.e., ``net``) or not.
+        on_device : bool, default=False
+            Wether GPU is used for calculus. CPU is used when this parameter is set to True but there is no CUDA GPU.
         """
 
         super(TorchModelHandler, self).__init__(create_model_mode)
@@ -226,25 +230,35 @@ class TorchModelHandler(ModelHandler):
         assert (batch_size == 0 and local_epochs > 0) or (batch_size > 0)
         self.local_epochs = local_epochs
         self.batch_size = batch_size
+        if on_device:
+            self.device = torch.device(
+                "cuda" if torch.cuda.is_available() else "cpu")
+            self.model = self.model.to(self.device)
+        else:
+            self.device = "cpu"
 
     def init(self) -> None:
         self.model.init_weights()
+        # self.model = self.model.to(self.device)
 
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
         x, y = data
+        x = x.to(self.device)
+        y = y.to(self.device)
         batch_size = x.size(0) if not self.batch_size else self.batch_size
         if self.local_epochs > 0:
             for _ in range(self.local_epochs):
                 perm = torch.randperm(x.size(0))
                 x, y = x[perm], y[perm]
                 for i in range(0, x.size(0), batch_size):
-                    self._local_step(x[i : i + batch_size], y[i : i + batch_size])
+                    self._local_step(x[i: i + batch_size],
+                                     y[i: i + batch_size])
         else:
             perm = torch.randperm(x.size(0))
             self._local_step(x[perm][:batch_size], y[perm][:batch_size])
         self.n_updates += 1
-    
-    def _local_step(self, x:torch.Tensor, y:torch.Tensor) -> None:
+
+    def _local_step(self, x: torch.Tensor, y: torch.Tensor) -> None:
         self.model.train()
         y_pred = self.model(x)
         loss = self.criterion(y_pred, y)
@@ -259,11 +273,12 @@ class TorchModelHandler(ModelHandler):
             dicts_params2 = [other_model_handler.model.state_dict()]
             n_up = other_model_handler.n_updates
         else:
-            dicts_params2 = [omh.model.state_dict() for omh in other_model_handler]
+            dicts_params2 = [omh.model.state_dict()
+                             for omh in other_model_handler]
             n_up = max([omh.n_updates for omh in other_model_handler])
 
         # Perform the average overall models including its weights
-        # CHECK: whether to allow the merging of the other models before the averaging 
+        # CHECK: whether to allow the merging of the other models before the averaging
         div = len(dicts_params2) + 1
         for key in dict_params1:
             for dict_params2 in dicts_params2:
@@ -272,7 +287,7 @@ class TorchModelHandler(ModelHandler):
 
         self.model.load_state_dict(dict_params1)
         # Gets the maximum number of updates from the merged models
-        self.n_updates = max(self.n_updates, n_up) 
+        self.n_updates = max(self.n_updates, n_up)
 
     def evaluate(self,
                  data: Tuple[torch.Tensor, torch.Tensor]) -> Dict[str, int]:
@@ -288,15 +303,17 @@ class TorchModelHandler(ModelHandler):
         Dict[str, int]
             The evaluation results. The dictionary keys are the metrics names, and the values are
             the corresponding scores.
-        
+
         Notes
         -----
-        Currently, only metrics for classification tasks are implemented. Specifically, 
+        Currently, only metrics for classification tasks are implemented. Specifically,
         the evaluation metrics are: ``accuracy``, ``precision``, ``recall``, ``f1``, and,
         when possible, ``roc_auc``.
         """
 
         x, y = data
+        x = x.to(self.device)
+        y = y.to(self.device)
         self.model.eval()
         scores = self.model(x)
 
@@ -307,7 +324,7 @@ class TorchModelHandler(ModelHandler):
 
         pred = torch.argmax(scores, dim=-1)
         y_pred = pred.cpu().numpy().flatten()
-        
+
         res = {
             "accuracy": accuracy_score(y_true, y_pred),
             "precision": precision_score(y_true, y_pred, zero_division=0, average="macro"),
@@ -329,8 +346,9 @@ class AdaLineHandler(ModelHandler):
     def __init__(self,
                  net: AdaLine,
                  learning_rate: float,
-                 create_model_mode: CreateModelMode=CreateModelMode.UPDATE,
-                 copy_model: bool=True):
+                 create_model_mode: CreateModelMode = CreateModelMode.UPDATE,
+                 copy_model: bool = True,
+                 on_device: bool = False):
         """This class implements the AdaLine model handler.
 
         Parameters
@@ -343,21 +361,32 @@ class AdaLineHandler(ModelHandler):
             The mode in which the model is created/updated.
         copy_model : bool, default=True
             Whether to use a copy of the model (i.e., ``net``) or not.
+        on_device : bool, default=False
+            Wether GPU is used for calculus. CPU is used when this parameter is set to True but there is no CUDA GPU.
         """
 
         super(AdaLineHandler, self).__init__(create_model_mode)
         self.model = copy.deepcopy(net) if copy_model else net
         self.learning_rate = learning_rate
-    
+        if on_device:
+            self.device = torch.device(
+                "cuda" if torch.cuda.is_available() else "cpu")
+            self.model = self.model.to(self.device)
+        else:
+            self.device = "cpu"
+
     def init(self) -> None:
         self.model.init_weights()
-    
+
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
         x, y = data
+        x = x.to(self.device)
+        y = y.to(self.device)
         self.n_updates += len(y)
         for i in range(len(y)):
-            self.model.model += self.learning_rate * (y[i] - self.model(x[i:i+1])) * x[i]
-    
+            self.model.model += self.learning_rate * \
+                (y[i] - self.model(x[i:i+1])) * x[i]
+
     def _merge(self, other_model_handler: PegasosHandler) -> None:
         self.model.model = Parameter(0.5 * (self.model.model + other_model_handler.model.model),
                                      requires_grad=False)
@@ -366,6 +395,8 @@ class AdaLineHandler(ModelHandler):
     def evaluate(self,
                  data: Tuple[torch.Tensor, torch.Tensor]) -> Dict[str, int]:
         x, y = data
+        x = x.to(self.device)
+        y = y.to(self.device)
         scores = self.model(x)
         y_true = y.cpu().numpy().flatten()
         y_pred = 2 * (scores >= 0).float().cpu().numpy().flatten() - 1
@@ -386,8 +417,9 @@ class PegasosHandler(AdaLineHandler):
     def __init__(self,
                  net: AdaLine,
                  learning_rate: float,
-                 create_model_mode: CreateModelMode=CreateModelMode.UPDATE,
-                 copy_model: bool=True):
+                 create_model_mode: CreateModelMode = CreateModelMode.UPDATE,
+                 copy_model: bool = True,
+                 on_device: bool = False):
         """This class implements the Pegasos model handler.
 
         Parameters
@@ -400,29 +432,35 @@ class PegasosHandler(AdaLineHandler):
             The mode in which the model is created/updated.
         copy_model : bool, default=True
             Whether to use a copy of the model (i.e., ``net``) or not.
+        on_device : bool, default=False
+            Wether GPU is used for calculus. CPU is used when this parameter is set to True but there is no CUDA GPU.
         """
 
-        super(PegasosHandler, self).__init__(net, learning_rate, create_model_mode, copy_model)
-    
+        super(PegasosHandler, self).__init__(
+            net, learning_rate, create_model_mode, copy_model, on_device)
+
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
         x, y = data
+        x = x.to(self.device)
+        y = y.to(self.device)
         for i in range(len(y)):
             self.n_updates += 1
             lr = 1. / (self.n_updates * self.learning_rate)
             y_pred = self.model(x[i:i+1])
             self.model.model *= (1. - lr * self.learning_rate)
-            self.model.model += ((y_pred * y[i] - 1) < 0).float() * (lr * y[i] * x[i])
+            self.model.model += ((y_pred * y[i] - 1)
+                                 < 0).float() * (lr * y[i] * x[i])
 
 
 class SamplingTMH(TorchModelHandler):
     def __init__(self, sample_size: float, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sample_size = sample_size
-    
+
     def _merge(self, other_model_handler: SamplingTMH,
-                     sample: Dict[int, Optional[Tuple[LongTensor, ...]]]) -> None:
+               sample: Dict[int, Optional[Tuple[LongTensor, ...]]]) -> None:
         TorchModelSampling.merge(sample, self.model, other_model_handler.model)
-    
+
     def __call__(self,
                  recv_model: Any,
                  data: Any,
@@ -440,8 +478,8 @@ class SamplingTMH(TorchModelHandler):
         elif self.mode == CreateModelMode.PASS:
             raise ValueError("Mode PASS not allowed for sampled models.")
         else:
-            raise ValueError("Unknown create model mode %s." %str(self.mode))
-        
+            raise ValueError("Unknown create model mode %s." % str(self.mode))
+
 
 class PartitionedTMH(TorchModelHandler):
     def __init__(self,
@@ -450,9 +488,9 @@ class PartitionedTMH(TorchModelHandler):
                  optimizer: torch.optim.Optimizer,
                  optimizer_params: Dict[str, Any],
                  criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
-                 local_epochs: int=1,
-                 batch_size: int=32,
-                 create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
+                 local_epochs: int = 1,
+                 batch_size: int = 32,
+                 create_model_mode: CreateModelMode = CreateModelMode.MERGE_UPDATE,
                  copy_model=True):
         super(PartitionedTMH, self).__init__(net,
                                              optimizer,
@@ -463,8 +501,9 @@ class PartitionedTMH(TorchModelHandler):
                                              create_model_mode,
                                              copy_model)
         self.tm_partition = tm_partition
-        self.n_updates = np.array([0 for _ in range(tm_partition.n_parts)], dtype=int)
-    
+        self.n_updates = np.array(
+            [0 for _ in range(tm_partition.n_parts)], dtype=int)
+
     def __call__(self,
                  recv_model: Any,
                  data: Any,
@@ -482,16 +521,16 @@ class PartitionedTMH(TorchModelHandler):
         elif self.mode == CreateModelMode.PASS:
             raise ValueError("Mode PASS not allowed for partitioned models.")
         else:
-            raise ValueError("Unknown create model mode %s." %str(self.mode))
+            raise ValueError("Unknown create model mode %s." % str(self.mode))
 
-    
     def _merge(self, other_model_handler: PartitionedTMH, id_part: int) -> None:
         w = (self.n_updates[id_part], other_model_handler.n_updates[id_part])
-        self.tm_partition.merge(id_part, self.model, other_model_handler.model, weights=w)
+        self.tm_partition.merge(id_part, self.model,
+                                other_model_handler.model, weights=w)
         self.n_updates[id_part] = max(self.n_updates[id_part],
                                       other_model_handler.n_updates[id_part])
-    
-    def _local_step(self, x:torch.Tensor, y:torch.Tensor) -> None:
+
+    def _local_step(self, x: torch.Tensor, y: torch.Tensor) -> None:
         self.model.train()
         self.n_updates += 1
         y_pred = self.model(x)
@@ -500,7 +539,7 @@ class PartitionedTMH(TorchModelHandler):
         loss.backward()
         self._adjust_gradient()
         self.optimizer.step()
-        
+
     def _adjust_gradient(self) -> None:
         plist = ParameterList(self.model.parameters())
         with torch.no_grad():
@@ -519,9 +558,9 @@ class MFModelHandler(ModelHandler):
     def __init__(self,
                  dim: int,
                  n_items: int,
-                 lam_reg: float=0.1,
-                 learning_rate: float=0.001,
-                 create_model_mode: CreateModelMode=CreateModelMode.UPDATE):
+                 lam_reg: float = 0.1,
+                 learning_rate: float = 0.001,
+                 create_model_mode: CreateModelMode = CreateModelMode.UPDATE):
         super(MFModelHandler, self).__init__(create_model_mode)
         self.reg = lam_reg
         self.k = dim
@@ -529,7 +568,7 @@ class MFModelHandler(ModelHandler):
         self.n_items = n_items
         self.n_updates = 1
 
-    def init(self, r_min: int=1, r_max: int=5) -> None:
+    def init(self, r_min: int = 1, r_max: int = 5) -> None:
         mul = np.sqrt((r_max - r_min) / self.k)
         X = np.random.rand(1, self.k) * mul
         Y = np.random.rand(self.n_items, self.k) * mul
@@ -560,8 +599,8 @@ class MFModelHandler(ModelHandler):
     def evaluate(self, ratings) -> Dict[str, float]:
         (X, b), (Y, c) = self.model
         R = (np.dot(X, Y.T) + b + c)[0]
-        return {"rmse" : np.sqrt(np.mean([(r - R[int(i)])**2 for i, r in ratings]))}
-    
+        return {"rmse": np.sqrt(np.mean([(r - R[int(i)])**2 for i, r in ratings]))}
+
     def get_size(self) -> int:
         return self.k * (self.n_items + 1)
 
@@ -570,27 +609,27 @@ class KMeansHandler(ModelHandler):
     def __init__(self,
                  k: int,
                  dim: int,
-                 alpha: float=0.1,
-                 matching: str="naive", #"hungarian"
-                 create_model_mode: CreateModelMode=CreateModelMode.UPDATE):
+                 alpha: float = 0.1,
+                 matching: str = "naive",  # "hungarian"
+                 create_model_mode: CreateModelMode = CreateModelMode.UPDATE):
         assert matching in {"naive", "hungarian"}, "Invalid matching method."
         super(KMeansHandler, self).__init__(create_model_mode)
         self.k = k
         self.dim = dim
         self.matching = matching
         self.alpha = alpha
-        #self._init_count = 0
-    
+        # self._init_count = 0
+
     def init(self) -> None:
         self.model = torch.rand(size=(self.k, self.dim))
-    
+
     # def _has_empty(self) -> bool:
     #     return self._init_count < self.k
-    
+
     # def _add_centroid(self, x: torch.FloatTensor):
     #     self.model[self._init_count] += x.flatten()
     #     self._init_count += 1
-    
+
     def _perform_clust(self, x: torch.FloatTensor) -> int:
         dists = torch.cdist(x, self.model, p=2)
         return torch.argmin(dists, dim=1)
@@ -617,13 +656,14 @@ class KMeansHandler(ModelHandler):
             cm_torch = torch.cdist(self.model, other_model_handler.model)
             cost_matrix = cm_torch.cpu().detach().numpy()
             matching_idx = hungarian(cost_matrix)[0]
-            self.model = (self.model + other_model_handler.model[matching_idx]) / 2
-    
+            self.model = (
+                self.model + other_model_handler.model[matching_idx]) / 2
+
     def evaluate(self, data: Tuple[torch.FloatTensor, torch.LongTensor]) -> Dict[str, float]:
         X, y = data
         y_pred = self._perform_clust(X).cpu().detach().numpy()
         y_true = y.cpu().detach().numpy()
         return {"nmi": nmi(y_true, y_pred)}
-    
+
     def get_size(self) -> int:
         return self.k * self.dim

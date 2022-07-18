@@ -26,10 +26,11 @@ class ClassificationDataHandler(DataHandler):
     def __init__(self,
                  X: Union[np.ndarray, torch.Tensor],
                  y: Union[np.ndarray, torch.Tensor],
-                 X_te: Optional[Union[np.ndarray, torch.Tensor]]=None,
-                 y_te: Optional[Union[np.ndarray, torch.Tensor]]=None,
-                 test_size: float=0.2,
-                 seed: int=42):
+                 X_te: Optional[Union[np.ndarray, torch.Tensor]] = None,
+                 y_te: Optional[Union[np.ndarray, torch.Tensor]] = None,
+                 test_size: float = 0.2,
+                 seed: int = 42,
+                 on_device: bool = False):
         """Handler for classification data.
 
         The handlers provides methods to access the data and to split it into
@@ -51,6 +52,8 @@ class ClassificationDataHandler(DataHandler):
             The size of the evaluation set as a fraction of the data set.
         seed : int, default=42
             The seed used to split the data set into training and evaluation set.
+        on_device : bool, default=False
+            Whether data will be stored on the CUDA GPU if any
         """
 
         assert(0 <= test_size < 1)
@@ -73,16 +76,27 @@ class ClassificationDataHandler(DataHandler):
         else:
             self.Xtr, self.ytr = X, y
             self.Xte, self.yte = X_te, y_te
-        
+
         self.n_classes = len(np.unique(self.ytr))
 
+        if on_device:
+            self.device = torch.device(
+                "cuda" if torch.cuda.is_available() else "cpu")
+            self.Xtr = self.Xtr.to(self.device)
+            self.ytr = self.ytr.to(self.device)
+            self.Xte = self.Xte.to(self.device)
+            self.yte = self.yte.to(self.device)
+        else:
+            device = "cpu"
+
     # CHECKME: typing
-    def __getitem__(self, idx: Union[int, List[int]])-> \
-                    Union[Tuple[np.ndarray, Union[int, List[int]]], \
-                          Tuple[torch.Tensor, Union[int, List[int]]]]:
+
+    def __getitem__(self, idx: Union[int, List[int]]) -> \
+        Union[Tuple[np.ndarray, Union[int, List[int]]],
+              Tuple[torch.Tensor, Union[int, List[int]]]]:
         return self.Xtr[idx, :], self.ytr[idx]
-    
-    def at(self, 
+
+    def at(self,
            idx: Union[int, List[int]],
            eval_set=False) -> Tuple[np.ndarray, int]:
         """Get the data set example and label at the given index or list of indices.
@@ -94,7 +108,7 @@ class ClassificationDataHandler(DataHandler):
         eval_set : bool, default=False
             If True, the data set example and label are retrieved from the evaluation set.
             Otherwise, they are retrieved from the training set.
-        
+
         Returns
         -------
         X : np.ndarray
@@ -106,13 +120,15 @@ class ClassificationDataHandler(DataHandler):
         if eval_set:
             if (not isinstance(idx, list) or idx):
                 return self.Xte[idx, :], self.yte[idx]
-            else: return None
-        else: return self[idx]
+            else:
+                return None
+        else:
+            return self[idx]
 
     # docstr-coverage:inherited
-    def size(self, dim: int=0) -> int:
+    def size(self, dim: int = 0) -> int:
         return self.Xtr.shape[dim]
-    
+
     # docstr-coverage:inherited
     def get_train_set(self) -> Tuple[Any, Any]:
         return self.Xtr, self.ytr
@@ -120,14 +136,14 @@ class ClassificationDataHandler(DataHandler):
     # docstr-coverage:inherited
     def get_eval_set(self) -> Tuple[Any, Any]:
         return self.Xte, self.yte
-    
+
     # docstr-coverage:inherited
     def eval_size(self) -> int:
         return self.Xte.shape[0] if self.Xte is not None else 0
-    
+
     def __repr__(self) -> str:
         return str(self)
-    
+
     def __str__(self) -> str:
         res: str = f"{self.__class__.__name__}(size_tr={self.size()}, size_te={self.eval_size()}"
         res += f", n_feats={self.size(1)}, n_classes={self.n_classes})"
@@ -138,7 +154,8 @@ class ClassificationDataHandler(DataHandler):
 class ClusteringDataHandler(ClassificationDataHandler):
     def __init__(self,
                  X: Union[np.ndarray, torch.Tensor],
-                 y: Union[np.ndarray, torch.Tensor]):
+                 y: Union[np.ndarray, torch.Tensor],
+                 on_device: bool = False):
         """Handler for clustering (unsupervised) data.
 
         The handlers provides methods to access the data. The evaluation set is the training set.
@@ -149,30 +166,35 @@ class ClusteringDataHandler(ClassificationDataHandler):
             The data set examples matrix.
         y : Union[np.ndarray, torch.Tensor]
             The data set labels.
+        on_device : bool, default=False
+            Whether data will be stored on the CUDA GPU if any
         """
-        super(ClusteringDataHandler, self).__init__(X, y, 0)
+        super(ClusteringDataHandler, self).__init__(
+            X, y, 0, on_device=on_device)
 
     # docstr-coverage:inherited
     def get_eval_set(self) -> Tuple[Any, Any]:
         return self.get_train_set()
-    
+
     # docstr-coverage:inherited
     def eval_size(self) -> int:
         return self.size()
-    
+
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size()})"
 
 # Same as ClassificationDataHandler but with float labels
 # Alternative: creating a unique DataHandler class for both classification and regression
+
+
 class RegressionDataHandler(ClassificationDataHandler):
     """Same as :class:`ClassificationDataHandler` but with float labels."""
 
     def __getitem__(self, idx: Union[int, List[int]]) -> Tuple[np.ndarray, float]:
         return self.Xtr[idx, :], self.ytr[idx]
-    
+
     # docstr-coverage:inherited
-    def at(self, 
+    def at(self,
            idx: Union[int, List[int]],
            eval_set=False) -> Tuple[np.ndarray, float]:
         super().at(idx, eval_set)
@@ -183,8 +205,8 @@ class RecSysDataHandler(DataHandler):
                  ratings: Dict[int, List[Tuple[int, float]]],
                  n_users: int,
                  n_items: int,
-                 test_size: float=0.2,
-                 seed: int=42):
+                 test_size: float = 0.2,
+                 seed: int = 42):
         """Handler for recommendation system data.
 
         The handlers provides methods to access the rating data.
@@ -210,36 +232,38 @@ class RecSysDataHandler(DataHandler):
         self.test_id = []
         np.random.seed(seed)
         for u in range(len(self.ratings)):
-            self.test_id.append(max(1, int(len(self.ratings[u]) * (1 - test_size))))
+            self.test_id.append(
+                max(1, int(len(self.ratings[u]) * (1 - test_size))))
             self.ratings[u] = np.random.permutation(self.ratings[u])
 
     def __getitem__(self, idx: int) -> List[Tuple[int, float]]:
         return self.ratings[idx][:self.test_id[idx]]
 
     # docstr-coverage:inherited
-    def at(self, 
+    def at(self,
            idx: int,
-           eval_set: bool=False) -> List[Tuple[int, float]]:
+           eval_set: bool = False) -> List[Tuple[int, float]]:
         if eval_set:
             return self.ratings[idx][self.test_id[idx]:]
-        else: return self[idx]
+        else:
+            return self[idx]
 
     # docstr-coverage:inherited
     def size(self) -> int:
         return self.n_users
-    
+
     # docstr-coverage:inherited
     def get_train_set(self) -> Tuple[Any, Any]:
-        return {u : self[u] for u in range(self.n_users)}
+        return {u: self[u] for u in range(self.n_users)}
 
     # docstr-coverage:inherited
     def get_eval_set(self) -> Tuple[Any, Any]:
-        return {u : self.at(u, True) for u in range(self.n_users)}
-    
+        return {u: self.at(u, True) for u in range(self.n_users)}
+
     # docstr-coverage:inherited
     def eval_size(self) -> int:
         return 0
-    
+
     def __str__(self) -> str:
         n_rat = sum([len(self.ratings[u]) for u in range(self.n_users)])
         return f"{self.__class__.__name__}(n_users={self.size()}, n_items={self.n_items}, n_ratings={n_rat}))"
