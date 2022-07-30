@@ -98,7 +98,7 @@ Gossip learning is based on peer-to-peer communication. Therefore, we need a to 
 of the network. In this case, we use a fully connected network, thus a clique topology.
 
 ```python
-topology = StaticP2PNetwork(num_nodes=data_dispatcher.size(), topology=None)
+topology = StaticP2PNetwork(num_nodes=dispatcher.size(), topology=None)
 ```
 
 It is called *static* because the topology is fixed throughout the simulation. Before setting up the
