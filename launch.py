@@ -383,7 +383,7 @@ def run(model_handler_type: ModelHandlerEnum = typer.Option(ModelHandlerEnum.TOR
         result_folder: str = typer.Option(
             "results", help="Parent folder of results", case_sensitive=False),
         simul_name: Optional[str] = typer.Option(None, help="Name of the simulation for results (can be used to reduce the length of files, be carefull of doublons...)", case_sensitive=False)):
-    run_impl(model_handler_type, create_model_mode, torch_net, torch_activation, torch_criterion, torch_local_epochs, torch_batch_size, torch_hidden_layer_dim, learning_rate, weight_decay, sample_size, n_parts, kmeans_k, kmeans_alpha, kmeans_matching, dataset_name, dataset_path, dataset_normalize, dataset_widerange, dataset_test_proportion, dataset_use_test, data_handler, topology_type, barabasi_m, erdos_renyi_prob, clique_size,
+    run_impl(model_handler_type, create_model_mode, torch_net, torch_activation, torch_criterion, torch_local_epochs, torch_batch_size, torch_hidden_layer_dim, learning_rate, weight_decay, sample_size, n_parts, kmeans_k, kmeans_alpha, kmeans_matching, dataset_name, dataset_path, dataset_normalize, dataset_widerange, dataset_test_proportion, dataset_use_test, data_handler_type, topology_type, barabasi_m, erdos_renyi_prob, clique_size,
              n_nodes, n_rounds, node_type, sync_nodes, round_len, pens_n_sample, pens_m_top, pens_step1_rounds, generation_type, simulator_type, delta, anti_entropy_protocol, drop_prob, online_prob, delay_mode, delay_constant_value, delay_min, delay_max, delay_factor, sampling_eval, attack_type, attack_proportion, attack_own_data, attack_scale, attack_mean, attack_pegasos_nb, seed, on_device, result_folder, simul_name)
 
 
@@ -856,7 +856,6 @@ def run_impl(model_handler_type: ModelHandlerEnum = ModelHandlerEnum.TORCH_MODEL
     folder_name = result_folder
 
     if (attack_type is not None):
-        folder_name = result_folder + "/" + simul_name
         simul_name += "-" + attack_type
         if (attack_type == AttackEnum.RANDOM_FULL_MODEL):
             simul_name += "-m" + str(attack_mean)
@@ -865,13 +864,15 @@ def run_impl(model_handler_type: ModelHandlerEnum = ModelHandlerEnum.TORCH_MODEL
         if (model_handler_type == ModelHandlerEnum.PEGASOS):
             simul_name += "-nb" + str(attack_pegasos_nb)
 
+        if (generation_type != GenerationTypeEnum.NORMAL):
+            simul_name += "-" + generation_type
+
+        folder_name = result_folder + "/" + simul_name
+
         if (attack_own_data):
             simul_name += "-" + str(attack_proportion*100) + "%"
         else:
             simul_name += "-+" + str(attack_proportion*100) + "%"
-
-        if (generation_type != GenerationTypeEnum.NORMAL):
-            simul_name += "-" + generation_type
 
     makedirs(folder_name, exist_ok=True)
 

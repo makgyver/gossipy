@@ -65,7 +65,7 @@ def generate_nodes(cls,
         return GossipNode.generate(cls, data_dispatcher, p2p_net, model_proto, round_len, sync, *kwargs)
 
     if (generation_type == GenerationType.HIGH_DEGREE or generation_type == GenerationType.LOW_DEGREE):
-        indices = [x[1] for x in sorted([(len(p2p_net.get_peers(i)), i)
+        indices = [x[1] for x in sorted([(0 if p2p_net.get_peers(i) is None else len(p2p_net.get_peers(i)), i)
                                          for i in range(p2p_net.size())], reverse=(generation_type == GenerationType.HIGH_DEGREE))]
     else:
         indices = list(range(p2p_net.size()))
