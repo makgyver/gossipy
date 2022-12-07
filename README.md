@@ -6,12 +6,14 @@
 [license]: https://img.shields.io/github/license/makgyver/gossipy?style=for-the-badge
 [version]: https://img.shields.io/badge/python-3.7|3.8|3.9-blue?style=for-the-badge
 
+[![documentation](https://img.shields.io/badge/DOC-HERE-orange?style=for-the-badge&logo=appveyor)](https://makgyver.github.io/gossipy/)
 [![python](https://img.shields.io/badge/PYTHON-blue?style=for-the-badge&logo=python&logoColor=yellow)](https://www.python.org/)
 [![vscode](https://img.shields.io/badge/VSCODE-white?style=for-the-badge&logo=visualstudiocode&logoColor=blue)](https://code.visualstudio.com/)
 [![macos](https://img.shields.io/badge/macOS-grey?style=for-the-badge&logo=apple)](https://code.visualstudio.com/)
 [![open-source](https://img.shields.io/badge/open%20source-blue?style=for-the-badge&logo=github&color=123456)](https://github.com/makgyver/gossipy/)
 ![license]
 
+![documentation]
 [![Build Status][travis-img]][travis-url]
 [![Coverage Status](https://img.shields.io/coveralls/makgyver/gossipy?style=for-the-badge)](https://coveralls.io/github/makgyver/gossipy?branch=main)
 ![version] ![issues]
