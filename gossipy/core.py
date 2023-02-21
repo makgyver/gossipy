@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional, Tuple, Union
+from collections import defaultdict
 from enum import Enum
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -338,7 +339,8 @@ class P2PNetwork(ABC):
                 for node in range(num_nodes):
                     self._topology[node] = list(topology.getrow(node).nonzero()[-1])
         else:
-            self._topology = {i: None for i in range(num_nodes)}
+            #self._topology = {i: None for i in range(num_nodes)}
+            self._topology = defaultdict(lambda: range(num_nodes))
 
     # docstr-coverage:inherited
     def size(self, node: Optional[int]=None) -> int:
@@ -385,3 +387,67 @@ class StaticP2PNetwork(P2PNetwork):
         """
         assert 0 <= node_id < self._num_nodes
         return self._topology[node_id]
+
+
+class MixingMatrix:
+    def __init__(self, p2p_net: P2PNetwork) -> None:
+        self.p2p_net = p2p_net
+    
+    @abstractmethod
+    def get(self, node_id: int) -> np.ndarray:
+        """Returns the mixing matrix for the specified node.
+
+        Parameters
+        ----------
+        node_id : int
+            The node identifier.
+        
+        Returns
+        -------
+        np.ndarray
+            The mixing matrix.
+        """
+        raise NotImplementedError
+    
+    def __getitem__(self, node_id: int) -> np.ndarray:
+        return self.get(node_id)
+
+    def __str__(self) -> str:
+        return "MixingMatrix(%s)" %self.p2p_net
+
+
+class UniformMixing(MixingMatrix):
+    def get(self, node_id: int) -> np.ndarray:
+        """Returns the mixing matrix for the specified node.
+
+        Parameters
+        ----------
+        node_id : int
+            The node identifier.
+        
+        Returns
+        -------
+        np.ndarray
+            The mixing matrix.
+        """
+        size = self.p2p_net.size(node_id) + 1
+        return np.ones(size) / size
+
+
+class MetropolisHastingsMixing(MixingMatrix):
+    def get(self, node_id: int) -> np.ndarray:
+        """Returns the mixing matrix for the specified node.
+
+        Parameters
+        ----------
+        node_id : int
+            The node identifier.
+        
+        Returns
+        -------
+        np.ndarray
+            The mixing matrix.
+        """
+        size = self.p2p_net.size(node_id)
+        peers = self.p2p_net.get_peers(node_id)
+        return np.array([1./size] + [1. / (min(self.p2p_net.size(k), size) + 1) for k in peers])

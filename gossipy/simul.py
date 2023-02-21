@@ -3,15 +3,15 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 import numpy as np
 from numpy.random import shuffle, random, choice
-from typing import Callable, DefaultDict, Optional, Dict, List, Tuple
+from typing import Callable, DefaultDict, Optional, Dict, List, Tuple, Union, Iterable
 from rich.progress import track
 import dill
 import json
 
 from . import CACHE, LOG, CacheKey
-from .core import AntiEntropyProtocol, Message, ConstantDelay, Delay
+from .core import AntiEntropyProtocol, Message, ConstantDelay, Delay, MixingMatrix, UniformMixing
 from .data import DataDispatcher
-from .node import GossipNode
+from .node import GossipNode, All2AllGossipNode
 from .flow_control import TokenAccount
 from .model.handler import ModelHandler
 from .utils import StringEncoder
@@ -708,4 +708,138 @@ class TokenizedGossipSimulator(GossipSimulator):
 #         plot_evaluation(eval_user_list, "User-wise test")
     
 #     return eval_list, eval_user_list
-    
+
+
+class All2AllGossipSimulator(GossipSimulator):
+    def __init__(self,
+                 nodes: Dict[int, All2AllGossipNode],
+                 data_dispatcher: DataDispatcher,
+                 delta: int,
+                 protocol: AntiEntropyProtocol,
+                 drop_prob: float=0., # [0,1] - probability of a message being dropped
+                 online_prob: float=1., # [0,1] - probability of a node to be online
+                 delay: Delay=ConstantDelay(0),
+                 sampling_eval: float=0., # [0, 1] - percentage of nodes to evaluate
+                ):
+        """Simulator for the all-to-all gossip protocol.
+
+        Parameters
+        ----------
+        nodes : dict[int, All2AllGossipNode]
+            The nodes participating in the simulation. The keys are the node ids, and the values
+            are the corresponding nodes (instances of the class :class:`GossipNode`).
+        data_dispatcher : DataDispatcher
+            The data dispatcher. Useful if the evaluation is performed on a separate test set, i.e.,
+            not on the nodes.
+        delta : int
+            The number of timesteps of a round.
+        protocol : AntiEntropyProtocol
+            The protocol of the gossip simulation.
+        drop_prob : float, default=0.
+            The probability of a message being dropped.
+        online_prob : float, default=1.
+            The probability of a node to be online.
+        delay : Delay, default=ConstantDelay(0)
+            The (potential) function delay of the messages.
+        sampling_eval : float, default=0.
+            The percentage of nodes to use during evaluate. If 0 or 1, all nodes are considered.
+        """
+        super().__init__(nodes, data_dispatcher, delta, protocol, drop_prob, online_prob, delay, sampling_eval)
+
+    def start(self, 
+              W_matrix: MixingMatrix,
+              n_rounds: int=100) -> None:
+        """Starts the simulation.
+
+        The simulation handles the messages exchange between the nodes for ``n_rounds`` rounds.
+        If attached to a :class:`SimulationReport`, the report is updated at each time step, 
+        sent/fail message and evaluation.
+
+        Parameters
+        ----------
+        W_matrix : MixingMatrix
+            The mixing matrix, i.e., the weight assigned to each node during the merging of the
+            models.
+        n_rounds : int, default=100
+            The number of rounds of the simulation.
+        """
+
+        assert self.initialized, \
+               "The simulator is not inizialized. Please, call the method 'init_nodes'."
+        LOG.info("Simulation started.")
+        node_ids = np.arange(self.n_nodes)
+        
+        pbar = track(range(n_rounds * self.delta), description="Simulating...")
+        msg_queues = DefaultDict(list)
+        rep_queues = DefaultDict(list)
+
+        try:
+            for t in pbar:
+                if t % self.delta == 0: 
+                    shuffle(node_ids)
+
+                
+                for i in node_ids:
+                    node = self.nodes[i]
+                    if node.timed_out(t, W_matrix[i]):
+                        peers = node.get_peers()
+                        for peer in peers:
+                            msg = node.send(t, peer, self.protocol)
+                            self.notify_message(False, msg)
+                            if msg:
+                                if random() >= self.drop_prob:
+                                    d = self.delay.get(msg)
+                                    msg_queues[t + d].append(msg)
+                                else:
+                                    self.notify_message(True)
+                
+                is_online = random(self.n_nodes) <= self.online_prob
+                for msg in msg_queues[t]:
+                    if is_online[msg.receiver]:
+                        reply = self.nodes[msg.receiver].receive(t, msg)
+                        if reply:
+                            if random() > self.drop_prob:
+                                d = self.delay.get(reply)
+                                rep_queues[t + d].append(reply)
+                            else:
+                                self.notify_message(True)
+                    else:
+                        self.notify_message(True)
+                del msg_queues[t]
+
+                for reply in rep_queues[t]:
+                    if is_online[reply.receiver]:
+                        self.notify_message(False, reply)
+                        self.nodes[reply.receiver].receive(t, reply)
+                    else:
+                        self.notify_message(True)
+                    
+                del rep_queues[t]
+
+                if (t+1) % self.delta == 0:
+                    if self.sampling_eval > 0:
+                        sample = choice(list(self.nodes.keys()),
+                                        max(int(self.n_nodes * self.sampling_eval), 1))
+                        ev = [self.nodes[i].evaluate() for i in sample if self.nodes[i].has_test()]
+                    else:
+                        ev = [n.evaluate() for _, n in self.nodes.items() if n.has_test()]
+                    if ev:
+                        self.notify_evaluation(t, True, ev)
+                    
+                    if self.data_dispatcher.has_test():
+                        if self.sampling_eval > 0:
+                            ev = [self.nodes[i].evaluate(self.data_dispatcher.get_eval_set())
+                                for i in sample]
+                        else:
+                            ev = [n.evaluate(self.data_dispatcher.get_eval_set())
+                                for _, n in self.nodes.items()]
+                        if ev:
+                            self.notify_evaluation(t, False, ev)
+                self.notify_timestep(t)
+
+        except KeyboardInterrupt:
+            LOG.warning("Simulation interrupted by user.")
+        
+        pbar.close()
+        self.notify_end()
+        return

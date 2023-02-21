@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Tuple, Union, Dict, List, Optional
 import shutil
 import numpy as np
+from numpy.random import randint, shuffle, power, choice, dirichlet, permutation
 import pandas as pd
 from pathlib import Path
 from pyparsing import ParseSyntaxException
@@ -160,6 +161,218 @@ class DataHandler(ABC):
         pass
 
 
+class AssignmentHandler():
+
+    def __init__(self, seed: int):
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+    
+    def uniform(self,
+                y: Union[np.ndarray, torch.Tensor],
+                n: int) -> List[np.ndarray]:
+        """Distribute the examples uniformly across the users.
+
+        Parameters
+        ----------
+        y: Union[np.ndarray, torch.Tensor]
+            The labels. Not used.
+        n: int
+            The number of clients upon which the examples are distributed.
+
+        Returns
+        -------
+        List[np.ndarray]
+            The examples' ids assignment.
+        """
+        ex_client = y.shape[0] // n
+        idx = permutation(y.shape[0])
+        return [idx[range(ex_client*i, ex_client*(i+1))] for i in range(n)]
+
+    def quantity_skew(self,
+                      y: Union[np.ndarray, torch.Tensor],
+                      n: int,
+                      min_quantity: int=2,
+                      alpha: float=4.) -> List[np.ndarray]:
+        """
+        Distribute the examples across the users according to the following probability density function:
+        $P(x; a) = a x^{a-1}$
+        where x is the id of a client (x in [0, n-1]), and a = `alpha` > 0 with
+        - alpha = 1  => examples are equidistributed across clients;
+        - alpha = 2  => the examples are "linearly" distributed across users;
+        - alpha >= 3 => the examples are power law distributed;
+        - alpha -> \infty => all users but one have `min_quantity` examples, and the remaining user all the rest.
+        Each client is guaranteed to have at least `min_quantity` examples.
+
+        Parameters
+        ----------
+        y: Union[np.ndarray, torch.Tensor]
+            The labels. Not used.
+        n: int
+            The number of clients upon which the examples are distributed.
+        min_quantity: int, default 2
+            The minimum quantity of examples to assign to each user.
+        alpha: float=4.
+            Hyper-parameter of the power law density function  $P(x; a) = a x^{a-1}$.
+
+        Returns
+        -------
+        List[np.ndarray]
+            The examples' ids assignment.
+        """
+        assert min_quantity*n <= y.shape[0], "# of instances must be > than min_quantity*n"
+        assert min_quantity > 0, "min_quantity must be >= 1"
+        s = np.array(power(alpha, y.shape[0] - min_quantity*n) * n, dtype=int)
+        m = np.array([[i] * min_quantity for i in range(n)]).flatten()
+        assignment = np.concatenate([s, m])
+        shuffle(assignment)
+        return [np.where(assignment == i)[0] for i in range(n)]
+
+    def classwise_quantity_skew(self,
+                                y: Union[np.ndarray, torch.Tensor],
+                                n: int,
+                                min_quantity: int=2,
+                                alpha: float=4.) -> List[np.ndarray]:
+        assert min_quantity*n <= y.shape[0], "# of instances must be > than min_quantity*n"
+        assert min_quantity > 0, "min_quantity must be >= 1"
+        labels = list(range(len(torch.unique(y).numpy())))
+        lens = [np.where(y == l)[0].shape[0] for l in labels]
+        min_lbl = min(lens)
+        assert min_lbl >= n, "Under represented class!"
+
+        s = [np.array(power(alpha, lens[c] - n) * n, dtype=int) for c in labels]
+        assignment = []
+        for c in labels:
+            ass = np.concatenate([s[c], list(range(n))])
+            shuffle(ass)
+            assignment.append(ass)
+
+        res = [[] for _ in range(n)]
+        for c in labels:
+            idc = np.where(y == c)[0]
+            for i in range(n):
+                res[i] += list(idc[np.where(assignment[c] == i)[0]])
+
+        return [np.array(r, dtype=int) for r in res]
+
+    def label_quantity_skew(self,
+                            y: Union[np.ndarray, torch.Tensor],
+                            n: int,
+                            class_per_client: int=2) -> List[np.ndarray]:
+        """
+        Suppose each party only has data samples of `class_per_client` (i.e., k) different labels.
+        We first randomly assign k different label IDs to each party. Then, for the samples of each
+        label, we randomly and equally divide them into the parties which own the label.
+        In this way, the number of labels in each party is fixed, and there is no overlap between
+        the samples of different parties.
+        See: https://arxiv.org/pdf/2102.02079.pdf
+
+        Parameters
+        ----------
+        y: Union[np.ndarray, torch.Tensor]
+            The lables.
+        n: int
+            The number of clients upon which the examples are distributed.
+        class_per_client: int, default 2
+            The number of different labels in each client.
+
+        Returns
+        -------
+        List[np.ndarray]
+            The examples' ids assignment.
+        """
+        labels = set(torch.unique(y).numpy())
+        assert 0 < class_per_client <= len(labels), "class_per_client must be > 0 and <= #classes"
+        assert class_per_client * n >= len(labels), "class_per_client * n must be >= #classes"
+        nlbl = [choice(len(labels), class_per_client, replace=False)  for u in range(n)]
+        check = set().union(*[set(a) for a in nlbl])
+        while len(check) < len(labels):
+            missing = labels - check
+            for m in missing:
+                nlbl[randint(0, n)][randint(0, class_per_client)] = m
+            check = set().union(*[set(a) for a in nlbl])
+        class_map = {c:[u for u, lbl in enumerate(nlbl) if c in lbl] for c in labels}
+        assignment = np.zeros(y.shape[0])
+        for lbl, users in class_map.items():
+            ids = np.where(y == lbl)[0]
+            assignment[ids] = choice(users, len(ids))
+        return [np.where(assignment == i)[0] for i in range(n)]
+
+    def label_dirichlet_skew(self,
+                             y: torch.Tensor,
+                             n: int,
+                             beta: float=.1) -> List[np.ndarray]:
+        """
+        The function samples p_k ~ Dir_n (beta) and allocate a p_{k,j} proportion of the instances of
+        class k to party j. Here Dir(_) denotes the Dirichlet distribution and beta is a
+        concentration parameter (beta > 0).
+        See: https://arxiv.org/pdf/2102.02079.pdf
+
+        Parameters
+        ----------
+        y: Union[np.ndarray, torch.Tensor]
+            The lables.
+        n: int
+            The number of clients upon which the examples are distributed.
+        beta: float, default .5
+            The beta parameter of the Dirichlet distribution, i.e., Dir(beta).
+
+        Returns
+        -------
+        List[np.ndarray]
+            The examples' ids assignment.
+        """
+        assert beta > 0, "beta must be > 0"
+        labels = set(torch.unique(y).numpy())
+        pk = {c: dirichlet([beta]*n, size=1)[0] for c in labels}
+        assignment = np.zeros(y.shape[0])
+        for c in labels:
+            ids = np.where(y == c)[0]
+            shuffle(ids)
+            shuffle(pk[c])
+            assignment[ids[n:]] = choice(n, size=len(ids)-n, p=pk[c])
+            assignment[ids[:n]] = list(range(n))
+
+        return [np.where(assignment == i)[0] for i in range(n)]
+
+    def label_pathological_skew(self,
+                                y: Union[np.ndarray, torch.Tensor],
+                                n: int,
+                                shards_per_client: int=2) -> List[np.ndarray]:
+        """
+        The function first sort the data by label, divide it into `n * shards_per_client` shards, and
+        assign each of n clients `shards_per_client` shards. This is a pathological non-IID partition
+        of the data, as most clients will only have examples of a limited number of classes.
+        See: http://proceedings.mlr.press/v54/mcmahan17a/mcmahan17a.pdf
+
+        Parameters
+        ----------
+        y: Union[np.ndarray, torch.Tensor]
+            The lables.
+        n: int
+            The number of clients upon which the examples are distributed.
+        shards_per_client: int, default 2
+            Number of shards per client.
+
+        Returns
+        -------
+        List[np.ndarray]
+            The examples' ids assignment.
+        """
+        sorted_ids = np.argsort(y)
+        n_shards = int(shards_per_client * n)
+        shard_size = int(np.ceil(len(y) / n_shards))
+        assignments = np.zeros(y.shape[0])
+        perm = permutation(n_shards)
+        j = 0
+        for i in range(n):
+            for _ in range(shards_per_client):
+                left = perm[j] * shard_size
+                right = min((perm[j]+1) * shard_size, len(y))
+                assignments[sorted_ids[left:right]] = i
+                j += 1
+        return [np.where(assignments == i)[0] for i in range(n)]
+
+
 class DataDispatcher():
     def __init__(self,
                  data_handler: DataHandler,
@@ -219,7 +432,7 @@ class DataDispatcher():
             self.te_assignments = [[] for _ in range(self.n)]
 
 
-    def assign(self, seed: int=42) -> None:
+    def assign(self, seed: Optional[int]=42) -> None:
         """Assign the data to the clients.
 
         The assignment is done by shuffling the data and assigning it uniformly to the clients.
@@ -230,19 +443,12 @@ class DataDispatcher():
             The seed for the random number generator.
         """
 
-        self.tr_assignments = [[] for _ in range(self.n)]
-        self.te_assignments = [[] for _ in range(self.n)]
-
-        torch.manual_seed(seed)
-        iperm = torch.randperm(self.data_handler.size()).tolist()
-
-        for i in range(self.data_handler.size()):
-            self.tr_assignments[i % self.n].append(iperm[i])
-        
+        assign_handler = AssignmentHandler(seed)
+        self.tr_assignments = assign_handler.uniform(self.data_handler.ytr, self.n)
         if self.eval_on_user:
-            iperm = torch.randperm(self.data_handler.eval_size()).tolist()
-            for i in range(self.data_handler.eval_size()):
-                self.te_assignments[i % self.n].append(iperm[i])
+            self.te_assignments = assign_handler.uniform(self.data_handler.yte, self.n)
+        else:
+            self.te_assignments = [[] for _ in range(self.n)]
 
 
     def __getitem__(self, idx: int) -> Any:

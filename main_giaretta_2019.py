@@ -27,7 +27,7 @@ y = 2*y - 1 #convert 0/1 labels to -1/1
 data_handler = ClassificationDataHandler(X, y, test_size=.1)
 
 data_dispatcher = DataDispatcher(data_handler, eval_on_user=False, auto_assign=True)
-topology = StaticP2PNetwork(data_dispatcher.size(), topology=nx.to_numpy_matrix(barabasi_albert_graph(data_handler.size(), 10)))
+topology = StaticP2PNetwork(data_dispatcher.size(), topology=nx.to_numpy_array(barabasi_albert_graph(data_handler.size(), 10)))
 
 nodes = GossipNode.generate(
     data_dispatcher=data_dispatcher,

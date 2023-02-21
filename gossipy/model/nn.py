@@ -172,3 +172,27 @@ class LogisticRegression(TorchModel):
     def __str__(self) -> str:
         return "LogisticRegression(in_size=%d, out_size=%d)" %(self.model.in_features,
                                                                self.model.out_features)
+
+class LinearRegression(TorchModel):
+    def __init__(self, input_dim: int, output_dim: int):
+        """Linear regression model.
+        
+        Implementation of the linear regression model.
+        
+        Parameters
+        ----------
+        input_dim : int
+            The number of input features.
+        output_dim : int
+            The number of output neurons.
+        """
+
+        super(LinearRegression, self).__init__()
+        self.model = torch.nn.Linear(input_dim, output_dim)
+
+    def forward(self, x):
+        return self.model(x)
+    
+    def __str__(self) -> str:
+        return "LinearRegression(in_size=%d, out_size=%d)" %(self.model.in_features,
+                                                             self.model.out_features)

@@ -627,3 +627,53 @@ class KMeansHandler(ModelHandler):
     
     def get_size(self) -> int:
         return self.k * self.dim
+
+
+class WeightedTMH(TorchModelHandler):
+
+    def __call__(self,
+                 recv_model: Any,
+                 data: Any,
+                 weights: Iterable[float]) -> None:
+        if self.mode == CreateModelMode.UPDATE:
+            recv_model._update(data)
+            self.model = copy.deepcopy(recv_model.model)
+            self.n_updates = recv_model.n_updates
+        elif self.mode == CreateModelMode.MERGE_UPDATE:
+            self._merge(recv_model, weights)
+            self._update(data)
+        elif self.mode == CreateModelMode.UPDATE_MERGE:
+            self._update(data)
+            if isinstance(recv_model, Iterable):
+                for rm in recv_model:
+                    rm._update(data)
+            else:
+                recv_model._update(data)
+            self._merge(recv_model, weights)
+        else:
+            raise ValueError("Invalid create model mode %s for WeightedTMH." %str(self.mode))
+            
+    def _merge(self, 
+               other_model_handler: Union[TorchModelHandler, Iterable[TorchModelHandler]],
+               weights: Iterable[float]) -> None:
+        
+        dict_params1 = self.model.state_dict()
+
+        if isinstance(other_model_handler, TorchModelHandler):
+            dicts_params2 = [other_model_handler.model.state_dict()]
+            n_up = other_model_handler.n_updates
+        else:
+            dicts_params2 = [omh.model.state_dict() for omh in other_model_handler]
+            n_up = max([omh.n_updates for omh in other_model_handler])
+
+        # Perform the average overall models including its weights
+        # CHECK: whether to allow the merging of the other models before the averaging 
+        for key in dict_params1:
+            dict_params1[key] *= weights[0]
+            for i, dict_params2 in enumerate(dicts_params2):
+                dict_params1[key] += dict_params2[key] * weights[i + 1]
+
+        self.model.load_state_dict(dict_params1)
+        # Gets the maximum number of updates from the merged models
+        self.n_updates = max(self.n_updates, n_up)
+
