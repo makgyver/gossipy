@@ -40,7 +40,7 @@ $ pip install gossipy-dfl
 - [ ] CMFL [[Che 2021]](#11)
 - [ ] MATCHA [[Wang 2019]](#6)
 - [ ] Add training stopping criterion
-- [ ] GPU support (quick fix)
+- [x] GPU support (quick fix)
 
 ### Extras
 

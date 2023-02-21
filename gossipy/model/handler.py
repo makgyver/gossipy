@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score, roc_auc_score, recall_score, f1_scor
 from sklearn.metrics.cluster import normalized_mutual_info_score as nmi
 from scipy.optimize import linear_sum_assignment as hungarian
 
-from .. import CACHE, LOG, CacheKey, Sizeable
+from .. import CACHE, LOG, CacheKey, GlobalSettings, Sizeable
 from ..core import CreateModelMode
 from . import TorchModel
 from .sampling import TorchModelPartition, TorchModelSampling
@@ -226,6 +226,8 @@ class TorchModelHandler(ModelHandler):
         assert (batch_size == 0 and local_epochs > 0) or (batch_size > 0)
         self.local_epochs = local_epochs
         self.batch_size = batch_size
+        self.device = GlobalSettings().get_device()
+        self.model = self.model.to(self.device)
 
     def init(self) -> None:
         self.model.init_weights()
@@ -246,6 +248,7 @@ class TorchModelHandler(ModelHandler):
     
     def _local_step(self, x:torch.Tensor, y:torch.Tensor) -> None:
         self.model.train()
+        x, y = x.to(self.device), y.to(self.device)
         y_pred = self.model(x)
         loss = self.criterion(y_pred, y)
         self.optimizer.zero_grad()
@@ -297,6 +300,7 @@ class TorchModelHandler(ModelHandler):
         """
 
         x, y = data
+        x, y = x.to(self.device), y.to(self.device)
         self.model.eval()
         scores = self.model(x)
 
@@ -493,6 +497,7 @@ class PartitionedTMH(TorchModelHandler):
     
     def _local_step(self, x:torch.Tensor, y:torch.Tensor) -> None:
         self.model.train()
+        x, y = x.to(self.device), y.to(self.device)
         self.n_updates += 1
         y_pred = self.model(x)
         loss = self.criterion(y_pred, y)
