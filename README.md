@@ -46,7 +46,8 @@ $ pip install gossipy-dfl
 - [ ] Add 'Weights and Biases' support
 
 
-## References
+## References (Implemented or partially implemented approaches)
+
 <a id="1">[Ormandi 2013]</a>
 Ormándi, Róbert, István Hegedüs, and Márk Jelasity. 'Gossip Learning with Linear Models on Fully Distributed Data'. Concurrency and Computation: Practice and Experience 25, no. 4 (February 2013): 556–571. https://doi.org/10.1002/cpe.2858.
 
@@ -64,14 +65,18 @@ Giaretta, Lodovico, and Sarunas Girdzijauskas. 'Gossip Learning: Off the Beaten 
 <a id="6">[Hegedus 2020]</a>
 Hegedűs, István, Gábor Danner, Peggy Cellier and Márk Jelasity. 'Decentralized Recommendation Based on Matrix Factorization: A Comparison of Gossip and Federated Learning'. In 2020 Joint European Conference on Machine Learning and Knowledge Discovery in Databases, 2020, pp. 317-332. https://doi.org/10.1007/978-3-030-43823-4_27.
 
-<a id="7">[Hegedus 2021]</a>
+<a id="7">[Koloskova 2020]</a>
+Anastasia Koloskova, Nicolas Loizou, Sadra Boreiri, Martin Jaggi, and Sebastian U. Stich. 'A unified theory of decentralized SGD with changing topology and local updates'. In Proceedings of the 37th International Conference on Machine Learning, pp. 5381–5393, 2020.
+
+<a id="8">[Hegedus 2021]</a>
 Hegedűs, István, Gábor Danner, and Márk Jelasity. 'Decentralized Learning Works: An Empirical Comparison of Gossip Learning and Federated Learning'. Journal of Parallel and Distributed Computing 148 (February 2021): 109–124. https://doi.org/10.1016/j.jpdc.2020.10.006.
 
-<a id="8">[Onoszko 2021]</a>
+<a id="9">[Onoszko 2021]</a>
 Noa Onoszko, Gustav Karlsson Olof Mogren, and Edvin Listo Zec. 'Decentralized federated learning of deep neural networks on non-iid data'. International Workshop on Federated Learning for User Privacy and Data Confidentiality in Conjunction with ICML 2021 (FL-ICML'21). https://fl-icml.github.io/2021/papers/FL-ICML21_paper_3.pdf
 
-<a id="9">[Che 2021]</a>
+<a id="10">[Che 2021]</a>
 Chunjiang Che, Xiaoli Li, Chuan Chen, Xiaoyu He, and Zibin Zheng. 'A Decentralized Federated Learning Framework via Committee Mechanism with Convergence Guarantee'. https://arxiv.org/pdf/2108.00365.pdf
 
-<a id="10">[Liu 2022]</a>
+<a id="11">[Liu 2022]</a>
 Wei Liu, Li Chen and Wenyi Zhang. 'Decentralized Federated Learning: Balancing Communication and Computing Costs'. https://arxiv.org/pdf/2107.12048.pdf
+
