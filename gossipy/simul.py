@@ -387,8 +387,9 @@ class GossipSimulator(SimulationEventSender):
 
         try:
             for t in pbar:
-                if t % self.delta == 0: shuffle(node_ids)
-                
+                if t % self.delta == 0: 
+                    shuffle(node_ids)
+                    
                 for i in node_ids:
                     node = self.nodes[i]
                     if node.timed_out(t):

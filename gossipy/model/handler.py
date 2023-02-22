@@ -227,12 +227,13 @@ class TorchModelHandler(ModelHandler):
         self.local_epochs = local_epochs
         self.batch_size = batch_size
         self.device = GlobalSettings().get_device()
-        self.model = self.model.to(self.device)
+        #self.model = self.model.to(self.device)
 
     def init(self) -> None:
         self.model.init_weights()
 
     def _update(self, data: Tuple[torch.Tensor, torch.Tensor]) -> None:
+        self.model = self.model.to(self.device)
         x, y = data
         batch_size = x.size(0) if not self.batch_size else self.batch_size
         if self.local_epochs > 0:
@@ -244,7 +245,7 @@ class TorchModelHandler(ModelHandler):
         else:
             perm = torch.randperm(x.size(0))
             self._local_step(x[perm][:batch_size], y[perm][:batch_size])
-        self.n_updates += 1
+        self.model = self.model.to("cpu")
     
     def _local_step(self, x:torch.Tensor, y:torch.Tensor) -> None:
         self.model.train()
@@ -254,6 +255,7 @@ class TorchModelHandler(ModelHandler):
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+        self.n_updates += 1
 
     def _merge(self, other_model_handler: Union[TorchModelHandler, Iterable[TorchModelHandler]]) -> None:
         dict_params1 = self.model.state_dict()
@@ -302,6 +304,7 @@ class TorchModelHandler(ModelHandler):
         x, y = data
         x, y = x.to(self.device), y.to(self.device)
         self.model.eval()
+        self.model = self.model.to(self.device)
         scores = self.model(x)
 
         if y.dim() == 1:
@@ -326,6 +329,8 @@ class TorchModelHandler(ModelHandler):
             else:
                 res["auc"] = 0.5
                 LOG.warning("# of classes != 2. AUC is set to 0.5.")
+        
+        self.model = self.model.to("cpu")
         return res
 
 
@@ -551,8 +556,8 @@ class MFModelHandler(ModelHandler):
             X = (1. - self.reg * self.lr) * X + self.lr * err * Y[i]
             b += self.lr * err
             c[i] += self.lr * err
+            self.n_updates += 1
         self.model = ((X, b), (Y, c))
-        self.n_updates += 1
 
     def _merge(self, other_model_handler: MFModelHandler) -> None:
         _, (Y1, c1) = other_model_handler.model

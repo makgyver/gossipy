@@ -305,7 +305,6 @@ class Cache():
             The value of the item. The value will be wrapped into a :class:`CacheItem` object before
             being stored in the cache.
         """
-
         if key not in self._cache:
             self._cache[key] = CacheItem(value)
         else:
@@ -373,6 +372,9 @@ class Cache():
     
     def __str__(self) -> str:
         return str(self._cache)
+    
+    def __len__(self) -> int:
+        return len(self._cache)
 
 
 CACHE = Cache()

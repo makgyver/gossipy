@@ -1,5 +1,4 @@
 import networkx as nx
-from networkx.generators.trees import random_tree
 from networkx.generators import barabasi_albert_graph
 from gossipy import set_seed
 from gossipy.core import AntiEntropyProtocol, CreateModelMode, StaticP2PNetwork
