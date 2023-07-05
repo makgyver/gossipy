@@ -2,14 +2,14 @@ import networkx as nx
 from networkx.generators import random_regular_graph
 import torch
 from torch.nn.modules.loss import CrossEntropyLoss
-from gossipy import set_seed
+from gossipy import GlobalSettings, set_seed
 from gossipy.core import AntiEntropyProtocol, CreateModelMode, StaticP2PNetwork, UniformMixing
-from gossipy.node import All2AllGossipNode, GossipNode
-from gossipy.model.handler import PegasosHandler, WeightedTMH
-from gossipy.model.nn import AdaLine, LogisticRegression
+from gossipy.node import All2AllGossipNode
+from gossipy.model.handler import WeightedTMH
+from gossipy.model.nn import LogisticRegression
 from gossipy.data import load_classification_dataset, DataDispatcher
 from gossipy.data.handler import ClassificationDataHandler
-from gossipy.simul import All2AllGossipSimulator, GossipSimulator, SimulationReport
+from gossipy.simul import All2AllGossipSimulator, SimulationReport
 from gossipy.utils import plot_evaluation
 
 # AUTHORSHIP
@@ -23,6 +23,7 @@ __status__ = "Development"
 #
 
 set_seed(98765)
+#GlobalSettings().set_device("mps")
 X, y = load_classification_dataset("spambase", as_tensor=True)
 data_handler = ClassificationDataHandler(X, y, test_size=.1)
 dispatcher = DataDispatcher(data_handler, n=100, eval_on_user=False, auto_assign=True)

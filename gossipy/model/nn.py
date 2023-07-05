@@ -20,7 +20,7 @@ __status__ = "Development"
 __all__ = ["TorchPerceptron",
            "TorchMLP",
            "AdaLine",
-           "Pegasos",
+           #"Pegasos",
            "LogisticRegression"]
 
 class TorchPerceptron(TorchModel):
@@ -163,7 +163,7 @@ class LogisticRegression(TorchModel):
 
     # docstr-coverage:inherited
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.model(x)
+        return torch.sigmoid(self.model(x))
     
     # docstr-coverage:inherited
     def init_weights(self) -> None:

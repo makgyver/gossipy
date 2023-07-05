@@ -295,14 +295,14 @@ class PassThroughNode(GossipNode):
         r"""Node implementing the pass-through gossiping protocol.
         
         This type of (gossiping) node has been introdued in cite:p:`Giaretta et al. 2019`.
-        This pass-through approach consist in making some nodes (in particular hub nodes
+        This pass-through approach consists in making some nodes (in particular hub nodes)
         "bridges" between (low-degree) nodes. This should allow the low-degree nodes to indirectly 
         gossip each other and thus hiding the possible power-law structure of the network. 
         In practice, when node :math:`j` receives a message from :math:`i`, it only performs the 
         merge and update steps with probability :math:`p(i, j) = \min(1, d_i/d_j)` where :math:`d_i`
         and :math:`d_j` are the degrees of :math:`i` and :math:`j`, respectively. Thus, if the 
         sender has lower degree than the receiver, there is a chance the receiver might save 
-        the received model as its current model and later propagate it, without going through the
+        the received model as its current model and later propagates it, without going through the
         usual update and merge operations. 
 
         Parameters
