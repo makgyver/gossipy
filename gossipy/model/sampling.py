@@ -8,7 +8,7 @@ from typing import Dict, Tuple, Optional
 from torch.nn import ParameterList
 
 from .. import LOG
-from gossipy.model.nn import TorchModel
+from .nn import TorchModel
 
 # AUTHORSHIP
 __version__ = "0.0.1"
