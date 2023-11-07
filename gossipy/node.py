@@ -103,6 +103,9 @@ class GossipNode():
         """
 
         peers = self.p2p_net.get_peers(self.idx)
+        if not peers:
+            LOG.warning("Node %d has no peers.", self.idx)
+            return None
         return random.choice(peers) if peers else choice_not_n(0, self.p2p_net.size(), self.idx)
         
     def timed_out(self, t: int) -> bool:
@@ -737,6 +740,8 @@ class PENSNode(GossipNode):
     def get_peer(self) -> int:
         if self.step == 1 or not self.best_nodes:
             peer = super().get_peer()
+            if peer is None:
+                return None
             if self.step == 1:
                 self.selected[peer] += 1
             return peer

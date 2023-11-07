@@ -395,6 +395,8 @@ class GossipSimulator(SimulationEventSender):
                     if node.timed_out(t):
 
                         peer = node.get_peer()
+                        if peer is None:
+                            break
                         msg = node.send(t, peer, self.protocol)
                         self.notify_message(False, msg)
                         if msg:
@@ -599,6 +601,8 @@ class TokenizedGossipSimulator(GossipSimulator):
                     if node.timed_out(t):
                         if random() < self.accounts[i].proactive():
                             peer = node.get_peer()
+                            if peer is None:
+                                break
                             msg = node.send(t, peer, self.protocol)
                             self.notify_message(False, msg)
                             if msg: 
@@ -632,6 +636,8 @@ class TokenizedGossipSimulator(GossipSimulator):
                                 self.accounts[msg.receiver].sub(reaction)
                                 for _ in range(reaction):
                                     peer = node.get_peer()
+                                    if peer is None:
+                                        break
                                     msg = node.send(t, peer, self.protocol)
                                     self.notify_message(False, msg)
                                     if msg: 

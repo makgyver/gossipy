@@ -339,8 +339,8 @@ class P2PNetwork(ABC):
                 for node in range(num_nodes):
                     self._topology[node] = list(topology.getrow(node).nonzero()[-1])
         else:
-            #self._topology = {i: None for i in range(num_nodes)}
-            self._topology = defaultdict(lambda: range(num_nodes))
+            self._topology = {i: [j for j in range(num_nodes) if j != i] for i in range(num_nodes)}
+            # self._topology = defaultdict(lambda: range(num_nodes))
 
     # docstr-coverage:inherited
     def size(self, node: Optional[int]=None) -> int:
