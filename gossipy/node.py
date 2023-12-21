@@ -5,7 +5,7 @@ from numpy.random import randint, normal, rand
 from numpy import ndarray
 from torch import Tensor
 from typing import Any, Optional, Union, Dict, Tuple, Iterable
-from gossipy.data import DataDispatcher
+from .data import DataDispatcher
 
 from . import CACHE, LOG
 from .core import AntiEntropyProtocol, CreateModelMode, MessageType, Message, P2PNetwork
