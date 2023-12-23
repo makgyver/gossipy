@@ -687,3 +687,54 @@ class WeightedTMH(TorchModelHandler):
         # Gets the maximum number of updates from the merged models
         self.n_updates = max(self.n_updates, n_up)
 
+class LimitedMergeMixin():
+
+    def __init__(self, age_diff_threshold: int=1):
+        self.L = age_diff_threshold
+
+    def _merge(self, other_model_handler: Union[TorchModelHandler, Iterable[TorchModelHandler]]) -> None:
+        dict_params1 = self.model.state_dict()
+        
+        if isinstance(other_model_handler, TorchModelHandler):
+            dict_params2 = other_model_handler.model.state_dict()
+            n_up = other_model_handler.n_updates
+        else:
+            raise ValueError("Invalid type for other_model_handler: %s" %type(other_model_handler))
+
+        if self.n_updates > n_up + self.L:
+            self.model.load_state_dict(dict_params1)
+        elif n_up > self.n_updates + self.L:
+            self.model.load_state_dict(dict_params2)
+        else:
+            div = self.n_updates + n_up
+            for key in dict_params1:
+                dict_params1[key] = (self.n_updates / div) * dict_params1[key] + (n_up / div) * dict_params2[key]
+
+            self.model.load_state_dict(dict_params1)
+        
+        self.n_updates = max(self.n_updates, n_up) 
+
+
+# Danner et al. Improving Gossip Learning via Limited Model Merging (ICCCI 2023)
+class LimitedMergeTMH(LimitedMergeMixin, TorchModelHandler):
+    def __init__(self,
+                 net: TorchModel,
+                 optimizer: torch.optim.Optimizer,
+                 optimizer_params: Dict[str, Any],
+                 criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
+                 local_epochs: int=1,
+                 batch_size: int=32,
+                 create_model_mode: CreateModelMode=CreateModelMode.MERGE_UPDATE,
+                 age_diff_threshold: int=1,
+                 copy_model=True):
+        LimitedMergeMixin.__init__(self, age_diff_threshold)
+        TorchModelHandler.__init__(self, 
+                                   net, 
+                                   optimizer, 
+                                   optimizer_params, 
+                                   criterion, 
+                                   local_epochs, 
+                                   batch_size, 
+                                   create_model_mode, 
+                                   copy_model)
+    
