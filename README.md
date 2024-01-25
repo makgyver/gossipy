@@ -21,6 +21,9 @@
 # gossipy 
 Python module for simulating gossip learning and decentralized federated learning.
 
+## Documentation
+The documentation is available at https://makgyver.github.io/gossipy/
+
 ## Install
 **gossipy** is available as a [PyPI](https://pypi.org) module and it can be installed using `pip`:
 
