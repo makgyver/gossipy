@@ -15,6 +15,7 @@ from torch import Tensor, tensor
 from sklearn import datasets
 from sklearn.datasets import load_svmlight_file
 from sklearn.preprocessing import StandardScaler, LabelEncoder
+import random
 
 from .. import LOG
 from ..utils import download_and_unzip, download_and_untar
@@ -166,6 +167,7 @@ class AssignmentHandler():
     def __init__(self, seed: int):
         torch.manual_seed(seed)
         np.random.seed(seed)
+        random.seed(seed)
     
     def uniform(self,
                 y: Union[np.ndarray, torch.Tensor],
@@ -378,7 +380,8 @@ class DataDispatcher():
                  data_handler: DataHandler,
                  n: int=0, #number of clients
                  eval_on_user: bool=True,
-                 auto_assign: bool=True):
+                 auto_assign: bool=True,
+                 seed: int = 42):
         """DataDispatcher is responsible for assigning data to clients.
 
         The assignment is done by shuffling the data and assigning it uniformly to the clients.
@@ -405,7 +408,7 @@ class DataDispatcher():
         self.tr_assignments = None
         self.te_assignments = None
         if auto_assign:
-            self.assign()
+            self.assign(seed)
     
     def set_assignments(self, tr_assignments: List[int],
                               te_assignments: Optional[List[int]]) -> None:
